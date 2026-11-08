@@ -20,6 +20,8 @@ func _ready() -> void:
     add_child(enemy)
     enemy.global_position = Vector3(0.0, 1.0, -4.0)
     player.set("target", enemy)
+    GameState.apply_to_player(player)
+    player.stats_changed.connect(GameState.update_player_snapshot)
 
     var hud := CanvasLayer.new()
     hud.name = "MobileHUD"
