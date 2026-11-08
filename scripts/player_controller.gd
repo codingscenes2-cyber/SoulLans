@@ -71,7 +71,7 @@ func _physics_process(delta: float) -> void:
         look_direction.y = 0.0
         if look_direction.length() > 0.1:
             rotation.y = lerp_angle(rotation.y, atan2(-look_direction.x, -look_direction.z), 10.0 * delta)
-            camera_yaw = rotation.y
+            camera_yaw = atan2(-look_direction.x, -look_direction.z) - rotation.y
 
     if not is_on_floor():
         velocity.y -= 24.0 * delta
