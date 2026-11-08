@@ -8,6 +8,9 @@ signal stats_changed(health: float, stamina: float)
 @export var max_health := 100.0
 @export var max_stamina := 100.0
 @export var attack_damage := 25.0
+@export var look_sensitivity := 0.006
+@export var min_camera_pitch := -0.75
+@export var max_camera_pitch := 0.35
 
 var health := 100.0
 var stamina := 100.0
@@ -18,6 +21,9 @@ var dodge_timer := 0.0
 var attack_cooldown := 0.0
 var dodge_direction := Vector3.FORWARD
 var locked_on := false
+var camera_yaw := 0.0
+var camera_pitch := -0.12
+var invulnerability_timer := 0.0
 
 func _ready() -> void:
     add_to_group("player")
@@ -30,7 +36,9 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
     attack_cooldown = maxf(0.0, attack_cooldown - delta)
     dodge_timer = maxf(0.0, dodge_timer - delta)
+    invulnerability_timer = maxf(0.0, invulnerability_timer - delta)
     stamina = minf(max_stamina, stamina + 17.0 * delta)
+
     if Input.is_action_just_pressed("dodge"):
         perform_dodge()
     if Input.is_action_just_pressed("attack"):
@@ -49,8 +57,9 @@ func _physics_process(delta: float) -> void:
         velocity.x = dodge_direction.x * dodge_speed
         velocity.z = dodge_direction.z * dodge_speed
     else:
-        var speed := sprint_speed if Input.is_action_pressed("sprint") and stamina > 1.0 else move_speed
-        if Input.is_action_pressed("sprint") and direction.length() > 0.1:
+        var sprinting := Input.is_action_pressed("sprint") and stamina > 1.0 and direction.length() > 0.1
+        var speed := sprint_speed if sprinting else move_speed
+        if sprinting:
             stamina = maxf(0.0, stamina - 12.0 * delta)
         velocity.x = direction.x * speed
         velocity.z = direction.z * speed
@@ -62,6 +71,7 @@ func _physics_process(delta: float) -> void:
         look_direction.y = 0.0
         if look_direction.length() > 0.1:
             rotation.y = lerp_angle(rotation.y, atan2(-look_direction.x, -look_direction.z), 10.0 * delta)
+            camera_yaw = rotation.y
 
     if not is_on_floor():
         velocity.y -= 24.0 * delta
@@ -70,6 +80,13 @@ func _physics_process(delta: float) -> void:
     move_and_slide()
     _update_camera()
     stats_changed.emit(health, stamina)
+
+func add_camera_look(relative_motion: Vector2) -> void:
+    if locked_on:
+        return
+    camera_yaw -= relative_motion.x * look_sensitivity
+    camera_pitch = clampf(camera_pitch - relative_motion.y * look_sensitivity, min_camera_pitch, max_camera_pitch)
+    _update_camera()
 
 func perform_dodge() -> void:
     if stamina < 25.0 or dodge_timer > 0.0:
@@ -86,6 +103,7 @@ func perform_dodge() -> void:
         right.y = 0.0
         dodge_direction = (right.normalized() * input_vector.x - forward.normalized() * input_vector.y).normalized()
     dodge_timer = 0.36
+    invulnerability_timer = 0.22
 
 func perform_attack() -> void:
     if attack_cooldown > 0.0 or stamina < 12.0:
@@ -97,6 +115,8 @@ func perform_attack() -> void:
             target.take_damage(attack_damage)
 
 func take_damage(amount: float) -> void:
+    if invulnerability_timer > 0.0:
+        return
     health = maxf(0.0, health - amount)
 
 func get_status() -> Dictionary:
@@ -134,13 +154,12 @@ func _create_camera_rig() -> void:
     camera = Camera3D.new()
     camera.current = true
     spring.add_child(camera)
+    _update_camera()
 
 func _update_camera() -> void:
-    if locked_on and is_instance_valid(target):
-        var to_target := target.global_position - global_position
-        camera_pivot.rotation.y = atan2(-to_target.x, -to_target.z)
-    else:
-        camera_pivot.rotation.y = rotation.y
+    if not is_instance_valid(camera_pivot):
+        return
+    camera_pivot.rotation = Vector3(camera_pitch, camera_yaw, 0.0)
 
 func _setup_input_map() -> void:
     _ensure_key_action("move_forward", KEY_W)
