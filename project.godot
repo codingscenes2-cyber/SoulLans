@@ -1,0 +1,20 @@
+config_version=5
+
+[application]
+config/name="SOUL LAND: THE FALLEN REALM"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+
+[display]
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/handheld/orientation=1
+window/stretch/mode="canvas_items"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.025, 0.025, 0.035, 1.0)
+
+[physics]
+3d/default_gravity=9.8
