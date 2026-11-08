@@ -89,7 +89,7 @@ func _face_player(delta: float) -> void:
     var direction := player.global_position - global_position
     direction.y = 0.0
     if direction.length() > 0.05:
-        var desired_yaw := atan2(direction.x, direction.z)
+        var desired_yaw := atan2(-direction.x, -direction.z)
         rotation.y = lerp_angle(rotation.y, desired_yaw, 8.0 * delta)
 
 func _stop_horizontal_motion(delta: float) -> void:
