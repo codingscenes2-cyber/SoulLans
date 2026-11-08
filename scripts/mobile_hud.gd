@@ -30,13 +30,13 @@ func _add_button(parent: Control, caption: String, offset: Vector2, action: Stri
     var button := Button.new()
     button.text = caption
     button.size = button_size
+    button.anchor_top = 1.0
+    button.anchor_bottom = 1.0
     if right_side:
         button.anchor_left = 1.0
         button.anchor_right = 1.0
         button.position = offset
     else:
-        button.anchor_top = 1.0
-        button.anchor_bottom = 1.0
         button.position = Vector2(25.0 + offset.x, offset.y)
     button.add_theme_font_size_override("font_size", 16)
     parent.add_child(button)
