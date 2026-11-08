@@ -19,6 +19,9 @@ var camera: Camera3D
 var camera_pivot: Node3D
 var dodge_timer := 0.0
 var attack_cooldown := 0.0
+var attack_windup := 0.0
+var attack_active_timer := 0.0
+var attack_has_hit := false
 var dodge_direction := Vector3.FORWARD
 var locked_on := false
 var camera_yaw := 0.0
@@ -35,6 +38,16 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
     attack_cooldown = maxf(0.0, attack_cooldown - delta)
+    if attack_windup > 0.0:
+        attack_windup -= delta
+        if attack_windup <= 0.0:
+            attack_active_timer = 0.11
+            attack_has_hit = false
+    if attack_active_timer > 0.0:
+        attack_active_timer = maxf(0.0, attack_active_timer - delta)
+        if not attack_has_hit:
+            _resolve_melee_hit()
+            attack_has_hit = true
     dodge_timer = maxf(0.0, dodge_timer - delta)
     invulnerability_timer = maxf(0.0, invulnerability_timer - delta)
     stamina = minf(max_stamina, stamina + 17.0 * delta)
@@ -106,13 +119,30 @@ func perform_dodge() -> void:
     invulnerability_timer = 0.22
 
 func perform_attack() -> void:
-    if attack_cooldown > 0.0 or stamina < 12.0:
+    if attack_cooldown > 0.0 or stamina < 12.0 or dodge_timer > 0.0:
         return
     stamina -= 12.0
     attack_cooldown = 0.65
-    if is_instance_valid(target) and global_position.distance_to(target.global_position) <= 2.5:
-        if target.has_method("take_damage"):
-            target.take_damage(attack_damage)
+    attack_windup = 0.13
+
+func _resolve_melee_hit() -> void:
+    var hit_shape := SphereShape3D.new()
+    hit_shape.radius = 0.95
+    var query := PhysicsShapeQueryParameters3D.new()
+    query.shape = hit_shape
+    query.transform = Transform3D(
+        Basis.IDENTITY,
+        global_position - global_transform.basis.z * 1.25 + Vector3.UP * 1.0
+    )
+    query.collision_mask = 1
+    query.collide_with_bodies = true
+    query.collide_with_areas = false
+    query.exclude = [get_rid()]
+    var hits := get_world_3d().direct_space_state.intersect_shape(query, 8)
+    for hit in hits:
+        var collider: Object = hit.get("collider")
+        if is_instance_valid(collider) and collider.has_method("take_damage"):
+            collider.take_damage(attack_damage)
 
 func take_damage(amount: float) -> void:
     if invulnerability_timer > 0.0:
