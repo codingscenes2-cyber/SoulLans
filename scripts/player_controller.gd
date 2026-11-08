@@ -149,6 +149,11 @@ func take_damage(amount: float) -> void:
         return
     health = maxf(0.0, health - amount)
 
+func apply_saved_state(saved: Dictionary) -> void:
+    health = clampf(float(saved.get("health", max_health)), 0.0, max_health)
+    stamina = clampf(float(saved.get("stamina", max_stamina)), 0.0, max_stamina)
+    stats_changed.emit(health, stamina)
+
 func get_status() -> Dictionary:
     return {"health": health, "max_health": max_health, "stamina": stamina, "max_stamina": max_stamina}
 
