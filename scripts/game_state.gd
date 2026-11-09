@@ -33,6 +33,7 @@ var data: Dictionary = {
     "equipment": {"weapon": "ashen_iron_sword", "head": "scout_hood", "chest": "watch_coat", "legs": "road_greaves"},
     "weapon_upgrades": {},
     "inventory_initialized": false,
+    "armor_initialized": false,
     "discovered_areas": [],
     "defeated_bosses": [],
     "quest_flags": {},
@@ -58,7 +59,7 @@ func _ensure_starter_inventory() -> void:
     var items: Array = data.get("inventory", [])
     var changed := false
     if not bool(data.get("inventory_initialized", false)):
-        for starter_id in ["ashen_iron_sword", "ashen_watch_dagger", "ashen_tonic", "scout_hood", "watch_coat", "road_greaves"]:
+        for starter_id in ["ashen_iron_sword", "ashen_watch_dagger", "ashen_tonic"]:
             if get_item_count(starter_id) <= 0:
                 items.append({"id": starter_id, "quantity": 2 if starter_id == "ashen_tonic" else 1})
                 changed = true
@@ -66,6 +67,18 @@ func _ensure_starter_inventory() -> void:
         changed = true
     data["inventory"] = items
     var equipment: Dictionary = data.get("equipment", {})
+    if not bool(data.get("armor_initialized", false)):
+        for armor_id in ["scout_hood", "watch_coat", "road_greaves"]:
+            if get_item_count(armor_id) <= 0:
+                items.append({"id": armor_id, "quantity": 1})
+                changed = true
+            var armor_slot := str(get_item_info(armor_id).get("slot", ""))
+            if str(equipment.get(armor_slot, "")).is_empty():
+                equipment[armor_slot] = armor_id
+                changed = true
+        data["inventory"] = items
+        data["armor_initialized"] = true
+        changed = true
     var equipped_id := str(equipment.get("weapon", ""))
     var equipped_info := get_item_info(equipped_id)
     if str(equipped_info.get("type", "")) != "weapon" or get_item_count(equipped_id) <= 0:
