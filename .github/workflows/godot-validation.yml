@@ -26,10 +26,13 @@ jobs:
           curl -fL --retry 3 "https://raw.githubusercontent.com/Barbatos6669/elderforge/bb2ce469f0ab2ccfc487faef55550ba07fae2483/assets/animations/universal_animation_library_1/UAL1_Standard.glb" -o assets/animations/UAL1_Standard.glb
           curl -fL --retry 3 "https://raw.githubusercontent.com/Barbatos6669/elderforge/bb2ce469f0ab2ccfc487faef55550ba07fae2483/assets/animations/universal_animation_library_1/LICENSE_Quaternius_CC0.txt" -o assets/animations/LICENSE_Quaternius_CC0.txt
           test "$(stat -c %s assets/animations/UAL1_Standard.glb)" -eq 7618436
+          curl -fL --retry 3 "https://raw.githubusercontent.com/Barbatos6669/elderforge/bb2ce469f0ab2ccfc487faef55550ba07fae2483/assets/animations/universal_animation_library_2/UAL2_Standard.glb" -o assets/animations/UAL2_Standard.glb
+          curl -fL --retry 3 "https://raw.githubusercontent.com/Barbatos6669/elderforge/bb2ce469f0ab2ccfc487faef55550ba07fae2483/assets/animations/universal_animation_library_2/LICENSE_Quaternius_CC0.txt" -o assets/animations/LICENSE_Quaternius_CC0_2.txt
+          test "$(stat -c %s assets/animations/UAL2_Standard.glb)" -eq 8091444
       - name: Merge CC0 humanoid locomotion and combat animations
         run: |
           npm install --no-save @gltf-transform/core@4.2.1 @gltf-transform/extensions@4.2.1
-          node tools/merge_animations.mjs assets/characters/ashen_hero.glb assets/animations/UAL1_Standard.glb assets/characters/ashen_hero_animated.glb
+          node tools/merge_animations.mjs assets/characters/ashen_hero.glb assets/characters/ashen_hero_animated.glb assets/animations/UAL1_Standard.glb assets/animations/UAL2_Standard.glb
       - name: Import project and validate scripts
         run: godot --headless --editor --path . --quit
       - name: Launch main scene headlessly
