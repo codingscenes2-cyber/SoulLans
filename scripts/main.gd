@@ -15,6 +15,7 @@ var recovery_visual: MeshInstance3D
 func _ready() -> void:
     _build_environment()
     _build_arena()
+    _build_ashen_approach()
     _build_sanctuary()
     _build_recovery_marker()
     player = CharacterBody3D.new()
@@ -181,3 +182,97 @@ func _build_arena() -> void:
         add_child(pillar)
         var angle := TAU * float(index) / 8.0
         pillar.position = Vector3(cos(angle) * 10.0, 1.25, sin(angle) * 10.0)
+
+
+# A compact, connected first-region route: arena -> broken gate -> Ashen Road
+# -> ruined outer courtyard -> sealed throne-road gate. All gameplay geometry
+# is generated from primitives so the slice stays lightweight on Android.
+func _build_ashen_approach() -> void:
+    _add_box_structure("AshenRoad", Vector3(0.0, -0.5, -35.0), Vector3(12.0, 1.0, 42.0), Color(0.13, 0.12, 0.13), true)
+    _add_box_structure("RoadWestRetainingWall", Vector3(-6.7, 1.0, -35.0), Vector3(0.7, 3.0, 42.0), Color(0.19, 0.18, 0.19), true)
+    _add_box_structure("RoadEastRetainingWall", Vector3(6.7, 1.0, -35.0), Vector3(0.7, 3.0, 42.0), Color(0.19, 0.18, 0.19), true)
+
+    # Broken gate frames the transition out of the training arena.
+    _add_box_structure("BrokenGateWest", Vector3(-5.0, 2.0, -16.0), Vector3(1.2, 4.0, 1.2), Color(0.24, 0.21, 0.2), true)
+    _add_box_structure("BrokenGateEast", Vector3(5.0, 2.0, -16.0), Vector3(1.2, 4.0, 1.2), Color(0.24, 0.21, 0.2), true)
+    _add_box_structure("BrokenGateLintel", Vector3(0.0, 4.0, -16.0), Vector3(10.0, 0.8, 1.2), Color(0.22, 0.2, 0.2), true)
+
+    # Roadside rubble gives cover and readable silhouettes without blocking the lane.
+    _add_box_structure("WestCollapsedMasonry", Vector3(-4.2, 0.55, -27.0), Vector3(2.4, 1.1, 2.0), Color(0.22, 0.2, 0.19), true)
+    _add_box_structure("EastBrokenPillarBase", Vector3(4.1, 0.7, -39.0), Vector3(1.7, 1.4, 1.7), Color(0.25, 0.22, 0.2), true)
+    _add_box_structure("RoadsideStoneMarker", Vector3(-4.6, 1.0, -47.0), Vector3(0.9, 2.0, 0.9), Color(0.28, 0.25, 0.22), true)
+
+    # Outer courtyard joins the road and creates room for a future authored encounter.
+    _add_box_structure("OuterCourtyard", Vector3(0.0, -0.5, -57.0), Vector3(24.0, 1.0, 18.0), Color(0.15, 0.14, 0.15), true)
+    _add_box_structure("CourtyardWestWall", Vector3(-12.2, 1.1, -57.0), Vector3(0.8, 3.2, 18.0), Color(0.2, 0.18, 0.18), true)
+    _add_box_structure("CourtyardEastWall", Vector3(12.2, 1.1, -57.0), Vector3(0.8, 3.2, 18.0), Color(0.2, 0.18, 0.18), true)
+    _add_box_structure("CourtyardNorthWall", Vector3(0.0, 1.1, -66.2), Vector3(24.0, 3.2, 0.8), Color(0.2, 0.18, 0.18), true)
+
+    # A sealed monumental gate is a visible destination, not a fake open exit.
+    _add_box_structure("ThroneRoadGateLeft", Vector3(-3.6, 3.0, -65.4), Vector3(1.0, 6.0, 1.0), Color(0.28, 0.22, 0.19), true)
+    _add_box_structure("ThroneRoadGateRight", Vector3(3.6, 3.0, -65.4), Vector3(1.0, 6.0, 1.0), Color(0.28, 0.22, 0.19), true)
+    _add_box_structure("ThroneRoadGateHeader", Vector3(0.0, 5.8, -65.4), Vector3(8.2, 1.2, 1.0), Color(0.28, 0.22, 0.19), true)
+    _add_box_structure("ThroneRoadSealedDoor", Vector3(0.0, 2.7, -65.4), Vector3(6.0, 5.2, 0.65), Color(0.12, 0.1, 0.12), true)
+
+    _add_ashen_lantern(Vector3(-4.8, 0.0, -22.0))
+    _add_ashen_lantern(Vector3(4.8, 0.0, -43.0))
+    _add_ashen_lantern(Vector3(-8.8, 0.0, -59.0))
+    _add_ashen_lantern(Vector3(8.8, 0.0, -59.0))
+
+func _add_box_structure(node_name: String, center: Vector3, dimensions: Vector3, tint: Color, solid: bool) -> void:
+    var root: Node3D
+    if solid:
+        var body := StaticBody3D.new()
+        body.name = node_name
+        body.position = center
+        add_child(body)
+        root = body
+        var collision := CollisionShape3D.new()
+        var shape := BoxShape3D.new()
+        shape.size = dimensions
+        collision.shape = shape
+        body.add_child(collision)
+    else:
+        var visual_root := Node3D.new()
+        visual_root.name = node_name
+        visual_root.position = center
+        add_child(visual_root)
+        root = visual_root
+    var mesh_instance := MeshInstance3D.new()
+    var box := BoxMesh.new()
+    box.size = dimensions
+    mesh_instance.mesh = box
+    var material := StandardMaterial3D.new()
+    material.albedo_color = tint
+    material.roughness = 0.95
+    mesh_instance.material_override = material
+    root.add_child(mesh_instance)
+
+func _add_ashen_lantern(position: Vector3) -> void:
+    var post := MeshInstance3D.new()
+    post.name = "AshenRoadLanternPost"
+    var post_mesh := CylinderMesh.new()
+    post_mesh.top_radius = 0.12
+    post_mesh.bottom_radius = 0.18
+    post_mesh.height = 2.2
+    post.mesh = post_mesh
+    post.position = position + Vector3.UP * 1.1
+    var iron := StandardMaterial3D.new()
+    iron.albedo_color = Color(0.12, 0.13, 0.15)
+    iron.metallic = 0.65
+    post.material_override = iron
+    add_child(post)
+
+    var flame := MeshInstance3D.new()
+    var orb := SphereMesh.new()
+    orb.radius = 0.2
+    orb.height = 0.4
+    flame.mesh = orb
+    flame.position = position + Vector3.UP * 2.35
+    var glow := StandardMaterial3D.new()
+    glow.albedo_color = Color(0.95, 0.42, 0.12)
+    glow.emission_enabled = true
+    glow.emission = Color(0.9, 0.22, 0.04)
+    glow.emission_energy_multiplier = 1.6
+    flame.material_override = glow
+    add_child(flame)
