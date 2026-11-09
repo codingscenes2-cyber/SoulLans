@@ -203,6 +203,7 @@ func _record_defeat() -> void:
     var flags: Dictionary = GameState.data.get("world_flags", {})
     flags["ashen_regent_defeated"] = true
     GameState.data["world_flags"] = flags
+    GameState.add_item("regent_core", 1)
     GameState.save_game()
     boss_defeated.emit()
 
