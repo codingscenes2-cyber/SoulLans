@@ -13,20 +13,26 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 
 ## 1. Player controller and camera
 - [x] Basic third-person movement and gravity.
-- [x] Basic sprint and stamina drain.- [x] Stamina regeneration delay after sprint, dodge and attacks.
+- [x] Basic sprint and stamina drain.
+- [x] Stamina regeneration delay after sprint, dodge and attacks.
 - [x] Basic dodge action and stamina cost.
 - [x] Basic melee prototype with startup/active timing and a physics overlap query.
-- [x] Touch camera drag and on-screen directional movement buttons.- [ ] Replace directional buttons with a proper virtual joystick.
+- [x] Touch camera drag and analog virtual joystick prototype.
 - [ ] Camera collision, sensitivity and lock-on target switching.
 - [ ] Jump, fall, landing and traversal.
 - [ ] Animation-driven locomotion and combat state integration.
 
 ## 2. Combat foundation
-- [x] WeaponData resource schema with Ashen Iron Sword and Ashen Watch Dagger definitions; light attack reads damage, stamina cost, range and timing.- [x] Prototype weapon cycling on desktop Q and the mobile weapon button.- [ ] Weapon-specific movesets, equipment UI and weapon switching.
-- [x] Basic light-attack startup/active timing and physics hit query.- [ ] Add weapon-specific animation-driven hit windows and full attack families.
+- [x] WeaponData resource schema with Ashen Iron Sword and Ashen Watch Dagger definitions; light attack reads damage, stamina cost, range and timing.
+- [x] Prototype weapon cycling on desktop Q and the mobile weapon button.
+- [ ] Weapon-specific movesets, equipment UI and weapon switching.
+- [x] Basic light-attack startup/active timing and physics hit query.
+- [ ] Add weapon-specific animation-driven hit windows and full attack families.
 - [ ] Light, heavy, charged, sprint and jump attacks.
-- [x] Prototype dodge invulnerability window.- [ ] Backstep, block, guard break and parry.
-- [ ] Riposte, backstab and hyperarmour.\n- [x] Enemy poise and stagger response prototype.
+- [x] Prototype dodge invulnerability window.
+- [ ] Backstep, block, guard break and parry.
+- [ ] Riposte, backstab and hyperarmour.
+- [x] Enemy poise and stagger response prototype.
 - [ ] Damage types, resistances and status effects.
 - [ ] Combat feedback, hit-stop, sound and VFX.
 
@@ -43,7 +49,8 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Basic training enemy chase and attack prototype.
 - [x] Training enemy state machine: idle, patrol, investigate, chase, windup, recovery, stagger and death.
 - [x] NavigationAgent3D path query integration with direct-steering fallback; bake a NavigationRegion3D before relying on pathfinding.
-- [x] Training enemy telegraphed attack wind-up and recovery.- [ ] Telegraph-based attack selection for varied enemy archetypes.
+- [x] Training enemy telegraphed attack wind-up and recovery.
+- [ ] Telegraph-based attack selection for varied enemy archetypes.
 - [ ] Group encounters, ranged enemies, elites and mini-bosses.
 - [ ] Boss framework with phase data, arena boundaries and rewards.
 
@@ -51,19 +58,24 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Graybox route, combat spaces and traversal landmarks.
 - [ ] Finished art pass for one compact region.
 - [ ] Three regular enemy archetypes and one elite.
-- [x] Prototype Sanctuary checkpoint, rest, death/respawn and Soul Essence recovery loop.- [x] Enemy reset-on-rest prototype.\n- [ ] World persistence rules and full checkpoint playtest.
+- [x] Prototype Sanctuary checkpoint, rest, death/respawn and Soul Essence recovery loop.
+- [x] Enemy reset-on-rest prototype.
+- [ ] World persistence rules and full checkpoint playtest.
 - [ ] One NPC, dialogue system and branching quest.
 - [ ] One multi-phase region boss.
 - [ ] Playtest, difficulty tuning and performance budget.
 
 ## 6. RPG systems
 - [ ] Character creation and eight starting classes.
-- [x] Vigor, Endurance, Strength and Dexterity attributes with Sanctuary-only Soul Essence levelling and weapon scaling.\n- [ ] Intelligence, Faith, Arcana and Mind.
-- [x] Soul Essence reward, death-drop and recovery prototype.- [x] Soul Essence level-up cost curve and attribute spending prototype.
+- [x] Vigor, Endurance, Strength and Dexterity attributes with Sanctuary-only Soul Essence levelling and weapon scaling.
+- [ ] Intelligence, Faith, Arcana and Mind.
+- [x] Soul Essence reward, death-drop and recovery prototype.
+- [x] Soul Essence level-up cost curve and attribute spending prototype.
 - [ ] Inventory, equipment, equip load and consumables.
 - [ ] Weapon/armour upgrades, infusions, relics and talismans.
 - [ ] Spell schools, focus resource and status effects.
-- [x] Versioned JSON save/load foundation for player/world state with periodic autosave.- [ ] Add backup/restore, corruption recovery and full persistence tests.
+- [x] Versioned JSON save/load foundation for player/world state with periodic autosave.
+- [ ] Add backup/restore, corruption recovery and full persistence tests.
 
 ## 7. World, story and content
 - [ ] Lore bible and narrative state graph.
