@@ -20,6 +20,7 @@ func _ready() -> void:
     _add_button(root, "DODGE", Vector2(-265, -78), "dodge", Vector2(104, 62), true)
     _add_button(root, "LOCK", Vector2(-142, -258), "lock_on", Vector2(96, 54), true)
     _add_button(root, "REST / USE", Vector2(-270, -258), "interact", Vector2(112, 54), true)
+    _add_button(root, "WEAPON", Vector2(-142, -350), "switch_weapon", Vector2(96, 52), true)
     _add_button(root, "↑", Vector2(92, -192), "move_forward", Vector2(58, 58), false)
     _add_button(root, "↓", Vector2(92, -66), "move_back", Vector2(58, 58), false)
     _add_button(root, "←", Vector2(28, -129), "move_left", Vector2(58, 58), false)
@@ -32,6 +33,8 @@ func _process(_delta: float) -> void:
         status_label.text = "SOUL LAND   HP %d/%d   STAMINA %d/%d   SOUL ESSENCE %d" % [
             int(data.health), int(data.max_health), int(data.stamina), int(data.max_stamina), GameState.get_soul_essence()
         ]
+        if player.has_method("get_weapon_name"):
+            status_label.text += "   " + player.get_weapon_name()
 
 func _on_root_gui_input(event: InputEvent) -> void:
     if event is InputEventScreenDrag:
