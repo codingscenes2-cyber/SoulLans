@@ -1,6 +1,7 @@
 extends SceneTree
 
 const BOSS_SCRIPT = preload("res://scripts/ashen_regent.gd")
+const WARDEN_SCRIPT = preload("res://scripts/warden_eira.gd")
 
 var failures: Array[String] = []
 
@@ -21,11 +22,24 @@ func _run() -> void:
     boss.take_damage(100.0)
     _expect(is_equal_approx(boss.health, initial_health), "dormant boss cannot be damaged")
 
-    var flags: Dictionary = GameState.data.get("world_flags", {})
-    flags["ashen_regent_unlocked"] = true
-    GameState.data["world_flags"] = flags
+    GameState.data["quests"] = {
+        "ashen_sigils": {
+            "status": "completed",
+            "progress": 3,
+            "target": 3,
+            "reward": 120,
+            "reward_claimed": true
+        }
+    }
+    var warden: Variant = StaticBody3D.new()
+    warden.set_script(WARDEN_SCRIPT)
+    root.add_child(warden)
+    await process_frame
+    var warden_message: String = warden.interact()
+    _expect(warden_message.contains("Ashen Regent"), "Warden reveals the regional boss after quest completion")
     await physics_frame
-    _expect(bool(boss.get_boss_status().get("active", false)), "boss activates after quest unlock")
+    _expect(bool(boss.get_boss_status().get("active", false)), "boss activates through Warden interaction")
+    warden.queue_free()
 
     boss.health = boss.max_health * 0.59
     boss._update_phase()
