@@ -171,8 +171,14 @@ func add_camera_look(relative_motion: Vector2) -> void:
     _update_camera()
 
 func perform_dodge() -> void:
+    # Recovery is cancellable; wind-up and active strike are committed.
     if stamina < 25.0 or dodge_timer > 0.0 or is_blocking:
         return
+    if attack_windup > 0.0 or attack_active_timer > 0.0:
+        return
+    if attack_cooldown > 0.0:
+        attack_cooldown = 0.0
+        attack_movement_multiplier = 1.0
     stamina -= 25.0
     stamina_regen_timer = stamina_regen_delay
     var input_vector := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
