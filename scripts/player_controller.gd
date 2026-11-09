@@ -348,24 +348,49 @@ func get_status() -> Dictionary:
     return {"health": health, "max_health": max_health, "stamina": stamina, "max_stamina": max_stamina, "level": GameState.get_player_level(), "soul_essence": GameState.get_soul_essence(), "next_level_cost": GameState.get_next_level_cost(), "healing_flasks": GameState.get_healing_flasks(), "max_healing_flasks": GameState.get_max_healing_flasks()}
 
 func _create_placeholder_body() -> void:
-    var visual := MeshInstance3D.new()
-    var capsule := CapsuleMesh.new()
-    capsule.radius = 0.4
-    capsule.height = 1.8
-    visual.mesh = capsule
-    visual.position.y = 0.9
-    var material := StandardMaterial3D.new()
-    material.albedo_color = Color(0.28, 0.32, 0.38)
-    material.metallic = 0.2
-    visual.material_override = material
-    add_child(visual)
+    # Load the licensed humanoid when the asset pipeline has supplied it.
+    # Keep a collision capsule for predictable mobile combat physics.
+    var model_path := "res://assets/characters/ashen_hero.glb"
+    var model_loaded := false
+    if ResourceLoader.exists(model_path):
+        var model_scene := load(model_path) as PackedScene
+        if model_scene != null:
+            var hero_rig := model_scene.instantiate()
+            hero_rig.name = "AshenHeroRig"
+            hero_rig.position = Vector3.ZERO
+            hero_rig.scale = Vector3.ONE
+            add_child(hero_rig)
+            _apply_hero_material(hero_rig)
+            model_loaded = true
+    if not model_loaded:
+        var visual := MeshInstance3D.new()
+        var capsule := CapsuleMesh.new()
+        capsule.radius = 0.4
+        capsule.height = 1.8
+        visual.mesh = capsule
+        visual.position.y = 0.9
+        var material := StandardMaterial3D.new()
+        material.albedo_color = Color(0.28, 0.32, 0.38)
+        material.metallic = 0.2
+        visual.material_override = material
+        add_child(visual)
     var collision := CollisionShape3D.new()
     var shape := CapsuleShape3D.new()
-    shape.radius = 0.4
-    shape.height = 1.8
+    shape.radius = 0.38
+    shape.height = 1.78
     collision.shape = shape
-    collision.position.y = 0.9
+    collision.position.y = 0.89
     add_child(collision)
+
+func _apply_hero_material(root: Node) -> void:
+    var armor_material := StandardMaterial3D.new()
+    armor_material.albedo_color = Color(0.16, 0.19, 0.24)
+    armor_material.metallic = 0.48
+    armor_material.roughness = 0.62
+    for child in root.get_children():
+        if child is MeshInstance3D:
+            child.material_override = armor_material
+        _apply_hero_material(child)
 
 func _create_camera_rig() -> void:
     camera_pivot = Node3D.new()
