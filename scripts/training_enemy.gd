@@ -34,6 +34,8 @@ var enemy_animation_player: AnimationPlayer
 var enemy_weapon_attachment: BoneAttachment3D
 var current_enemy_animation := ""
 var navigation_agent: NavigationAgent3D
+var hit_flash_timer := 0.0
+var hit_flash_restore_color := Color(0.34, 0.16, 0.14)
 
 func _ready() -> void:
     add_to_group("enemies")
@@ -60,6 +62,7 @@ func _physics_process(delta: float) -> void:
         player = get_tree().get_first_node_in_group("player")
     state_timer = maxf(0.0, state_timer - delta)
     idle_timer = maxf(0.0, idle_timer - delta)
+    _update_hit_flash(delta)
 
     var distance := INF
     if is_instance_valid(player):
@@ -188,6 +191,7 @@ func receive_parry() -> void:
 func take_damage(amount: float, poise_damage: float = 12.0) -> void:
     if state == State.DEAD or amount <= 0.0:
         return
+    _flash_hit()
     health = maxf(0.0, health - amount)
     poise = maxf(0.0, poise - poise_damage)
     if health <= 0.0:
@@ -221,8 +225,19 @@ func _set_telegraph(active: bool) -> void:
         enemy_material.albedo_color = Color(0.9, 0.22, 0.08) if active else Color(0.42, 0.13, 0.11)
 
 func _flash_hit() -> void:
-    if is_instance_valid(enemy_material):
-        enemy_material.albedo_color = Color(0.95, 0.75, 0.35)
+    if not is_instance_valid(enemy_material):
+        return
+    if hit_flash_timer <= 0.0:
+        hit_flash_restore_color = enemy_material.albedo_color
+    hit_flash_timer = 0.12
+    enemy_material.albedo_color = Color(1.0, 0.82, 0.48)
+
+func _update_hit_flash(delta: float) -> void:
+    if hit_flash_timer <= 0.0:
+        return
+    hit_flash_timer = maxf(0.0, hit_flash_timer - delta)
+    if hit_flash_timer <= 0.0 and is_instance_valid(enemy_material):
+        enemy_material.albedo_color = hit_flash_restore_color
 
 func _create_placeholder_enemy() -> void:
     enemy_material = StandardMaterial3D.new()
