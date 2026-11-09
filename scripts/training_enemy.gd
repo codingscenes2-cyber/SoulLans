@@ -46,6 +46,8 @@ func _ready() -> void:
     add_to_group("enemies")
     health = max_health
     poise = max_poise
+    current_attack_damage = attack_damage
+    current_attack_range = attack_range
     patrol_origin = global_position
     patrol_target = patrol_origin
     player = get_tree().get_first_node_in_group("player")
