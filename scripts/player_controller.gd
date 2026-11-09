@@ -244,8 +244,14 @@ func switch_weapon() -> void:
     var next_index := (current_index + 1) % owned.size()
     equip_weapon_by_id(owned[next_index])
 
+func is_near_blacksmith() -> bool:
+    for candidate in get_tree().get_nodes_in_group("blacksmiths"):
+        if is_instance_valid(candidate) and candidate is Node3D and global_position.distance_to(candidate.global_position) <= 3.5:
+            return true
+    return false
+
 func upgrade_weapon_by_id(item_id: String) -> bool:
-    if global_position.distance_to(GameState.get_sanctuary_position()) > 3.0:
+    if not is_near_blacksmith():
         return false
     if not GameState.upgrade_weapon(item_id):
         return false
