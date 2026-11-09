@@ -51,6 +51,16 @@ func _run() -> void:
     _expect(state.get_player_level() == 4 and int(state.get_player_attributes()["vigor"]) == 11, "level-up increments level and attribute")
     _expect(state.get_soul_essence() == 0, "level-up deducts essence")
 
+    _expect(state.start_quest("ashen_sigils", 3, 120), "quest can be accepted once")
+    _expect(not state.start_quest("ashen_sigils", 3, 120), "active quest cannot be accepted twice")
+    _expect(state.advance_quest("ashen_sigils"), "quest objective records first defeat")
+    _expect(int(state.get_quest_state("ashen_sigils").get("progress", 0)) == 1, "quest progress persists after first defeat")
+    _expect(state.advance_quest("ashen_sigils", 2), "quest accepts multiple objective increments")
+    _expect(str(state.get_quest_state("ashen_sigils").get("status", "")) == "completed", "quest completes at its target")
+    _expect(state.get_soul_essence() == 120, "quest completion grants its reward")
+    _expect(not state.advance_quest("ashen_sigils"), "completed quest cannot be progressed or rewarded again")
+    _expect(state.get_soul_essence() == 120, "quest reward cannot be claimed twice")
+
     state.free()
     _remove_test_files()
     if failures.is_empty():
