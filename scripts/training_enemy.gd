@@ -4,6 +4,7 @@ enum State { IDLE, CHASE, WINDUP, RECOVERY, DEAD }
 
 @export var max_health := 120.0
 @export var attack_damage := 10.0
+@export var soul_reward := 20
 @export var detection_range := 9.0
 @export var attack_range := 2.0
 @export var chase_speed := 2.1
@@ -81,6 +82,7 @@ func take_damage(amount: float) -> void:
     health = maxf(0.0, health - amount)
     if health <= 0.0:
         state = State.DEAD
+        GameState.award_soul_essence(soul_reward)
         queue_free()
 
 func _face_player(delta: float) -> void:
