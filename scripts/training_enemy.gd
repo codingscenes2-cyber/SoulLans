@@ -147,6 +147,16 @@ func _choose_patrol_target() -> void:
     patrol_target = patrol_origin + Vector3(cos(angle) * radius, 0.0, sin(angle) * radius)
     _set_navigation_target(patrol_target)
 
+func receive_parry() -> void:
+    if state == State.DEAD:
+        return
+    state = State.STAGGER
+    state_timer = stagger_duration * 1.8
+    poise = max_poise
+    velocity = Vector3.ZERO
+    _set_telegraph(false)
+    _flash_hit()
+
 func take_damage(amount: float, poise_damage: float = 12.0) -> void:
     if state == State.DEAD or amount <= 0.0:
         return
