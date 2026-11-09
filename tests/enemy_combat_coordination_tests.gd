@@ -67,5 +67,11 @@ func _run() -> void:
         quit(1)
         return
 
-    print("PASS: enemy groups coordinate a primary attack lane and distinct melee/ranged flank positions")
+    enemies[0].state = enemies[0].State.DEAD
+    if enemies[1]._get_group_rank() != 0 or not enemies[1]._should_begin_attack(1.5):
+        push_error("The next closest living enemy must take over the primary attack lane when the leader dies.")
+        quit(1)
+        return
+
+    print("PASS: enemy groups coordinate attack lanes, distinct flanks and primary-attacker handoff")
     quit(0)
