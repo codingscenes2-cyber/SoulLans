@@ -1,7 +1,11 @@
 extends Node
 
+signal recovery_changed(position: Vector3, essence: int, active: bool)
+signal sanctuary_restored(position: Vector3)
+
 const SAVE_PATH := "user://soul_land_save.json"
-const SAVE_VERSION := 1
+const SAVE_VERSION := 2
+const RECOVERY_RADIUS := 2.6
 
 var data: Dictionary = {
     "version": SAVE_VERSION,
@@ -11,7 +15,11 @@ var data: Dictionary = {
     "discovered_areas": [],
     "defeated_bosses": [],
     "quest_flags": {},
-    "world_flags": {}
+    "world_flags": {},
+    "sanctuary_position": [0.0, 1.05, 6.0],
+    "dropped_essence": 0,
+    "recovery_position": [0.0, 0.0, 0.0],
+    "has_recovery": false
 }
 
 func _ready() -> void:
@@ -31,6 +39,61 @@ func award_soul_essence(amount: int) -> void:
     var player_data: Dictionary = data.get("player", {})
     player_data["soul_essence"] = maxi(0, int(player_data.get("soul_essence", 0)) + amount)
     data["player"] = player_data
+
+func get_soul_essence() -> int:
+    return int(data.get("player", {}).get("soul_essence", 0))
+
+func get_sanctuary_position() -> Vector3:
+    var stored: Array = data.get("sanctuary_position", [0.0, 1.05, 6.0])
+    return Vector3(float(stored[0]), float(stored[1]), float(stored[2]))
+
+func rest_at_sanctuary(position: Vector3, player: Node) -> void:
+    data["sanctuary_position"] = [position.x, position.y, position.z]
+    set_player_location("ashen_kingdom_training_ground")
+    if is_instance_valid(player) and player.has_method("restore_at_sanctuary"):
+        player.restore_at_sanctuary()
+    sanctuary_restored.emit(position)
+    save_game()
+
+func register_player_death(death_position: Vector3) -> void:
+    var lost := get_soul_essence()
+    if lost > 0:
+        data["dropped_essence"] = lost
+        data["recovery_position"] = [death_position.x, death_position.y, death_position.z]
+        data["has_recovery"] = true
+        recovery_changed.emit(death_position, lost, true)
+    var player_data: Dictionary = data.get("player", {})
+    player_data["soul_essence"] = 0
+    player_data["health"] = 100.0
+    player_data["stamina"] = 100.0
+    data["player"] = player_data
+    save_game()
+
+func try_recover_souls(player_position: Vector3) -> bool:
+    if not bool(data.get("has_recovery", false)):
+        return false
+    var stored: Array = data.get("recovery_position", [0.0, 0.0, 0.0])
+    var dropped_position := Vector3(float(stored[0]), float(stored[1]), float(stored[2]))
+    if player_position.distance_to(dropped_position) > RECOVERY_RADIUS:
+        return false
+    var player_data: Dictionary = data.get("player", {})
+    player_data["soul_essence"] = int(player_data.get("soul_essence", 0)) + int(data.get("dropped_essence", 0))
+    data["player"] = player_data
+    data["dropped_essence"] = 0
+    data["has_recovery"] = false
+    recovery_changed.emit(Vector3.ZERO, 0, false)
+    save_game()
+    return true
+
+func get_recovery_position() -> Vector3:
+    var stored: Array = data.get("recovery_position", [0.0, 0.0, 0.0])
+    return Vector3(float(stored[0]), float(stored[1]), float(stored[2]))
+
+func has_recovery() -> bool:
+    return bool(data.get("has_recovery", false))
+
+func get_dropped_essence() -> int:
+    return int(data.get("dropped_essence", 0))
 
 func set_player_location(location_id: String) -> void:
     data["location"] = location_id
@@ -54,6 +117,10 @@ func mark_boss_defeated(boss_id: String) -> void:
     if not bosses.has(boss_id):
         bosses.append(boss_id)
     data["defeated_bosses"] = bosses
+    save_game()
+
+func is_boss_defeated(boss_id: String) -> bool:
+    return data.get("defeated_bosses", []).has(boss_id)
 
 func save_game() -> bool:
     data["version"] = SAVE_VERSION
@@ -78,10 +145,12 @@ func load_game() -> bool:
         push_error("SOUL LAND save is invalid JSON or has an unsupported structure.")
         return false
     var loaded: Dictionary = parsed
-    if int(loaded.get("version", 0)) != SAVE_VERSION:
-        push_warning("SOUL LAND save version mismatch; starting with defaults.")
+    var version := int(loaded.get("version", 0))
+    if version < 1 or version > SAVE_VERSION:
+        push_warning("SOUL LAND save version is unsupported; starting with defaults.")
         return false
-    data = loaded
+    data.merge(loaded, true)
+    data["version"] = SAVE_VERSION
     return true
 
 func _notification(what: int) -> void:
