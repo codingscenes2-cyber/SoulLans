@@ -12,7 +12,7 @@ var autosave_timer := 0.0
 
 var data: Dictionary = {
     "version": SAVE_VERSION,
-    "player": {"health": 100.0, "stamina": 100.0, "level": 1, "soul_essence": 0},
+    "player": {"health": 100.0, "stamina": 100.0, "level": 1, "soul_essence": 0, "attributes": {"vigor": 10, "endurance": 10, "strength": 10, "dexterity": 10}},
     "location": "ashen_kingdom_training_ground",
     "inventory": [],
     "discovered_areas": [],
@@ -52,6 +52,37 @@ func award_soul_essence(amount: int) -> void:
 
 func get_soul_essence() -> int:
     return int(data.get("player", {}).get("soul_essence", 0))
+
+func get_player_level() -> int:
+    return int(data.get("player", {}).get("level", 1))
+
+func get_player_attributes() -> Dictionary:
+    var player_data: Dictionary = data.get("player", {})
+    var attributes: Dictionary = player_data.get("attributes", {})
+    var defaults := {"vigor": 10, "endurance": 10, "strength": 10, "dexterity": 10}
+    defaults.merge(attributes, true)
+    return defaults
+
+func get_next_level_cost() -> int:
+    return 100 + maxi(0, get_player_level() - 1) * 50
+
+func level_up_attribute(attribute_id: String) -> bool:
+    var allowed := ["vigor", "endurance", "strength", "dexterity"]
+    if not allowed.has(attribute_id):
+        return false
+    var cost := get_next_level_cost()
+    if get_soul_essence() < cost:
+        return false
+    var player_data: Dictionary = data.get("player", {})
+    var attributes: Dictionary = get_player_attributes()
+    attributes[attribute_id] = int(attributes.get(attribute_id, 10)) + 1
+    player_data["attributes"] = attributes
+    player_data["level"] = get_player_level() + 1
+    player_data["soul_essence"] = get_soul_essence() - cost
+    data["player"] = player_data
+    save_game()
+    return true
+
 
 func get_sanctuary_position() -> Vector3:
     var stored: Array = data.get("sanctuary_position", [0.0, 1.05, 6.0])
