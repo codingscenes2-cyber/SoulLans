@@ -263,7 +263,7 @@ func _refresh_armor_stats() -> void:
     var armor: Dictionary = GameState.get_armor_stats()
     armor_defense = maxf(0.0, float(armor.get("defense", 0.0)))
     equip_load = maxf(0.0, float(armor.get("weight", 0.0)))
-    equip_load_tier = "light" if equip_load <= 4.0 else ("medium" if equip_load <= 8.0 else "heavy")
+    equip_load_tier = "light" if equip_load <= 6.0 else ("medium" if equip_load <= 12.0 else "heavy")
 
 func get_movement_load_multiplier() -> float:
     match equip_load_tier:
