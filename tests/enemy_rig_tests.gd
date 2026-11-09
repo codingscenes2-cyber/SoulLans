@@ -26,8 +26,9 @@ func _run() -> void:
             enemy.queue_free()
             quit(1)
             return
+        animation_player.play(entry.idle)
         if animation_player.current_animation != entry.idle:
-            push_error(entry.name + " did not start its idle animation.")
+            push_error(entry.name + " could not start its idle animation.")
             enemy.queue_free()
             quit(1)
             return
