@@ -653,6 +653,15 @@ func _attach_armor_visuals(hero_rig: Node) -> void:
                 selected_bone = candidate
                 break
         if selected_bone.is_empty():
+            for bone_index in range(skeleton.get_bone_count()):
+                var bone_name := skeleton.get_bone_name(bone_index)
+                var normalized := bone_name.to_lower().replace("mixamorig:", "").replace("_", "")
+                var matches_slot := (slot == "head" and normalized.contains("head")) or (slot == "chest" and (normalized.contains("spine") or normalized.contains("chest"))) or (slot == "legs" and (normalized.contains("hips") or normalized.contains("pelvis")))
+                if matches_slot:
+                    selected_bone = bone_name
+                    if slot != "chest" or normalized.ends_with("2") or normalized.ends_with("03"):
+                        break
+        if selected_bone.is_empty():
             continue
         var attachment := BoneAttachment3D.new()
         attachment.name = "Armor_%s_Attachment" % slot.capitalize()
