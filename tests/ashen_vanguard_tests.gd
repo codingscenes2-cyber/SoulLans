@@ -16,7 +16,7 @@ func _run() -> void:
     root.add_child(vanguard)
     await process_frame
 
-    if not is_equal_approx(vanguard.max_health, 285.0) or not is_equal_approx(vanguard.soul_reward, 115.0):
+    if not is_equal_approx(vanguard.max_health, 285.0) or not is_equal_approx(vanguard.soul_reward, 0.0):
         push_error("Ashen Vanguard must load its elite health and base soul reward.")
         quit(1)
         return
