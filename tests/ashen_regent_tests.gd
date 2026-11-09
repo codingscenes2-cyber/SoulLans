@@ -47,6 +47,9 @@ func _run() -> void:
     boss.call("_update_phase")
     _expect(int(boss.call("get_boss_status").get("phase", 0)) == 2, "boss enters phase two below 60 percent health")
     _expect(is_equal_approx(float(boss.get("attack_damage")), 27.0), "phase two increases attack damage")
+    boss.set("special_attack_windup", 0.75)
+    boss.call("receive_parry")
+    _expect(is_equal_approx(float(boss.get("special_attack_windup")), 0.0), "a timed parry interrupts the boss slam windup")
 
     boss.set("health", float(boss.get("max_health")) * 0.24)
     boss.call("_update_phase")
