@@ -44,7 +44,6 @@ jobs:
           fi
           echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
           export ANDROID_HOME="$SDK_ROOT"
-          yes | sdkmanager --licenses
           sdkmanager --install \
             "platform-tools" \
             "build-tools;34.0.0" \
