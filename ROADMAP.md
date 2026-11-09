@@ -13,7 +13,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 
 ## 1. Player controller and camera
 - [x] Basic third-person movement and gravity.
-- [x] Basic sprint and stamina drain.
+- [x] Basic sprint and stamina drain.\n- [x] Stamina regeneration delay after sprint, dodge and attacks.
 - [x] Basic dodge action and stamina cost.
 - [x] Basic melee prototype with startup/active timing and a physics overlap query.
 - [x] Touch camera drag and on-screen directional movement buttons.\n- [ ] Replace directional buttons with a proper virtual joystick.
