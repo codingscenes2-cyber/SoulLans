@@ -27,8 +27,10 @@ var idle_timer := 0.0
 var patrol_origin := Vector3.ZERO
 var patrol_target := Vector3.ZERO
 var last_known_player_position := Vector3.ZERO
-var enemy_visual: MeshInstance3D
+var enemy_visual: Node3D
 var enemy_material: StandardMaterial3D
+var enemy_animation_player: AnimationPlayer
+var current_enemy_animation := ""
 var navigation_agent: NavigationAgent3D
 
 func _ready() -> void:
@@ -116,6 +118,7 @@ func _physics_process(delta: float) -> void:
     else:
         velocity.y = -0.5
     move_and_slide()
+    _update_enemy_animation()
 
 func _move_toward_point(point: Vector3, speed: float, delta: float) -> bool:
     var destination := point
@@ -197,16 +200,36 @@ func _flash_hit() -> void:
         enemy_material.albedo_color = Color(0.95, 0.75, 0.35)
 
 func _create_placeholder_enemy() -> void:
-    enemy_visual = MeshInstance3D.new()
-    var capsule := CapsuleMesh.new()
-    capsule.radius = 0.45
-    capsule.height = 1.9
-    enemy_visual.mesh = capsule
-    enemy_visual.position.y = 0.95
     enemy_material = StandardMaterial3D.new()
-    enemy_material.albedo_color = Color(0.42, 0.13, 0.11)
-    enemy_visual.material_override = enemy_material
-    add_child(enemy_visual)
+    enemy_material.albedo_color = Color(0.34, 0.16, 0.14)
+    enemy_material.metallic = 0.16
+    enemy_material.roughness = 0.78
+
+    var model_path := "res://assets/characters/ashen_hero_animated.glb"
+    if ResourceLoader.exists(model_path):
+        var packed := load(model_path) as PackedScene
+        if packed != null:
+            enemy_visual = packed.instantiate() as Node3D
+            if enemy_visual != null:
+                enemy_visual.name = "AshenHollowRig"
+                enemy_visual.scale = Vector3.ONE
+                _apply_enemy_material(enemy_visual)
+                add_child(enemy_visual)
+                enemy_animation_player = _find_enemy_animation_player(enemy_visual)
+                if is_instance_valid(enemy_animation_player) and enemy_animation_player.has_animation("Zombie_Idle"):
+                    enemy_animation_player.play("Zombie_Idle")
+                    current_enemy_animation = "Zombie_Idle"
+
+    if not is_instance_valid(enemy_visual):
+        var fallback := MeshInstance3D.new()
+        var capsule := CapsuleMesh.new()
+        capsule.radius = 0.45
+        capsule.height = 1.9
+        fallback.mesh = capsule
+        fallback.position.y = 0.95
+        fallback.material_override = enemy_material
+        add_child(fallback)
+        enemy_visual = fallback
 
     var collision := CollisionShape3D.new()
     var shape := CapsuleShape3D.new()
@@ -215,3 +238,41 @@ func _create_placeholder_enemy() -> void:
     collision.shape = shape
     collision.position.y = 0.95
     add_child(collision)
+
+func _apply_enemy_material(node: Node) -> void:
+    for child in node.get_children():
+        if child is MeshInstance3D and child.mesh != null:
+            child.material_override = enemy_material
+        _apply_enemy_material(child)
+
+func _find_enemy_animation_player(node: Node) -> AnimationPlayer:
+    if node is AnimationPlayer:
+        return node
+    for child in node.get_children():
+        var found := _find_enemy_animation_player(child)
+        if found != null:
+            return found
+    return null
+
+func _update_enemy_animation() -> void:
+    if not is_instance_valid(enemy_animation_player):
+        return
+    var desired := "Zombie_Idle"
+    match state:
+        State.PATROL, State.INVESTIGATE:
+            desired = "Zombie_Walk_Fwd"
+        State.CHASE:
+            desired = "Jog_Fwd"
+        State.WINDUP:
+            desired = "Sword_Attack"
+        State.RECOVERY:
+            desired = "Sword_Idle"
+        State.STAGGER:
+            desired = "Hit_Chest"
+        State.DEAD:
+            desired = "Death01"
+    if desired == current_enemy_animation:
+        return
+    if enemy_animation_player.has_animation(desired):
+        enemy_animation_player.play(desired, 0.16)
+        current_enemy_animation = desired
