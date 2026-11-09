@@ -41,7 +41,9 @@ func _physics_process(delta: float) -> void:
     if _is_defeated():
         if state != State.DEAD:
             state = State.DEAD
-            death_timer = 0.0
+            death_timer = 1.65
+        death_timer = maxf(0.0, death_timer - delta)
+        if death_timer <= 0.0:
             queue_free()
         return
     encounter_active = _is_unlocked()
