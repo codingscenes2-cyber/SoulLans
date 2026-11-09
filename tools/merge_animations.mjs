@@ -74,7 +74,7 @@ for (const animation of animationRoot.listAnimations()) {
   if (clipCopied > 0) copiedClips++;
 }
 
-const required = ['Idle', 'Walk', 'Jog_Fwd', 'Sprint', 'Jump', 'Jump_Land', 'Roll', 'Sword_Attack', 'Sword_Idle', 'Death01', 'Hit_Chest'];
+const required = ['Idle_Loop', 'Walk_Loop', 'Jog_Fwd_Loop', 'Sprint_Loop', 'Jump_Start', 'Jump_Loop', 'Jump_Land', 'Roll', 'Sword_Attack', 'Sword_Idle', 'Death01', 'Hit_Chest'];
 const names = new Set(characterRoot.listAnimations().map(animation => animation.getName()));
 const missing = required.filter(name => !names.has(name));
 console.log(JSON.stringify({ mappedNodes: mappedNodes.size, sourceChannels, copiedChannels, unmappedTargetNames: [...unmappedTargets].slice(0, 30), perClip: perClip.slice(0, 12), animationNames: [...names] }, null, 2));
