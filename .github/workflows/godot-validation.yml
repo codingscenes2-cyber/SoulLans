@@ -45,5 +45,7 @@ jobs:
         run: godot --headless --path . --script res://tests/enemy_rig_tests.gd
       - name: Run Shield Guard combat regression tests
         run: godot --headless --path . --script res://tests/shield_guard_tests.gd
+      - name: Run enemy attack arc regression tests
+        run: godot --headless --path . --script res://tests/enemy_attack_arc_tests.gd
       - name: Run save-system regression tests
         run: godot --headless --path . --script res://tests/game_state_tests.gd
