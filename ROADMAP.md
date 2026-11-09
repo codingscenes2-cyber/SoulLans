@@ -48,7 +48,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Merge and validate 85 Quaternius UAL1 + UAL2 clips (16,575 animation channels) onto the hero rig with name-matched GLB pipeline.
 - [x] Drive player idle, jog, sprint, roll, sword attack, guard and death clips from gameplay state using cross-faded AnimationPlayer transitions.
 - [ ] Replace AnimationPlayer state switching with a tuned AnimationTree blend graph and weapon-specific layered animation.
-- [ ] Replace enemy capsule stand-ins with distinct rigged enemy models. Hero rig and right-hand weapon attachment are integrated; equipped head/chest/leg armour now creates bone-attached visual meshes with reinforcement-tier trim. Character asset CI test added; visual fit and Android animation checks pending.
+- [ ] Replace enemy capsule stand-ins with distinct rigged enemy models. Shared animated humanoid rig is now used by Hollow, Shield Guard and Ember Archer; Guard has layered iron helm/breastplate/pauldrons and shield, Archer has ash hood/mantle/quiver and bow. Hero has right-hand weapon plus bone-attached head/chest/leg armour with reinforcement-tier trim. Enemy visual identity regression checks added; in-game fit and Android animation QA pending.
 - [x] Replace stretched noise ground with CC0 PBR concrete ground and rock-wall materials.
 - [ ] Add separate ash/soil/stone blend and material decals.
 - [ ] Build modular Ashen Kingdom architecture and authored prop set.
