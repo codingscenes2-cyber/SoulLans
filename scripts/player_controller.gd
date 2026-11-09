@@ -241,7 +241,7 @@ func switch_weapon() -> void:
     var owned := get_owned_weapon_ids()
     if owned.size() < 2:
         return
-    var current_id := game_state.get_equipped_weapon_id()
+    var current_id: String = str(game_state.get_equipped_weapon_id())
     var current_index := owned.find(current_id)
     var next_index := (current_index + 1) % owned.size()
     equip_weapon_by_id(owned[next_index])
@@ -315,7 +315,7 @@ func level_up_attribute(attribute_id: String) -> bool:
 func _apply_attributes(keep_current_ratio: bool) -> void:
     var old_health := max_health
     var old_stamina := max_stamina
-    var attributes := game_state.get_player_attributes()
+    var attributes: Dictionary = game_state.get_player_attributes()
     max_health = 100.0 + float(attributes.get("vigor", 10) - 10) * 15.0
     max_stamina = 100.0 + float(attributes.get("endurance", 10) - 10) * 10.0
     if keep_current_ratio:
@@ -333,7 +333,7 @@ func _get_scaled_weapon_damage() -> float:
     var dexterity := maxf(0.0, float(attributes.get("dexterity", 10)) - 10.0)
     var scaling := float(equipped_weapon.get("strength_scaling")) * strength
     scaling += float(equipped_weapon.get("dexterity_scaling")) * dexterity
-    var upgrade_level := game_state.get_weapon_upgrade_level(str(equipped_weapon.get("weapon_id")))
+    var upgrade_level: int = int(game_state.get_weapon_upgrade_level(str(equipped_weapon.get("weapon_id"))))
     return float(equipped_weapon.get("base_damage")) * (1.0 + scaling * 0.025) * (1.0 + float(upgrade_level) * 0.12)
 
 func get_weapon_name() -> String:
