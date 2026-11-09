@@ -31,4 +31,4 @@ This is a readiness snapshot, not a claim that the game is finished or device-te
 
 ## Current decision
 
-**0.3.0 PBR debug APK exported and signature-verified; physical-device visual QA is the next gate.** The project remains an early prototype. Imported character models, animation, audio, authored exploration and target-device QA remain.
+**0.3.0 PBR debug APK exported and signature-verified; physical-device visual QA is the next gate.** The project remains an early prototype. A CC0 Quaternius humanoid base is now bundled and passes a Skeleton3D/MeshInstance3D import smoke test. It still has a temporary material override, no armour, and no integrated animation clips. Audio, authored exploration and target-device QA remain.
