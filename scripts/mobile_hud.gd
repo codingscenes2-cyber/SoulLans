@@ -21,6 +21,7 @@ func _ready() -> void:
     root.add_child(status_label)
 
     _add_button(root, "ATTACK", Vector2(-142, -150), "attack", Vector2(112, 68), true)
+    _add_button(root, "HEAVY", Vector2(-142, -225), "heavy_attack", Vector2(112, 56), true)
     _add_button(root, "BLOCK", Vector2(-270, -150), "block", Vector2(104, 58), true)
     _add_button(root, "PARRY", Vector2(-270, -218), "parry", Vector2(104, 54), true)
     _add_button(root, "DODGE", Vector2(-265, -78), "dodge", Vector2(104, 62), true)
