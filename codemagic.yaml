@@ -1,0 +1,131 @@
+workflows:
+  android-prototype:
+    name: Soul Land Android Prototype
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+          source: true
+    scripts:
+      - name: Prepare build tools
+        script: |
+          set -euo pipefail
+          if ! command -v brew >/dev/null 2>&1; then
+            echo "Homebrew is required on this Codemagic macOS image."
+            exit 1
+          fi
+          brew install node openjdk@17
+          export JAVA_HOME="$(/usr/libexec/java_home -v 17)"
+          echo "JAVA_HOME=$JAVA_HOME" >> "$CM_ENV"
+          if [ -z "${ANDROID_SDK_ROOT:-}" ] && [ -n "${ANDROID_HOME:-}" ]; then
+            export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          fi
+          if [ -z "${ANDROID_SDK_ROOT:-}" ]; then
+            echo "Android SDK is not configured on this Codemagic image."
+            exit 1
+          fi
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> "$CM_ENV"
+          SDKMANAGER="$(find "$ANDROID_SDK_ROOT/cmdline-tools" -name sdkmanager -type f 2>/dev/null | head -n 1)"
+          if [ -z "$SDKMANAGER" ]; then
+            echo "Android sdkmanager was not found under $ANDROID_SDK_ROOT."
+            exit 1
+          fi
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" --install "platform-tools" "build-tools;34.0.0" "platforms;android-34"
+      - name: Install Godot 4.3 and export templates
+        script: |
+          set -euo pipefail
+          mkdir -p "$HOME/godot-download" "$HOME/Library/Application Support/Godot/export_templates/4.3.stable"
+          cd "$HOME/godot-download"
+          curl -fL --retry 3 "https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_macos.universal.zip" -o godot.zip
+          unzip -q -o godot.zip
+          APP="$(find "$HOME/godot-download" -maxdepth 3 -name Godot.app -print -quit)"
+          if [ -z "$APP" ]; then
+            echo "Godot 4.3 application bundle was not found after extraction."
+            exit 1
+          fi
+          GODOT="$APP/Contents/MacOS/Godot"
+          chmod +x "$GODOT"
+          curl -fL --retry 3 "https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz" -o templates.tpz
+          mkdir -p templates-unpacked
+          unzip -q -o templates.tpz -d templates-unpacked
+          cp -R templates-unpacked/templates/. "$HOME/Library/Application Support/Godot/export_templates/4.3.stable/"
+          "$GODOT" --version
+          echo "GODOT_BIN=$GODOT" >> "$CM_ENV"
+      - name: Prepare Android debug signing key
+        script: |
+          set -euo pipefail
+          mkdir -p "$HOME/.config/godot" "$HOME/.android" build
+          KEYSTORE="$HOME/.android/soulland-prototype-debug.keystore"
+          keytool -genkeypair -keystore "$KEYSTORE" -storepass android -keypass android -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          cat > "$HOME/.config/godot/editor_settings-4.3.tres" <<EOF
+          [gd_resource type="EditorSettings" format=3]
+
+          [resource]
+          export/android/java_sdk_path = "$JAVA_HOME"
+          export/android/android_sdk_path = "$ANDROID_SDK_ROOT"
+          export/android/debug_keystore = "$KEYSTORE"
+          export/android/debug_keystore_user = "androiddebugkey"
+          export/android/debug_keystore_pass = "android"
+          EOF
+      - name: Fetch CC0 environment textures
+        script: |
+          set -euo pipefail
+          mkdir -p assets/materials
+          python3 - <<'PY'
+          import json, urllib.request, pathlib
+          out = pathlib.Path("assets/materials")
+          for asset, prefix in [("concrete_floor_01","concrete_floor_01"),("rock_wall_17","rock_wall_17")]:
+              req = urllib.request.Request("https://api.polyhaven.com/files/"+asset, headers={"User-Agent":"SoulLandPrototypeBuild/1.0"})
+              with urllib.request.urlopen(req, timeout=60) as response:
+                  data = json.load(response)
+              for map_name, suffix in [("diff","diff"),("nor_gl","nor_gl"),("rough","rough")]:
+                  target = None
+                  def walk(value):
+                      nonlocal_dummy = None
+                      if isinstance(value, dict):
+                          for item in value.values():
+                              yield from walk(item)
+                          if isinstance(value.get("url"), str) and value["url"].endswith("_"+suffix+"_1k.jpg"):
+                              yield value["url"]
+                      elif isinstance(value, list):
+                          for item in value:
+                              yield from walk(item)
+                  urls = list(walk(data))
+                  if not urls:
+                      raise SystemExit("Missing Poly Haven map: "+asset+" "+map_name)
+                  target = out / f"{prefix}_{map_name}_1k.jpg"
+                  urllib.request.urlretrieve(urls[0], target)
+                  if target.stat().st_size == 0:
+                      raise SystemExit("Empty texture download: "+str(target))
+          PY
+      - name: Fetch and merge CC0 humanoid animations
+        script: |
+          set -euo pipefail
+          mkdir -p assets/animations
+          BASE="https://raw.githubusercontent.com/Barbatos6669/elderforge/bb2ce469f0ab2ccfc487faef55550ba07fae2483/assets/animations"
+          curl -fL --retry 3 "$BASE/universal_animation_library_1/UAL1_Standard.glb" -o assets/animations/UAL1_Standard.glb
+          curl -fL --retry 3 "$BASE/universal_animation_library_1/LICENSE_Quaternius_CC0.txt" -o assets/animations/LICENSE_Quaternius_CC0.txt
+          test "$(stat -f %z assets/animations/UAL1_Standard.glb)" -eq 7618436
+          curl -fL --retry 3 "$BASE/universal_animation_library_2/UAL2_Standard.glb" -o assets/animations/UAL2_Standard.glb
+          curl -fL --retry 3 "$BASE/universal_animation_library_2/LICENSE_Quaternius_CC0.txt" -o assets/animations/LICENSE_Quaternius_CC0_2.txt
+          test "$(stat -f %z assets/animations/UAL2_Standard.glb)" -eq 8091444
+          npm install --no-save @gltf-transform/core@4.2.1 @gltf-transform/extensions@4.2.1
+          node tools/merge_animations.mjs assets/characters/ashen_hero.glb assets/characters/ashen_hero_animated.glb assets/animations/UAL1_Standard.glb assets/animations/UAL2_Standard.glb
+      - name: Import project and export Android APK
+        script: |
+          set -euo pipefail
+          "$GODOT_BIN" --headless --editor --path . --quit
+          "$GODOT_BIN" --headless --verbose --path . --export-debug "Android" build/SOUL_LAND_FALLEN_REALM-debug.apk
+          test -s build/SOUL_LAND_FALLEN_REALM-debug.apk
+          shasum -a 256 build/SOUL_LAND_FALLEN_REALM-debug.apk > build/SOUL_LAND_FALLEN_REALM-debug.apk.sha256
+          APKSIGNER="$(find "$ANDROID_SDK_ROOT/build-tools/34.0.0" -name apksigner -type f -print -quit)"
+          "$APKSIGNER" verify --verbose --print-certs build/SOUL_LAND_FALLEN_REALM-debug.apk
+          ls -lh build/SOUL_LAND_FALLEN_REALM-debug.apk
+    artifacts:
+      - build/SOUL_LAND_FALLEN_REALM-debug.apk
+      - build/SOUL_LAND_FALLEN_REALM-debug.apk.sha256
