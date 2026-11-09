@@ -71,7 +71,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Intelligence, Faith, Arcana and Mind.
 - [x] Soul Essence reward, death-drop and recovery prototype.
 - [x] Soul Essence level-up cost curve and attribute spending prototype.
-- [ ] Inventory, equipment, equip load and consumables.
+- [x] Three-charge healing flask, 45 HP restore and Sanctuary refill prototype.\n- [ ] Inventory, equipment, equip load and broader consumables.
 - [ ] Weapon/armour upgrades, infusions, relics and talismans.
 - [ ] Spell schools, focus resource and status effects.
 - [x] Versioned JSON save/load foundation for player/world state with periodic autosave.
