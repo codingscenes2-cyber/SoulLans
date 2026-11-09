@@ -14,8 +14,16 @@ func _run() -> void:
     var director: Variant = load("res://scripts/encounter_director.gd").new()
     world.add_child(director)
     director.configure(world, player, null)
+    if not is_instance_valid(director.trigger_marker) or not director.trigger_marker.visible:
+        push_error("An ember ring must mark the dormant courtyard encounter entrance.")
+        quit(1)
+        return
 
     director.update_encounter(0.016)
+    if director.trigger_marker.visible:
+        push_error("The encounter marker must clear once the waves begin.")
+        quit(1)
+        return
     if director.encounter_state != director.EncounterState.ACTIVE or director.current_wave != 1:
         push_error("Entering the courtyard must start wave one.")
         quit(1)
