@@ -74,7 +74,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Enemy reset-on-rest prototype.
 - [ ] World persistence rules and full checkpoint playtest.
 - [ ] One NPC, dialogue system and branching quest. (Warden Eira, interact prompt path, persistent three-defeat quest and one-time Soul Essence reward implemented; CI verification and in-game playtest pending.)
-- [ ] One multi-phase region boss.
+- [ ] One multi-phase region boss. (Ashen Regent implementation committed: Warden quest unlock, three escalating combat phases, live boss HUD, permanent defeat record and CI regression test added; validation/playtest pending.)
 - [ ] Playtest, difficulty tuning and performance budget.
 
 ## 6. RPG systems
