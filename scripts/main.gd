@@ -25,6 +25,7 @@ func _ready() -> void:
     player.connect("died", _on_player_died)
     _spawn_enemy()
     GameState.recovery_changed.connect(_update_recovery_marker)
+    GameState.sanctuary_restored.connect(_on_sanctuary_restored)
     _update_recovery_marker(GameState.get_recovery_position(), GameState.get_dropped_essence(), GameState.has_recovery())
 
     var hud := CanvasLayer.new()
@@ -40,6 +41,11 @@ func _process(delta: float) -> void:
             _spawn_enemy()
     else:
         enemy_respawn_timer = 0.0
+
+func _on_sanctuary_restored(_position: Vector3) -> void:
+    if is_instance_valid(enemy):
+        enemy.queue_free()
+    _spawn_enemy()
 
 func _on_player_died() -> void:
     GameState.register_player_death(player.global_position)
