@@ -65,7 +65,8 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Nearby enemy group awareness: nearby idle/patrolling allies investigate the initiating enemy's last known player position; distant enemies remain uninvolved.
 - [x] First elite encounter: Ashen Vanguard at the Ashen Road approach, with 285 HP, high poise, ember aura, alternating cleave/crush attacks, nearby-enemy alert radius, and a one-time persistent reward of 180 Soul Essence + 3 Tempered Plates. Spawn is suppressed permanently after defeat; headless regression test added, CI/device validation pending.
 - [x] Three-wave Ashen Courtyard encounter: trigger-based start, Hollow opener, Guard + Archer second wave, mixed third wave, 3-second intermissions, and persistent one-time completion rewards (+250 Soul Essence, 4 Ashen Scrap, 2 Tempered Plates). Headless regression test added; CI/device validation pending.
-- [ ] Coordinated flanks, additional elite variants and broader encounter chains.
+- [x] Coordinated enemy attack lanes and flanking: the nearest living enemy owns the primary attack lane while secondary melee units move to distinct side positions and supporting archers hold ranged flanks; regression coverage added to CI, runtime tuning pending.
+- [ ] Additional elite variants and broader encounter chains.
 - [x] First boss framework: quest-gated Ashen Regent, three combat phases, telegraphed slam, unique reward, boss HUD and persistent throne-gate progression; additional bosses and arena tuning remain.
 
 ## 5. First vertical slice — Ashen Kingdom
