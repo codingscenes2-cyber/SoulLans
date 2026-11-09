@@ -63,6 +63,11 @@ func _run() -> void:
 
     _expect(state.get_item_count("ashen_iron_sword") >= 1, "starter sword is present in inventory")
     _expect(state.get_item_count("ashen_watch_dagger") >= 1, "starter dagger is present in inventory")
+    _expect(state.get_item_count("scout_hood") == 1 and state.get_item_count("watch_coat") == 1 and state.get_item_count("road_greaves") == 1, "starter armour pieces are granted")
+    _expect(state.get_armor_stats().get("defense", 0.0) == 16.0, "starter armour defence is summed across slots")
+    _expect(state.get_armor_stats().get("weight", 0.0) == 10.0, "starter armour weight is summed across slots")
+    _expect(state.equip_armor("scout_hood"), "owned armour can be equipped in its matching slot")
+    _expect(not state.equip_armor("ashen_iron_sword"), "weapons cannot be equipped as armour")
     _expect(state.equip_weapon("ashen_watch_dagger"), "owned dagger can be equipped")
     _expect(state.get_equipped_weapon_id() == "ashen_watch_dagger", "equipped weapon selection is stored")
     _expect(not state.equip_weapon("regent_core"), "materials cannot be equipped as weapons")
