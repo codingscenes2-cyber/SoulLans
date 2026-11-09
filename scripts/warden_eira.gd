@@ -54,9 +54,9 @@ func interact() -> String:
     var status := str(quest.get("status", "not_started"))
     if status == "not_started":
         if GameState.start_quest(QUEST_ID, QUEST_TARGET, QUEST_REWARD):
-            return "Warden Eira: Three Ashen Hollows haunt this road. Defeat three and return to me. Your reward is 120 Soul Essence."
+            return "Warden Eira: Three Ashen foes haunt this road. Defeat three and return to me. Your reward is 120 Soul Essence."
         return "Warden Eira: I cannot offer that task right now."
     if status == "active":
         var progress := int(quest.get("progress", 0))
-        return "Warden Eira: The road is not safe yet. Ashen Hollows defeated: %d/%d." % [progress, QUEST_TARGET]
+        return "Warden Eira: The road is not safe yet. Ashen foes defeated: %d/%d." % [progress, QUEST_TARGET]
     return "Warden Eira: The road remembers your courage. The 120 Soul Essence is yours. Thank you, wanderer."
