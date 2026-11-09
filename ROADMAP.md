@@ -9,8 +9,8 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Placeholder player, enemy and touch HUD.
 - [x] Validate project import and parser in Godot 4.x through GitHub Actions headless import.
 - [x] Add an arm64 Android debug export preset and a GitHub Actions export workflow.
-- [x] Export and signature-verify the first ARM64 debug APK (run #6; device install pending).
-- [ ] Install and test on target hardware.
+- [x] Export and signature-verify ARM64 debug APK 0.2.1 (run #9; sensor-landscape configured; device install pending).
+- [ ] Install and test on target hardware, including sensor-landscape rotation.
 - [x] Add automated headless import/startup check to CI; latest recorded runs passed.
 
 ## 1. Player controller and camera
@@ -62,7 +62,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 ## 5. First vertical slice — Ashen Kingdom
 - [x] Initial connected graybox route: arena, broken gate, ruined road, roadside landmarks and walled outer courtyard (headless CI passed; runtime validation pending).
 - [ ] Add traversal beats, encounter spaces and a complete exploration loop.
-- [ ] Finished art pass for one compact region.
+- [x] First procedural environment art pass: noise-textured stone, ruined arches, rock clusters, dead trees, ridges and banners.\n- [ ] Import and integrate selected external CC0/Quaternius 3D models with verified provenance.
 - [ ] Three regular enemy archetypes and one elite (two basic archetypes are now present in the combat test arena).
 - [x] Prototype Sanctuary checkpoint, rest, death/respawn and Soul Essence recovery loop.
 - [x] Enemy reset-on-rest prototype.
