@@ -7,6 +7,7 @@ func _run() -> void:
     var player := CharacterBody3D.new()
     player.name = "DirectionalBlockTestPlayer"
     player.set_script(load("res://scripts/player_controller.gd"))
+    player.set("enable_visual_body", false)
     root.add_child(player)
 
     var attacker := CharacterBody3D.new()
