@@ -6,6 +6,9 @@ signal sanctuary_restored(position: Vector3)
 const SAVE_PATH := "user://soul_land_save.json"
 const SAVE_VERSION := 2
 const RECOVERY_RADIUS := 2.6
+const AUTOSAVE_INTERVAL := 15.0
+
+var autosave_timer := 0.0
 
 var data: Dictionary = {
     "version": SAVE_VERSION,
@@ -24,6 +27,12 @@ var data: Dictionary = {
 
 func _ready() -> void:
     load_game()
+
+func _process(delta: float) -> void:
+    autosave_timer += delta
+    if autosave_timer >= AUTOSAVE_INTERVAL:
+        autosave_timer = 0.0
+        save_game()
 
 func update_player_snapshot(health: float, stamina: float) -> void:
     var player_data: Dictionary = data.get("player", {})
