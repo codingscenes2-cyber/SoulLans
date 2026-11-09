@@ -37,9 +37,10 @@ func _run() -> void:
     attacker.state = attacker.State.CHASE
     attacker.global_position = Vector3(0.0, 0.0, 2.0)
     player.parry_timer = 0.22
+    var expected_rear_damage := 20.0 * (1.0 - player.get_damage_reduction())
     player.take_damage(20.0, attacker)
-    if not is_equal_approx(player.health, starting_health - 20.0):
-        push_error("A rear attack must not be parried by a forward-facing player.")
+    if not is_equal_approx(player.health, starting_health - expected_rear_damage):
+        push_error("A rear attack must not be parried; normal armour mitigation should still apply.")
         quit(1)
         return
     if attacker.state == attacker.State.STAGGER:
