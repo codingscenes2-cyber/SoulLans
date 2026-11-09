@@ -41,6 +41,7 @@ func _ready() -> void:
     _create_special_attack_ring()
     encounter_active = _is_unlocked() and not _is_defeated()
     if not encounter_active:
+        remove_from_group("enemies")
         state = State.IDLE
         velocity = Vector3.ZERO
 
@@ -53,7 +54,10 @@ func _physics_process(delta: float) -> void:
         if death_timer <= 0.0:
             queue_free()
         return
-    encounter_active = _is_unlocked()
+    var unlocked_now := _is_unlocked()
+    if unlocked_now and not encounter_active:
+        add_to_group("enemies")
+    encounter_active = unlocked_now
     if not encounter_active:
         velocity = Vector3.ZERO
         return
