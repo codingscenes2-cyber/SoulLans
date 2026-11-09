@@ -14,6 +14,7 @@ signal died
 @export var stamina_regen_delay := 0.8
 @export var attack_damage := 25.0
 @export var look_sensitivity := 0.006
+@export var enable_visual_body := true
 @export var min_camera_pitch := -0.75
 @export var max_camera_pitch := 0.35
 
@@ -63,7 +64,10 @@ func _ready() -> void:
     _apply_attributes(false)
     _refresh_armor_stats()
     _setup_input_map()
-    _create_placeholder_body()
+    if enable_visual_body:
+        _create_placeholder_body()
+    else:
+        _create_player_collision()
     _create_camera_rig()
 
 func _physics_process(delta: float) -> void:
@@ -538,6 +542,9 @@ func _create_placeholder_body() -> void:
         material.metallic = 0.2
         visual.material_override = material
         add_child(visual)
+    _create_player_collision()
+
+func _create_player_collision() -> void:
     var collision := CollisionShape3D.new()
     var shape := CapsuleShape3D.new()
     shape.radius = 0.38
