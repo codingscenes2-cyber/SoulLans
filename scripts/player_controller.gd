@@ -98,7 +98,7 @@ func _physics_process(delta: float) -> void:
     if Input.is_action_just_pressed("level_dexterity"):
         level_up_attribute("dexterity")
     if Input.is_action_just_pressed("lock_on"):
-        locked_on = is_instance_valid(target) and not locked_on
+        _cycle_lock_target()
 
     var input_vector := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
     var camera_forward := -camera.global_transform.basis.z
@@ -135,6 +135,25 @@ func _physics_process(delta: float) -> void:
     move_and_slide()
     _update_camera()
     stats_changed.emit(health, stamina)
+
+func _cycle_lock_target() -> void:
+    var candidates := get_tree().get_nodes_in_group("enemies")
+    var chosen: Node3D
+    var best_distance := INF
+    for candidate in candidates:
+        if not is_instance_valid(candidate) or not candidate is Node3D:
+            continue
+        if locked_on and is_instance_valid(target) and candidate == target and candidates.size() > 1:
+            continue
+        var distance := global_position.distance_squared_to(candidate.global_position)
+        if distance < best_distance and distance <= 400.0:
+            best_distance = distance
+            chosen = candidate
+    if is_instance_valid(chosen):
+        target = chosen
+        locked_on = true
+    else:
+        locked_on = false
 
 func add_camera_look(relative_motion: Vector2) -> void:
     if locked_on:
