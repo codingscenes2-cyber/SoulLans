@@ -12,6 +12,7 @@ func _run() -> void:
     var player: Variant = CharacterBody3D.new()
     player.name = "InventoryTestPlayer"
     player.set_script(PLAYER_SCRIPT)
+    player.set("enable_visual_body", false)
     root.add_child(player)
     await process_frame
     print("Inventory test: player initialized")
