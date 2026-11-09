@@ -9,6 +9,16 @@ const SAVE_TEMP_PATH := "user://soul_land_save.tmp.json"
 const SAVE_VERSION := 2
 const RECOVERY_RADIUS := 2.6
 const AUTOSAVE_INTERVAL := 15.0
+const QUEST_CATALOG := {
+    "ashen_sigils": {
+        "title": "Ashes on the Road",
+        "giver": "Warden Eira",
+        "description": "The old road is haunted by Ashen warriors. Thin their numbers and return hope to the outer kingdom.",
+        "objective": "Defeat Ashen foes",
+        "region": "Ashen Kingdom",
+        "category": "Main"
+    }
+}
 
 const ITEM_CATALOG := {
     "ashen_iron_sword": {"name": "Ashen Iron Sword", "type": "weapon", "description": "Balanced straight sword recovered from the old watchpost."},
@@ -441,6 +451,36 @@ func get_quest_state(quest_id: String) -> Dictionary:
             return {"status": "not_started", "progress": 0, "target": 0, "reward": 0}
         return stored.duplicate(true)
     return {"status": "not_started", "progress": 0, "target": 0, "reward": 0}
+
+func get_quest_log() -> Array[Dictionary]:
+    var result: Array[Dictionary] = []
+    var stored_quests: Dictionary = data.get("quests", {})
+    for quest_id in QUEST_CATALOG:
+        var definition: Dictionary = QUEST_CATALOG[quest_id]
+        var state: Dictionary = get_quest_state(str(quest_id))
+        var entry: Dictionary = definition.duplicate(true)
+        entry.merge(state, true)
+        entry["quest_id"] = str(quest_id)
+        entry["reward_claimed"] = bool(state.get("reward_claimed", false))
+        result.append(entry)
+    for quest_id in stored_quests:
+        if QUEST_CATALOG.has(str(quest_id)):
+            continue
+        var unknown_state: Variant = stored_quests[quest_id]
+        if unknown_state is Dictionary:
+            var unknown_entry: Dictionary = unknown_state.duplicate(true)
+            unknown_entry["quest_id"] = str(quest_id)
+            unknown_entry["title"] = str(quest_id).replace("_", " ").capitalize()
+            unknown_entry["description"] = "A recorded journey in the Ashen Kingdom."
+            unknown_entry["objective"] = "Follow the recorded objective"
+            unknown_entry["region"] = "Unknown"
+            unknown_entry["category"] = "Side"
+            result.append(unknown_entry)
+    result.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+        var order := {"active": 0, "not_started": 1, "completed": 2}
+        return int(order.get(str(a.get("status", "not_started")), 3)) < int(order.get(str(b.get("status", "not_started")), 3))
+    )
+    return result
 
 func start_quest(quest_id: String, target: int, reward: int) -> bool:
     if quest_id.is_empty() or target <= 0 or reward < 0:
