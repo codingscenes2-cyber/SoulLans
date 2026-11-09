@@ -49,11 +49,11 @@ func _run() -> void:
                     quit(1)
                     return
         var state_cases := [
-            {"state": enemy.State.IDLE, "clip": "Zombie_Idle"},
-            {"state": enemy.State.PATROL, "clip": "Zombie_Walk_Fwd"},
-            {"state": enemy.State.CHASE, "clip": "Jog_Fwd"},
-            {"state": enemy.State.STAGGER, "clip": "Hit_Chest"},
-            {"state": enemy.State.DEAD, "clip": "Death01"}
+            {"state": 0, "clip": "Zombie_Idle"},
+            {"state": 1, "clip": "Zombie_Walk_Fwd"},
+            {"state": 3, "clip": "Jog_Fwd"},
+            {"state": 6, "clip": "Hit_Chest"},
+            {"state": 7, "clip": "Death01"}
         ]
         for state_case in state_cases:
             enemy.state = state_case.state
