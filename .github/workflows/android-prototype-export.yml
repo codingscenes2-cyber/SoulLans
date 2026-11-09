@@ -1,5 +1,10 @@
 name: Android debug prototype export
 
+# Keep only the newest pending run so rapid commits do not flood hosted runners.
+concurrency:
+  group: soul-land-android-export-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   push:
