@@ -15,7 +15,8 @@ const ITEM_CATALOG := {
     "ashen_watch_dagger": {"name": "Ashen Watch Dagger", "type": "weapon", "description": "Fast sidearm with short reach and quick recovery."},
     "ashen_tonic": {"name": "Ashen Tonic", "type": "consumable", "description": "Restores 45 HP. Cannot exceed maximum health."},
     "ashen_scrap": {"name": "Ashen Scrap", "type": "material", "description": "Salvaged metal fragments from fallen Ashen foes."},
-    "tempered_plate": {"name": "Tempered Plate", "type": "material", "description": "A durable plate stripped from an Ashen Watch shield."}
+    "tempered_plate": {"name": "Tempered Plate", "type": "material", "description": "A durable plate stripped from an Ashen Watch shield."},
+    "regent_core": {"name": "Ashen Regent Core", "type": "material", "description": "A dense soul-forged core left by the fallen regional ruler."}
 }
 
 
@@ -69,7 +70,8 @@ func get_inventory() -> Array:
     return items.duplicate(true)
 
 func get_item_info(item_id: String) -> Dictionary:
-    return (ITEM_CATALOG.get(item_id, {}) as Dictionary).duplicate(true)
+    var info: Dictionary = ITEM_CATALOG.get(item_id, {})
+    return info.duplicate(true)
 
 func get_item_count(item_id: String) -> int:
     var items: Array = data.get("inventory", [])
