@@ -328,7 +328,7 @@ func _apply_attributes(keep_current_ratio: bool) -> void:
 func _get_scaled_weapon_damage() -> float:
     if not is_instance_valid(equipped_weapon):
         return attack_damage
-    var attributes := game_state.get_player_attributes()
+    var attributes: Dictionary = game_state.get_player_attributes()
     var strength := maxf(0.0, float(attributes.get("strength", 10)) - 10.0)
     var dexterity := maxf(0.0, float(attributes.get("dexterity", 10)) - 10.0)
     var scaling := float(equipped_weapon.get("strength_scaling")) * strength
@@ -339,7 +339,7 @@ func _get_scaled_weapon_damage() -> float:
 func get_weapon_name() -> String:
     if is_instance_valid(equipped_weapon):
         var weapon_name := str(equipped_weapon.get("display_name"))
-        var upgrade_level := game_state.get_weapon_upgrade_level(str(equipped_weapon.get("weapon_id")))
+        var upgrade_level: int = int(game_state.get_weapon_upgrade_level(str(equipped_weapon.get("weapon_id"))))
         return weapon_name + (" +" + str(upgrade_level) if upgrade_level > 0 else "")
     return "Unarmed"
 
