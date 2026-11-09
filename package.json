@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "merge:hero-animations": "node tools/merge_animations.mjs assets/characters/ashen_hero.glb assets/animations/UAL1_Standard.glb assets/characters/ashen_hero_animated.glb"
+  },
+  "dependencies": {
+    "@gltf-transform/core": "4.2.1",
+    "@gltf-transform/extensions": "4.2.1"
+  }
+}
