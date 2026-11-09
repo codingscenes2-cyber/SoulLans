@@ -12,7 +12,7 @@ var autosave_timer := 0.0
 
 var data: Dictionary = {
     "version": SAVE_VERSION,
-    "player": {"health": 100.0, "stamina": 100.0, "level": 1, "soul_essence": 0, "attributes": {"vigor": 10, "endurance": 10, "strength": 10, "dexterity": 10}},
+    "player": {"health": 100.0, "stamina": 100.0, "level": 1, "soul_essence": 0, "attributes": {"vigor": 10, "endurance": 10, "strength": 10, "dexterity": 10}, "healing_flasks": 3, "max_healing_flasks": 3},
     "location": "ashen_kingdom_training_ground",
     "inventory": [],
     "discovered_areas": [],
@@ -53,6 +53,28 @@ func award_soul_essence(amount: int) -> void:
 func get_soul_essence() -> int:
     return int(data.get("player", {}).get("soul_essence", 0))
 
+func get_healing_flasks() -> int:
+    return int(data.get("player", {}).get("healing_flasks", 3))
+
+func get_max_healing_flasks() -> int:
+    return int(data.get("player", {}).get("max_healing_flasks", 3))
+
+func consume_healing_flask() -> bool:
+    var player_data: Dictionary = data.get("player", {})
+    var count := int(player_data.get("healing_flasks", 3))
+    if count <= 0:
+        return false
+    player_data["healing_flasks"] = count - 1
+    data["player"] = player_data
+    save_game()
+    return true
+
+func refill_healing_flasks() -> void:
+    var player_data: Dictionary = data.get("player", {})
+    player_data["healing_flasks"] = get_max_healing_flasks()
+    data["player"] = player_data
+    save_game()
+
 func get_player_level() -> int:
     return int(data.get("player", {}).get("level", 1))
 
@@ -91,6 +113,7 @@ func get_sanctuary_position() -> Vector3:
 func rest_at_sanctuary(position: Vector3, player: Node) -> void:
     data["sanctuary_position"] = [position.x, position.y, position.z]
     set_player_location("ashen_kingdom_training_ground")
+    refill_healing_flasks()
     if is_instance_valid(player) and player.has_method("restore_at_sanctuary"):
         player.restore_at_sanctuary()
     sanctuary_restored.emit(position)
