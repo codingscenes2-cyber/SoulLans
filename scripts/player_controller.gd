@@ -27,6 +27,7 @@ var health := 100.0
 var stamina := 100.0
 var stamina_regen_timer := 0.0
 var target: Node3D
+var hud: Node
 var camera: Camera3D
 var camera_pivot: Node3D
 var hero_animation_player: AnimationPlayer
@@ -372,8 +373,24 @@ func respawn_at(position: Vector3) -> void:
 func _interact_with_world() -> void:
     if global_position.distance_to(GameState.get_sanctuary_position()) <= 3.0:
         GameState.rest_at_sanctuary(GameState.get_sanctuary_position(), self)
-    else:
-        GameState.try_recover_souls(global_position)
+        return
+
+    var nearest: Node3D
+    var nearest_distance := 3.0
+    for candidate in get_tree().get_nodes_in_group("interactables"):
+        if not is_instance_valid(candidate) or not candidate is Node3D:
+            continue
+        var distance := global_position.distance_to(candidate.global_position)
+        if distance <= nearest_distance:
+            nearest = candidate
+            nearest_distance = distance
+    if is_instance_valid(nearest) and nearest.has_method("interact"):
+        var message := str(nearest.interact())
+        if is_instance_valid(hud) and hud.has_method("show_message"):
+            hud.show_message(message)
+        return
+
+    GameState.try_recover_souls(global_position)
 
 func apply_saved_state(saved: Dictionary) -> void:
     health = clampf(float(saved.get("health", max_health)), 0.0, max_health)
