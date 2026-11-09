@@ -40,14 +40,21 @@ const copyAccessor = (source) => {
 
 let copiedClips = 0;
 let copiedChannels = 0;
+let sourceChannels = 0;
+let unmappedTargets = new Set();
+const perClip = [];
 for (const animation of animationRoot.listAnimations()) {
   const name = animation.getName();
   if (!name || characterRoot.listAnimations().some(existing => existing.getName() === name)) {
     throw new Error(`Missing or duplicate animation clip name: ${name}`);
   }
   const destinationAnimation = character.createAnimation(name);
+  let clipCopied = 0;
   for (const channel of animation.listChannels()) {
-    const target = mappedNodes.get(channel.getTargetNode());
+    sourceChannels++;
+    const sourceTarget = channel.getTargetNode();
+    const target = mappedNodes.get(sourceTarget);
+    if (!target && sourceTarget?.getName()) unmappedTargets.add(sourceTarget.getName());
     const sampler = channel.getSampler();
     if (!target || !sampler?.getInput() || !sampler?.getOutput()) continue;
     const destinationSampler = character.createAnimationSampler()
@@ -61,19 +68,16 @@ for (const animation of animationRoot.listAnimations()) {
         .setSampler(destinationSampler)
     );
     copiedChannels++;
+    clipCopied++;
   }
-  if (destinationAnimation.listChannels().length === 0) {
-    characterRoot.listAnimations().includes(destinationAnimation)
-      ? characterRoot.removeAnimation(destinationAnimation)
-      : null;
-    continue;
-  }
-  copiedClips++;
+  perClip.push({ name, source: animation.listChannels().length, copied: clipCopied });
+  if (clipCopied > 0) copiedClips++;
 }
 
 const required = ['Idle', 'Walk', 'Jog_Fwd', 'Sprint', 'Jump', 'Jump_Land', 'Roll', 'Sword_Attack', 'Sword_Idle', 'Death01', 'Hit_Chest'];
 const names = new Set(characterRoot.listAnimations().map(animation => animation.getName()));
 const missing = required.filter(name => !names.has(name));
+console.log(JSON.stringify({ mappedNodes: mappedNodes.size, sourceChannels, copiedChannels, unmappedTargetNames: [...unmappedTargets].slice(0, 30), perClip: perClip.slice(0, 12), animationNames: [...names] }, null, 2));
 if (missing.length) throw new Error(`Required combat/locomotion clips missing: ${missing.join(', ')}`);
 if (mappedNodes.size < 60) throw new Error(`Only ${mappedNodes.size} skeleton nodes matched; expected at least 60.`);
 
