@@ -370,9 +370,8 @@ func _create_placeholder_body() -> void:
             add_child(hero_rig)
             hero_animation_player = _find_animation_player(hero_rig)
             _attach_weapon_to_hand(hero_rig)
-            if is_instance_valid(hero_animation_player) and hero_animation_player.has_animation("Idle"):
-                hero_animation_player.play("Idle")
-                current_hero_animation = "Idle"
+            if is_instance_valid(hero_animation_player):
+                _play_hero_animation(["Idle_Loop", "Idle", "Sword_Idle"])
             model_loaded = true
     if not model_loaded:
         var visual := MeshInstance3D.new()
@@ -485,22 +484,30 @@ func _find_animation_player(node: Node) -> AnimationPlayer:
 func _update_hero_animation(input_vector: Vector2, sprinting: bool) -> void:
     if not is_instance_valid(hero_animation_player):
         return
-    var desired := "Idle"
+    var candidates: Array[String] = ["Idle_Loop", "Idle", "Sword_Idle"]
     if health <= 0.0:
-        desired = "Death01"
+        candidates = ["Death01"]
     elif dodge_timer > 0.0:
-        desired = "Roll"
+        candidates = ["Roll"]
+    elif attack_windup > 0.0 or attack_active_timer > 0.0:
+        candidates = ["Sword_Attack"]
     elif attack_cooldown > 0.0:
-        desired = "Sword_Attack"
+        candidates = ["Sword_Idle", "Idle_Loop"]
     elif is_blocking:
-        desired = "Sword_Idle"
+        candidates = ["Sword_Idle", "Shield_Block", "Idle_Loop"]
     elif input_vector.length() > 0.12:
-        desired = "Sprint" if sprinting else "Jog_Fwd"
-    if desired == current_hero_animation:
+        candidates = ["Sprint_Loop", "Sprint", "Jog_Fwd_Loop", "Jog_Fwd"] if sprinting else ["Jog_Fwd_Loop", "Jog_Fwd", "Walk_Loop", "Walk"]
+    _play_hero_animation(candidates)
+
+func _play_hero_animation(candidates: Array[String]) -> void:
+    if not is_instance_valid(hero_animation_player):
         return
-    if hero_animation_player.has_animation(desired):
-        hero_animation_player.play(desired, 0.12)
-        current_hero_animation = desired
+    for clip in candidates:
+        if hero_animation_player.has_animation(clip):
+            if clip != current_hero_animation:
+                hero_animation_player.play(clip, 0.14)
+                current_hero_animation = clip
+            return
 
 func _sanitize_hero_meshes(root: Node) -> void:
     for child in root.get_children():
