@@ -280,6 +280,7 @@ func equip_armor_by_id(item_id: String) -> bool:
     if attack_cooldown > 0.0 or not game_state.equip_armor(item_id):
         return false
     _refresh_armor_stats()
+    _refresh_armor_visuals()
     stats_changed.emit(health, stamina)
     return true
 
