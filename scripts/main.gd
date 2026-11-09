@@ -152,17 +152,42 @@ func _update_recovery_marker(position: Vector3, _essence: int, active: bool) -> 
 func _build_environment() -> void:
     var world := WorldEnvironment.new()
     var env := Environment.new()
-    env.background_mode = Environment.BG_COLOR
-    env.background_color = Color(0.025, 0.025, 0.04)
-    env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-    env.ambient_light_color = Color(0.42, 0.43, 0.5)
-    env.ambient_light_energy = 0.7
+    var sky := Sky.new()
+    var sky_material := ProceduralSkyMaterial.new()
+    sky_material.sky_top_color = Color(0.075, 0.095, 0.14)
+    sky_material.sky_horizon_color = Color(0.34, 0.29, 0.25)
+    sky_material.ground_bottom_color = Color(0.055, 0.05, 0.055)
+    sky_material.ground_horizon_color = Color(0.20, 0.17, 0.16)
+    sky_material.sun_angle_max = 18.0
+    sky_material.use_debanding = true
+    sky.sky_material = sky_material
+    env.background_mode = Environment.BG_SKY
+    env.sky = sky
+    env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+    env.ambient_light_energy = 0.72
+    env.reflected_light_source = Environment.REFLECTION_SOURCE_BG
+    env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+    env.tonemap_exposure = 1.0
+    env.fog_enabled = true
+    env.fog_light_color = Color(0.30, 0.27, 0.25)
+    env.fog_density = 0.006
+    env.fog_sky_affect = 0.65
     world.environment = env
     add_child(world)
     var sun := DirectionalLight3D.new()
-    sun.rotation_degrees = Vector3(-48.0, -28.0, 0.0)
-    sun.light_energy = 1.0
+    sun.name = "AshenKingdomKeyLight"
+    sun.rotation_degrees = Vector3(-42.0, -32.0, 0.0)
+    sun.light_color = Color(1.0, 0.82, 0.68)
+    sun.light_energy = 1.15
+    sun.shadow_enabled = true
     add_child(sun)
+    var fill := DirectionalLight3D.new()
+    fill.name = "CoolSkyFill"
+    fill.rotation_degrees = Vector3(-18.0, 145.0, 0.0)
+    fill.light_color = Color(0.42, 0.52, 0.72)
+    fill.light_energy = 0.28
+    fill.shadow_enabled = false
+    add_child(fill)
 
 func _build_arena() -> void:
     var floor_body := StaticBody3D.new()
@@ -173,10 +198,7 @@ func _build_arena() -> void:
     var floor_box := BoxMesh.new()
     floor_box.size = Vector3(28.0, 1.0, 28.0)
     floor_mesh.mesh = floor_box
-    var floor_mat := StandardMaterial3D.new()
-    floor_mat.albedo_color = Color(0.17, 0.16, 0.16)
-    floor_mat.roughness = 1.0
-    floor_mesh.material_override = floor_mat
+    floor_mesh.material_override = ASHEN_WORLD_ART.ground_material()
     floor_body.add_child(floor_mesh)
     var floor_collision := CollisionShape3D.new()
     var floor_shape := BoxShape3D.new()
