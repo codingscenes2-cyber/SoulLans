@@ -28,6 +28,7 @@ var data: Dictionary = {
     "location": "ashen_kingdom_training_ground",
     "inventory": [],
     "equipment": {"weapon": "ashen_iron_sword"},
+    "inventory_initialized": false,
     "discovered_areas": [],
     "defeated_bosses": [],
     "quest_flags": {},
@@ -52,14 +53,22 @@ func _process(delta: float) -> void:
 func _ensure_starter_inventory() -> void:
     var items: Array = data.get("inventory", [])
     var changed := false
-    for starter_id in ["ashen_iron_sword", "ashen_watch_dagger", "ashen_tonic"]:
-        if get_item_count(starter_id) <= 0:
-            items.append({"id": starter_id, "quantity": 2 if starter_id == "ashen_tonic" else 1})
-            changed = true
+    if not bool(data.get("inventory_initialized", false)):
+        for starter_id in ["ashen_iron_sword", "ashen_watch_dagger", "ashen_tonic"]:
+            if get_item_count(starter_id) <= 0:
+                items.append({"id": starter_id, "quantity": 2 if starter_id == "ashen_tonic" else 1})
+                changed = true
+        data["inventory_initialized"] = true
+        changed = true
     data["inventory"] = items
     var equipment: Dictionary = data.get("equipment", {})
-    if str(equipment.get("weapon", "")).is_empty():
-        equipment["weapon"] = "ashen_iron_sword"
+    var equipped_id := str(equipment.get("weapon", ""))
+    var equipped_info := get_item_info(equipped_id)
+    if str(equipped_info.get("type", "")) != "weapon" or get_item_count(equipped_id) <= 0:
+        if get_item_count("ashen_iron_sword") > 0:
+            equipment["weapon"] = "ashen_iron_sword"
+        elif get_item_count("ashen_watch_dagger") > 0:
+            equipment["weapon"] = "ashen_watch_dagger"
         data["equipment"] = equipment
         changed = true
     if changed:
