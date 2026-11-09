@@ -45,6 +45,7 @@ func _ready() -> void:
     _spawn_enemy()
     _spawn_shield_guard()
     _spawn_courtyard_enemy()
+    _spawn_ashen_archer()
     _spawn_warden()
     _spawn_ashen_regent()
     if _has_defeated_ashen_regent():
@@ -98,6 +99,7 @@ func _on_sanctuary_restored(_position: Vector3) -> void:
     _spawn_enemy()
     _spawn_shield_guard()
     _spawn_courtyard_enemy()
+    _spawn_ashen_archer()
 
 func _on_player_died() -> void:
     GameState.register_player_death(player.global_position)
@@ -382,6 +384,14 @@ func _spawn_courtyard_enemy() -> void:
     courtyard_enemy.position = Vector3(0.0, 1.0, -53.0)
     add_child(courtyard_enemy)
     courtyard_enemy_respawn_timer = 0.0
+
+func _spawn_ashen_archer() -> void:
+    archer_enemy = CharacterBody3D.new()
+    archer_enemy.name = "AshenEmberArcher"
+    archer_enemy.set_script(ASHEN_ARCHER_SCRIPT)
+    archer_enemy.position = Vector3(7.0, 1.0, -60.0)
+    add_child(archer_enemy)
+    archer_respawn_timer = 0.0
 
 func _spawn_blacksmith() -> void:
     blacksmith = StaticBody3D.new()
