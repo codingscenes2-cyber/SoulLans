@@ -4,6 +4,7 @@ const PLAYER_SCRIPT = preload("res://scripts/player_controller.gd")
 const ENEMY_SCRIPT = preload("res://scripts/training_enemy.gd")
 const SHIELD_GUARD_SCRIPT = preload("res://scripts/shield_guard.gd")
 const WARDEN_SCRIPT = preload("res://scripts/warden_eira.gd")
+const BLACKSMITH_SCRIPT = preload("res://scripts/ashen_blacksmith.gd")
 const REGENT_SCRIPT = preload("res://scripts/ashen_regent.gd")
 const HUD_SCRIPT = preload("res://scripts/mobile_hud.gd")
 const ASHEN_WORLD_ART = preload("res://scripts/ashen_world_art.gd")
@@ -17,6 +18,7 @@ var enemy_respawn_timer := 0.0
 var guard_respawn_timer := 0.0
 var recovery_visual: MeshInstance3D
 var warden: StaticBody3D
+var blacksmith: StaticBody3D
 var ashen_regent: CharacterBody3D
 var throne_gate_door: StaticBody3D
 
@@ -27,6 +29,7 @@ func _ready() -> void:
     ASHEN_WORLD_ART.build(self)
     _build_sanctuary()
     _build_recovery_marker()
+    _spawn_blacksmith()
     player = CharacterBody3D.new()
     player.name = "Player"
     player.set_script(PLAYER_SCRIPT)
@@ -368,3 +371,9 @@ func _spawn_courtyard_enemy() -> void:
     courtyard_enemy.position = Vector3(0.0, 1.0, -53.0)
     add_child(courtyard_enemy)
     courtyard_enemy_respawn_timer = 0.0
+
+func _spawn_blacksmith() -> void:
+    blacksmith = StaticBody3D.new()
+    blacksmith.set_script(BLACKSMITH_SCRIPT)
+    blacksmith.position = Vector3(4.2, 0.0, 6.0)
+    add_child(blacksmith)
