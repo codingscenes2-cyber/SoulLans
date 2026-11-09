@@ -68,7 +68,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 ## 5. First vertical slice — Ashen Kingdom
 - [x] Initial connected graybox route: arena, broken gate, ruined road, roadside landmarks and walled outer courtyard (headless CI passed; runtime validation pending).
 - [ ] Add traversal beats, encounter spaces and a complete exploration loop.
-- [x] First procedural environment art pass: noise-textured stone, ruined arches, rock clusters, dead trees, ridges and banners.\n- [ ] Import and integrate selected external CC0/Quaternius 3D models with verified provenance.
+- [x] First procedural environment art pass: noise-textured stone, ruined arches, rock clusters, dead trees, ridges and banners.- [ ] Import and integrate selected external CC0/Quaternius 3D models with verified provenance.
 - [ ] Three regular enemy archetypes and one elite (two basic archetypes are now present in the combat test arena).
 - [x] Prototype Sanctuary checkpoint, rest, death/respawn and Soul Essence recovery loop.
 - [x] Enemy reset-on-rest prototype.
@@ -84,8 +84,11 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Soul Essence reward, death-drop and recovery prototype.
 - [x] Soul Essence level-up cost curve and attribute spending prototype.
 - [x] Three-charge healing flask, 45 HP restore and Sanctuary refill prototype.
-- [x] Persistent inventory with stackable item quantities, saved weapon equipment, Ashen Tonic and enemy/boss material drops; mobile inventory panel, three-stage weapon upgrades (+12% damage per level) and regression tests added.\n- [ ] Armour slots, equip load, item sorting, tooltips and broader consumables.
-- [x] Three-stage weapon upgrades using Ashen Scrap, Tempered Plates and the unique Regent Core; +12% weapon damage per level, upgrade only at the Sanctuary.\n- [ ] Armour upgrades, infusions, relics and talismans.
+- [x] Persistent inventory with stackable item quantities, saved weapon equipment, Ashen Tonic and enemy/boss material drops; mobile inventory panel, three-stage weapon upgrades (+12% damage per level) and regression tests added.- [x] Persistent head, chest and leg armour slots with starter armour pieces and mobile equip controls.
+- [x] Armour defence reduces incoming health damage; armour weight changes movement and dodge speed through light/medium/heavy load tiers.
+- [x] Ashen Blacksmith NPC and forge station; weapon reinforcement is now gated by proximity to the smith.
+- [ ] Item sorting, expanded tooltips, armour visual attachments, armour upgrades and broader consumables.
+- [x] Three-stage weapon upgrades using Ashen Scrap, Tempered Plates and the unique Regent Core; +12% weapon damage per level, upgrade only at the Sanctuary.- [ ] Armour upgrades, infusions, relics and talismans.
 - [ ] Spell schools, focus resource and status effects.
 - [x] Versioned JSON save/load foundation for player/world state with periodic autosave.
 - [x] Add last-known-good backup recovery, corrupt-primary restoration, legacy-save defaults and headless death/recovery/levelling regression tests.
@@ -102,7 +105,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 ## 8. Audio, UI and accessibility
 - [ ] Combat, environment, UI and creature audio.
 - [ ] Music and ambience implementation.
-- [x] First mobile inventory/equipment panel plus quest and boss HUD prototypes.\n- [ ] Map, quest journal, settings and accessibility options.
+- [x] First mobile inventory/equipment panel plus quest and boss HUD prototypes.- [ ] Map, quest journal, settings and accessibility options.
 - [ ] Remappable controls, sensitivity, subtitles and readability options.
 
 ## 9. Android optimisation and release
