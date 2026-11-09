@@ -490,9 +490,9 @@ func _update_hero_animation(input_vector: Vector2, sprinting: bool) -> void:
     elif dodge_timer > 0.0:
         candidates = ["Roll"]
     elif attack_windup > 0.0 or attack_active_timer > 0.0:
-        candidates = ["Sword_Attack"]
+        candidates = ["Sword_Attack", "Sword_Regular_A"]
     elif attack_cooldown > 0.0:
-        candidates = ["Sword_Idle", "Idle_Loop"]
+        candidates = ["Sword_Idle", "Idle"]
     elif is_blocking:
         candidates = ["Sword_Block", "Sword_Idle", "Idle"]
     elif input_vector.length() > 0.12:
