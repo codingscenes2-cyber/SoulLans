@@ -23,6 +23,13 @@ func _ready() -> void:
     _create_shield()
     _create_guard_armor()
 
+func _configure_attack_pattern(_distance: float) -> void:
+    current_attack_kind = "shield_bash"
+    current_attack_damage = attack_damage * 1.2
+    current_attack_range = attack_range + 0.15
+    attack_windup_duration = 0.72
+    attack_recovery_duration = 0.96
+
 func _physics_process(delta: float) -> void:
     guard_open_timer = maxf(0.0, guard_open_timer - delta)
     super._physics_process(delta)
