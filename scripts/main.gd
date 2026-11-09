@@ -3,6 +3,7 @@ extends Node3D
 const PLAYER_SCRIPT = preload("res://scripts/player_controller.gd")
 const ENEMY_SCRIPT = preload("res://scripts/training_enemy.gd")
 const SHIELD_GUARD_SCRIPT = preload("res://scripts/shield_guard.gd")
+const WARDEN_SCRIPT = preload("res://scripts/warden_eira.gd")
 const HUD_SCRIPT = preload("res://scripts/mobile_hud.gd")
 const ASHEN_WORLD_ART = preload("res://scripts/ashen_world_art.gd")
 
@@ -14,6 +15,7 @@ var courtyard_enemy_respawn_timer := 0.0
 var enemy_respawn_timer := 0.0
 var guard_respawn_timer := 0.0
 var recovery_visual: MeshInstance3D
+var warden: StaticBody3D
 
 func _ready() -> void:
     _build_environment()
@@ -34,6 +36,7 @@ func _ready() -> void:
     _spawn_enemy()
     _spawn_shield_guard()
     _spawn_courtyard_enemy()
+    _spawn_warden()
     GameState.recovery_changed.connect(_update_recovery_marker)
     GameState.sanctuary_restored.connect(_on_sanctuary_restored)
     _update_recovery_marker(GameState.get_recovery_position(), GameState.get_dropped_essence(), GameState.has_recovery())
@@ -43,6 +46,7 @@ func _ready() -> void:
     hud.set_script(HUD_SCRIPT)
     add_child(hud)
     hud.set("player", player)
+    player.set("hud", hud)
 
 func _process(delta: float) -> void:
     if not is_instance_valid(enemy):
@@ -313,6 +317,13 @@ func _add_ashen_lantern(position: Vector3) -> void:
     glow.emission_energy_multiplier = 1.6
     flame.material_override = glow
     add_child(flame)
+
+func _spawn_warden() -> void:
+    warden = StaticBody3D.new()
+    warden.name = "WardenEira"
+    warden.set_script(WARDEN_SCRIPT)
+    warden.position = Vector3(-7.0, 0.0, -59.0)
+    add_child(warden)
 
 func _spawn_courtyard_enemy() -> void:
     courtyard_enemy = CharacterBody3D.new()
