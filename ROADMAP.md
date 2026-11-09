@@ -23,7 +23,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Camera collision and sensitivity tuning.
 - [x] Lock-on target cycling across living enemy archetypes.
 - [ ] Jump, fall, landing and traversal.
-- [ ] Animation-driven locomotion and combat state integration.
+- [x] Animation-driven player locomotion and combat state integration (first-pass clip switching; visual/device tuning remains).
 
 ## 2. Combat foundation
 - [x] WeaponData resource schema with Ashen Iron Sword and Ashen Watch Dagger definitions; light attack reads damage, stamina cost, range and timing.
@@ -44,10 +44,11 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 
 **The current capsule characters, stretched noise floor and flat lighting are known quality blockers.** Detailed production gates, target budgets, candidate asset sources, animation inventory and milestone exit criteria are in [docs/ART_ANIMATION_ASSET_ROADMAP.md](docs/ART_ANIMATION_ASSET_ROADMAP.md).
 - [ ] Deliver visual overhaul per [Art, Character and Animation Production Roadmap](docs/ART_ANIMATION_ASSET_ROADMAP.md).
-- [ ] Import and validate one CC0 humanoid base model and shared skeleton.
-- [ ] Import and validate Quaternius Universal Animation Library test clips.
-- [ ] Build player locomotion AnimationTree and full combat animation set.
-- [ ] Replace primitive hero and enemy stand-ins with rigged, distinct models.
+- [x] Import and validate CC0 Quaternius humanoid base model and 66-node shared skeleton.
+- [x] Merge and validate 43 Quaternius UAL1 clips (8,385 animation channels) onto the hero rig with name-matched GLB pipeline.
+- [x] Drive player idle, jog, sprint, roll, sword attack, guard and death clips from gameplay state using cross-faded AnimationPlayer transitions.
+- [ ] Replace AnimationPlayer state switching with a tuned AnimationTree blend graph and weapon-specific layered animation.
+- [ ] Replace enemy capsule stand-ins with distinct rigged enemy models; hero rig is now integrated, but armour and weapon attachments remain.
 - [x] Replace stretched noise ground with CC0 PBR concrete ground and rock-wall materials.\n- [ ] Add separate ash/soil/stone blend and material decals.
 - [ ] Build modular Ashen Kingdom architecture and authored prop set.
 - [ ] Complete environment lighting, fog, sky, VFX and audio pass.
