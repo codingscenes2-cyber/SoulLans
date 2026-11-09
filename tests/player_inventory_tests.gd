@@ -23,7 +23,9 @@ func _run() -> void:
     _expect(bool(player.call("use_inventory_item", "ashen_tonic")), "player can consume an Ashen Tonic")
     _expect(is_equal_approx(float(player.get("health")), 95.0), "Ashen Tonic restores 45 health")
     _expect(GameState.get_item_count("ashen_tonic") == 1, "consumed tonic is removed from inventory")
-    _expect(not bool(player.call("use_inventory_item", "ashen_tonic")) or float(player.get("health")) == float(player.get("max_health")), "tonic use cannot exceed maximum health")
+    _expect(bool(player.call("use_inventory_item", "ashen_tonic")), "second tonic can be used to top off health")
+    _expect(is_equal_approx(float(player.get("health")), float(player.get("max_health"))), "tonic healing clamps at maximum health")
+    _expect(not bool(player.call("use_inventory_item", "ashen_tonic")), "consumed tonics cannot be used again")
 
     player.queue_free()
     await process_frame
