@@ -350,7 +350,7 @@ func get_status() -> Dictionary:
 func _create_placeholder_body() -> void:
     # Load the licensed humanoid when the asset pipeline has supplied it.
     # Keep a collision capsule for predictable mobile combat physics.
-    var model_path := "res://assets/characters/ashen_hero.glb"
+    var model_path := "res://assets/characters/ashen_hero_animated.glb"
     var model_loaded := false
     if ResourceLoader.exists(model_path):
         var model_scene := load(model_path) as PackedScene
