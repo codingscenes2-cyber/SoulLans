@@ -305,16 +305,16 @@ func _find_enemy_animation_player(node: Node) -> AnimationPlayer:
 func _update_enemy_animation() -> void:
     if not is_instance_valid(enemy_animation_player):
         return
-    var candidates: Array[String] = ["Zombie_Idle", "Idle_Loop", "Idle"]
+    var candidates: Array[String] = ["Zombie_Idle", "Idle"]
     match state:
         State.PATROL, State.INVESTIGATE:
-            candidates = ["Zombie_Walk_Fwd", "Walk_Loop", "Walk", "Jog_Fwd_Loop"]
+            candidates = ["Zombie_Walk_Fwd", "Walk", "Jog_Fwd"]
         State.CHASE:
-            candidates = ["Zombie_Run_Fwd", "Jog_Fwd_Loop", "Jog_Fwd", "Sprint_Loop"]
+            candidates = ["Jog_Fwd", "Sprint"]
         State.WINDUP:
             candidates = ["Zombie_Attack", "Sword_Attack", "Punch"]
         State.RECOVERY:
-            candidates = ["Zombie_Idle", "Sword_Idle", "Idle_Loop"]
+            candidates = ["Zombie_Idle", "Sword_Idle", "Idle"]
         State.STAGGER:
             candidates = ["Hit_Chest", "Hit_React", "Zombie_Hit"]
         State.DEAD:
