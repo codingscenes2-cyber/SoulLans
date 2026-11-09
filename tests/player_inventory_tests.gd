@@ -25,8 +25,8 @@ func _run() -> void:
     var damage_before_upgrade: float = float(player.call("_get_scaled_weapon_damage"))
     var test_smith := Node3D.new()
     test_smith.add_to_group("blacksmiths")
-    test_smith.global_position = Vector3(4.2, 1.05, 6.0)
     root.add_child(test_smith)
+    test_smith.global_position = Vector3(4.2, 1.05, 6.0)
     player.global_position = test_smith.global_position
     _expect(bool(player.call("is_near_blacksmith")), "blacksmith proximity is detected")
     print("Inventory test: blacksmith located")
