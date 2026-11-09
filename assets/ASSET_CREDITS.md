@@ -6,8 +6,9 @@ No third-party art, animation, audio or VFX asset may be committed without recor
 |---|---|---|---|---|---|
 | Prototype primitives | Project code | Generated at runtime | Original code | N/A | None |
 | Ashen Kingdom arches, rocks, dead trees, banners and noise stone texture | Project code (`scripts/ashen_world_art.gd`) | Generated at runtime with Godot FastNoiseLite / NoiseTexture2D | Original procedural code | Runtime geometry and seamless noise albedo | None |
-| CC0 external asset sources reviewed for future model integration (not bundled in this APK) | Poly Haven | https://polyhaven.com/license | CC0 1.0 | Source verified; no third-party files imported in this update | Not required |
-| CC0 external asset sources reviewed for future model integration (not bundled in this APK) | Quaternius | https://quaternius.com/faq.html | CC0 1.0 | Source verified; no third-party files imported in this update | Not required |
+| Concrete Floor 01 PBR texture set (1K diffuse, OpenGL normal, roughness) | Poly Haven / original listed author | https://polyhaven.com/a/concrete_floor_01 | CC0 1.0 | Downloaded during Android CI build; used for ground and road surfaces | Not required; Poly Haven source credit in-game planned |
+| Rock Wall 17 PBR texture set (1K diffuse, OpenGL normal, roughness) | Poly Haven / original listed author | https://polyhaven.com/a/rock_wall_17 | CC0 1.0 | Downloaded during Android CI build; used for stone architecture and props | Not required; Poly Haven source credit in-game planned |
+| CC0 external character/animation sources reviewed (not yet integrated) | Quaternius | https://quaternius.com/faq.html | CC0 1.0 per exact pack page; re-check at import | Candidate only; no character or animation files bundled | Pack-specific attribution to be recorded on integration |
 
 Rules:
 - Prefer original assets or licences that explicitly permit use in a commercial game.
