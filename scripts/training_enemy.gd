@@ -159,7 +159,52 @@ func can_hit_player() -> bool:
     return forward.normalized().dot(to_player.normalized()) >= cos(deg_to_rad(55.0))
 
 func _should_begin_attack(distance: float) -> bool:
-    return distance <= attack_range
+    return distance <= attack_range and _is_primary_group_attacker()
+
+# Enemies in the same engagement receive deterministic positions around the
+# player. The closest living unit owns the attack lane; the others pressure
+# the sides instead of stacking into one another or all telegraphing at once.
+func _get_group_rank() -> int:
+    if not is_instance_valid(player):
+        return 0
+    var rank := 0
+    for ally in get_tree().get_nodes_in_group("enemies"):
+        if ally == self or not is_instance_valid(ally) or not ally is CharacterBody3D:
+            continue
+        if ally.get("state") == State.DEAD:
+            continue
+        if ally.global_position.distance_to(player.global_position) > group_alert_radius + 4.0:
+            continue
+        var ally_distance := ally.global_position.distance_to(player.global_position)
+        var my_distance := global_position.distance_to(player.global_position)
+        if ally_distance < my_distance - 0.05 or (absf(ally_distance - my_distance) <= 0.05 and ally.get_instance_id() < get_instance_id()):
+            rank += 1
+    return rank
+
+func _get_group_size() -> int:
+    if not is_instance_valid(player):
+        return 1
+    var count := 0
+    for ally in get_tree().get_nodes_in_group("enemies"):
+        if not is_instance_valid(ally) or not ally is CharacterBody3D:
+            continue
+        if ally.get("state") == State.DEAD:
+            continue
+        if ally.global_position.distance_to(player.global_position) <= group_alert_radius + 4.0:
+            count += 1
+    return maxi(1, count)
+
+func _is_primary_group_attacker() -> bool:
+    return _get_group_rank() == 0
+
+func _get_group_flank_destination(desired_radius: float) -> Vector3:
+    if not is_instance_valid(player):
+        return global_position
+    var count := _get_group_size()
+    var rank := _get_group_rank()
+    var angle := player.global_rotation.y + TAU * float(rank) / float(count)
+    var offset := Vector3(cos(angle), 0.0, sin(angle)) * desired_radius
+    return player.global_position + offset
 
 # Alternate between a fast, low-commitment cut and a slower, higher-damage
 # overhead. The wind-up/recovery timings are readable dodge/parry windows.
@@ -186,7 +231,11 @@ func _begin_attack(distance: float) -> void:
     _set_telegraph(true)
 
 func _get_chase_destination() -> Vector3:
-    return player.global_position if is_instance_valid(player) else global_position
+    if not is_instance_valid(player):
+        return global_position
+    if _get_group_rank() > 0:
+        return _get_group_flank_destination(clampf(attack_range * 0.82, 1.8, 3.2))
+    return player.global_position
 
 func _move_toward_point(point: Vector3, speed: float, delta: float) -> bool:
     var destination := point
