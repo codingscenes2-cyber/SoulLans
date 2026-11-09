@@ -39,6 +39,9 @@ var locked_on := false
 var camera_yaw := 0.0
 var camera_pitch := -0.12
 var invulnerability_timer := 0.0
+var parry_timer := 0.0
+var is_blocking := false
+var guard_broken_timer := 0.0
 
 func _ready() -> void:
     add_to_group("player")
@@ -64,13 +67,19 @@ func _physics_process(delta: float) -> void:
             attack_has_hit = true
     dodge_timer = maxf(0.0, dodge_timer - delta)
     invulnerability_timer = maxf(0.0, invulnerability_timer - delta)
+    parry_timer = maxf(0.0, parry_timer - delta)
+    guard_broken_timer = maxf(0.0, guard_broken_timer - delta)
+    is_blocking = Input.is_action_pressed("block") and guard_broken_timer <= 0.0 and dodge_timer <= 0.0
+    if Input.is_action_just_pressed("parry") and guard_broken_timer <= 0.0 and dodge_timer <= 0.0 and attack_cooldown <= 0.0:
+        parry_timer = 0.22
+        is_blocking = true
     stamina_regen_timer = maxf(0.0, stamina_regen_timer - delta)
     if stamina_regen_timer <= 0.0:
         stamina = minf(max_stamina, stamina + stamina_regen_rate * delta)
 
     if Input.is_action_just_pressed("dodge"):
         perform_dodge()
-    if Input.is_action_just_pressed("attack"):
+    if Input.is_action_just_pressed("attack") and not is_blocking:
         perform_attack()
     if Input.is_action_just_pressed("heal"):
         use_healing_flask()
@@ -133,7 +142,7 @@ func add_camera_look(relative_motion: Vector2) -> void:
     _update_camera()
 
 func perform_dodge() -> void:
-    if stamina < 25.0 or dodge_timer > 0.0:
+    if stamina < 25.0 or dodge_timer > 0.0 or is_blocking:
         return
     stamina -= 25.0
     stamina_regen_timer = stamina_regen_delay
@@ -198,7 +207,7 @@ func perform_attack() -> void:
     var windup := float(equipped_weapon.get("light_windup")) if is_instance_valid(equipped_weapon) else 0.13
     var active := float(equipped_weapon.get("light_active")) if is_instance_valid(equipped_weapon) else 0.11
     var recovery := float(equipped_weapon.get("light_recovery")) if is_instance_valid(equipped_weapon) else 0.41
-    if attack_cooldown > 0.0 or stamina < stamina_cost or dodge_timer > 0.0:
+    if attack_cooldown > 0.0 or stamina < stamina_cost or dodge_timer > 0.0 or is_blocking:
         return
     stamina -= stamina_cost
     stamina_regen_timer = stamina_regen_delay
@@ -238,9 +247,37 @@ func use_healing_flask() -> bool:
     return true
 
 func take_damage(amount: float) -> void:
-    if invulnerability_timer > 0.0 or health <= 0.0:
+    if invulnerability_timer > 0.0 or health <= 0.0 or amount <= 0.0:
         return
-    health = maxf(0.0, health - amount)
+    var facing_target := false
+    if is_instance_valid(target):
+        var toward_attacker := target.global_position - global_position
+        toward_attacker.y = 0.0
+        if toward_attacker.length() > 0.01:
+            facing_target = (-global_transform.basis.z).dot(toward_attacker.normalized()) >= 0.25
+    if parry_timer > 0.0 and facing_target:
+        parry_timer = 0.0
+        is_blocking = false
+        if is_instance_valid(target) and target.has_method("receive_parry"):
+            target.receive_parry()
+        stamina = minf(max_stamina, stamina + 8.0)
+        stats_changed.emit(health, stamina)
+        return
+    if is_blocking and facing_target:
+        var guard_cost := amount * 1.35
+        if stamina >= guard_cost:
+            stamina -= guard_cost
+            stamina_regen_timer = stamina_regen_delay
+            stats_changed.emit(health, stamina)
+            return
+        var overflow := guard_cost - stamina
+        stamina = 0.0
+        guard_broken_timer = 1.1
+        is_blocking = false
+        health = maxf(0.0, health - minf(amount, overflow / 1.35 + amount * 0.25))
+    else:
+        health = maxf(0.0, health - amount)
+    stats_changed.emit(health, stamina)
     if health <= 0.0:
         died.emit()
 
@@ -317,6 +354,8 @@ func _setup_input_map() -> void:
     _ensure_key_action("dodge", KEY_SPACE)
     _ensure_key_action("heal", KEY_R)
     _ensure_key_action("lock_on", KEY_TAB)
+    _ensure_key_action("block", KEY_F)
+    _ensure_key_action("parry", KEY_G)
     _ensure_key_action("interact", KEY_E)
     _ensure_key_action("switch_weapon", KEY_Q)
     _ensure_key_action("level_vigor", KEY_1)
