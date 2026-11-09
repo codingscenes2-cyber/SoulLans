@@ -29,8 +29,8 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
     if is_instance_valid(player) and player.has_method("get_status"):
         var data: Dictionary = player.get_status()
-        status_label.text = "SOUL LAND   HP %d/%d   STAMINA %d/%d" % [
-            int(data.health), int(data.max_health), int(data.stamina), int(data.max_stamina)
+        status_label.text = "SOUL LAND   HP %d/%d   STAMINA %d/%d   SOUL ESSENCE %d" % [
+            int(data.health), int(data.max_health), int(data.stamina), int(data.max_stamina), GameState.get_soul_essence()
         ]
 
 func _on_root_gui_input(event: InputEvent) -> void:
