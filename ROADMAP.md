@@ -63,7 +63,8 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Second enemy archetype prototype: Ashen Watch Shield Guard mitigates frontal hits, takes pressure from repeated attacks and exposes a timed guard-break opening.
 - [x] Telegraph-based attack selection: Hollow alternates quick slashes and slower, higher-damage overheads; Shield Guard uses a heavier shield bash; Archer retains a dedicated ranged bolt profile. Each has a distinct timing/damage profile and an emissive ground-ring wind-up cue.
 - [x] Nearby enemy group awareness: nearby idle/patrolling allies investigate the initiating enemy's last known player position; distant enemies remain uninvolved.
-- [ ] Group encounters, elites and mini-bosses. (Ashen Ember Archer ranged archetype implemented and placed in the outer courtyard; headless regression validation pending.)
+- [x] First elite encounter: Ashen Vanguard at the Ashen Road approach, with 285 HP, high poise, ember aura, alternating cleave/crush attacks, nearby-enemy alert radius, and a one-time persistent reward of 180 Soul Essence + 3 Tempered Plates. Spawn is suppressed permanently after defeat; headless regression test added, CI/device validation pending.
+- [ ] Multi-wave group encounters, coordinated flanks and additional elite variants.
 - [x] First boss framework: quest-gated Ashen Regent, three combat phases, telegraphed slam, unique reward, boss HUD and persistent throne-gate progression; additional bosses and arena tuning remain.
 
 ## 5. First vertical slice — Ashen Kingdom
