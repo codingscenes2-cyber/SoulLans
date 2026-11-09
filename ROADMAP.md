@@ -8,8 +8,9 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Runtime graybox arena.
 - [x] Placeholder player, enemy and touch HUD.
 - [x] Validate project import and parser in Godot 4.x through GitHub Actions headless import.
-- [x] Add an arm64 Android debug export preset and a manual GitHub Actions export workflow (first export pending).
-- [ ] Verify debug APK export, install and test on target hardware.
+- [x] Add an arm64 Android debug export preset and a GitHub Actions export workflow.
+- [x] Export and signature-verify the first ARM64 debug APK (run #6; device install pending).
+- [ ] Install and test on target hardware.
 - [x] Add automated headless import/startup check to CI; latest recorded runs passed.
 
 ## 1. Player controller and camera
@@ -104,4 +105,5 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Graphics presets, frame pacing and thermal testing.
 - [ ] Save migration and regression test suite.
 - [ ] Signed release APK and versioned source archive.
-- [ ] Verify APK install/launch and upload link before release announcement.
+- [ ] Verify APK install/launch and gameplay on target Android hardware before prototype announcement.
+- [ ] Produce release-signed APK and verify external upload link before release announcement.
