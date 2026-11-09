@@ -39,6 +39,7 @@ func award_soul_essence(amount: int) -> void:
     var player_data: Dictionary = data.get("player", {})
     player_data["soul_essence"] = maxi(0, int(player_data.get("soul_essence", 0)) + amount)
     data["player"] = player_data
+    save_game()
 
 func get_soul_essence() -> int:
     return int(data.get("player", {}).get("soul_essence", 0))
@@ -57,11 +58,10 @@ func rest_at_sanctuary(position: Vector3, player: Node) -> void:
 
 func register_player_death(death_position: Vector3) -> void:
     var lost := get_soul_essence()
-    if lost > 0:
-        data["dropped_essence"] = lost
-        data["recovery_position"] = [death_position.x, death_position.y, death_position.z]
-        data["has_recovery"] = true
-        recovery_changed.emit(death_position, lost, true)
+    data["dropped_essence"] = lost
+    data["recovery_position"] = [death_position.x, death_position.y, death_position.z]
+    data["has_recovery"] = lost > 0
+    recovery_changed.emit(death_position, lost, lost > 0)
     var player_data: Dictionary = data.get("player", {})
     player_data["soul_essence"] = 0
     player_data["health"] = 100.0
