@@ -12,6 +12,7 @@ func _run() -> void:
         quit(1)
         return
     player.set_script(player_script)
+    player.set("enable_visual_body", false)
     root.add_child(player)
     await process_frame
     if not player.has_method("is_target_in_melee_arc"):
