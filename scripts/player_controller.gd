@@ -141,7 +141,7 @@ func _cycle_lock_target() -> void:
     var chosen: Node3D
     var best_distance := INF
     for candidate in candidates:
-        if not is_instance_valid(candidate) or not candidate is Node3D:
+        if not is_instance_valid(candidate) or not candidate is Node3D or candidate.is_queued_for_deletion():
             continue
         if locked_on and is_instance_valid(target) and candidate == target and candidates.size() > 1:
             continue
