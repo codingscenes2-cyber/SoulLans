@@ -38,6 +38,7 @@ var attack_cooldown := 0.0
 var attack_windup := 0.0
 var attack_active_timer := 0.0
 var attack_has_hit := false
+var attack_movement_multiplier := 1.0
 var dodge_direction := Vector3.FORWARD
 var locked_on := false
 var camera_yaw := 0.0
@@ -117,6 +118,8 @@ func _physics_process(delta: float) -> void:
         velocity.z = dodge_direction.z * dodge_speed
     else:
         var speed := sprint_speed if sprinting else move_speed
+        if attack_cooldown > 0.0:
+            speed *= attack_movement_multiplier
         if sprinting:
             stamina = maxf(0.0, stamina - 12.0 * delta)
             stamina_regen_timer = stamina_regen_delay * 0.65
@@ -243,6 +246,7 @@ func perform_attack() -> void:
     current_attack_range = float(equipped_weapon.get("attack_range")) if is_instance_valid(equipped_weapon) else 2.5
     attack_active_duration = active
     attack_cooldown = windup + active + recovery
+    attack_movement_multiplier = 0.55
     attack_windup = windup
 
 func perform_heavy_attack() -> void:
@@ -263,6 +267,7 @@ func perform_heavy_attack() -> void:
     current_attack_range = (float(equipped_weapon.get("attack_range")) if is_instance_valid(equipped_weapon) else 2.5) + 0.2
     attack_active_duration = active
     attack_cooldown = windup + active + recovery
+    attack_movement_multiplier = 0.35
     attack_windup = windup
 
 func _resolve_melee_hit() -> void:
