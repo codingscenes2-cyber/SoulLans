@@ -10,6 +10,15 @@ const SAVE_VERSION := 2
 const RECOVERY_RADIUS := 2.6
 const AUTOSAVE_INTERVAL := 15.0
 
+const ITEM_CATALOG := {
+    "ashen_iron_sword": {"name": "Ashen Iron Sword", "type": "weapon", "description": "Balanced straight sword recovered from the old watchpost."},
+    "ashen_watch_dagger": {"name": "Ashen Watch Dagger", "type": "weapon", "description": "Fast sidearm with short reach and quick recovery."},
+    "ashen_tonic": {"name": "Ashen Tonic", "type": "consumable", "description": "Restores 45 HP. Cannot exceed maximum health."},
+    "ashen_scrap": {"name": "Ashen Scrap", "type": "material", "description": "Salvaged metal fragments from fallen Ashen foes."},
+    "tempered_plate": {"name": "Tempered Plate", "type": "material", "description": "A durable plate stripped from an Ashen Watch shield."}
+}
+
+
 var autosave_timer := 0.0
 
 var data: Dictionary = {
@@ -38,14 +47,6 @@ func _process(delta: float) -> void:
     if autosave_timer >= AUTOSAVE_INTERVAL:
         autosave_timer = 0.0
         save_game()
-
-const ITEM_CATALOG := {
-    "ashen_iron_sword": {"name": "Ashen Iron Sword", "type": "weapon", "description": "Balanced straight sword recovered from the old watchpost."},
-    "ashen_watch_dagger": {"name": "Ashen Watch Dagger", "type": "weapon", "description": "Fast sidearm with short reach and quick recovery."},
-    "ashen_tonic": {"name": "Ashen Tonic", "type": "consumable", "description": "Restores 45 HP. Cannot exceed maximum health."},
-    "ashen_scrap": {"name": "Ashen Scrap", "type": "material", "description": "Salvaged metal fragments from fallen Ashen foes."},
-    "tempered_plate": {"name": "Tempered Plate", "type": "material", "description": "A durable plate stripped from an Ashen Watch shield."}
-}
 
 func _ensure_starter_inventory() -> void:
     var items: Array = data.get("inventory", [])
