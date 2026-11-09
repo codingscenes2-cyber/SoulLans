@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const JOYSTICK_SCRIPT = preload("res://scripts/mobile_joystick.gd")
+
 var player: Node
 var status_label: Label
 
@@ -12,6 +14,8 @@ func _ready() -> void:
 
     status_label = Label.new()
     status_label.position = Vector2(22, 18)
+    status_label.size = Vector2(680, 58)
+    status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
     status_label.add_theme_font_size_override("font_size", 18)
     status_label.add_theme_color_override("font_color", Color(0.92, 0.88, 0.78))
     root.add_child(status_label)
@@ -21,11 +25,16 @@ func _ready() -> void:
     _add_button(root, "LOCK", Vector2(-142, -258), "lock_on", Vector2(96, 54), true)
     _add_button(root, "REST / USE", Vector2(-270, -258), "interact", Vector2(112, 54), true)
     _add_button(root, "WEAPON", Vector2(-142, -350), "switch_weapon", Vector2(96, 52), true)
-    _add_button(root, "↑", Vector2(92, -192), "move_forward", Vector2(58, 58), false)
-    _add_button(root, "↓", Vector2(92, -66), "move_back", Vector2(58, 58), false)
-    _add_button(root, "←", Vector2(28, -129), "move_left", Vector2(58, 58), false)
-    _add_button(root, "→", Vector2(156, -129), "move_right", Vector2(58, 58), false)
-    _add_button(root, "RUN", Vector2(28, -260), "sprint", Vector2(86, 52), false)
+    var joystick := Control.new()
+    joystick.name = "MovementJoystick"
+    joystick.set_script(JOYSTICK_SCRIPT)
+    joystick.anchor_top = 1.0
+    joystick.anchor_bottom = 1.0
+    joystick.position = Vector2(22.0, -195.0)
+    joystick.custom_minimum_size = Vector2(170.0, 170.0)
+    joystick.size = Vector2(170.0, 170.0)
+    root.add_child(joystick)
+    _add_button(root, "RUN", Vector2(205, -92), "sprint", Vector2(86, 52), false)
 
 func _process(_delta: float) -> void:
     if is_instance_valid(player) and player.has_method("get_status"):
