@@ -238,6 +238,12 @@ func _refresh_inventory_panel() -> void:
             armor_button.disabled = armor_equipped
             armor_button.pressed.connect(_on_inventory_armor.bind(item_id))
             row.add_child(armor_button)
+            var at_blacksmith_for_armor := is_instance_valid(player) and player.has_method("is_near_blacksmith") and player.is_near_blacksmith()
+            var armor_upgrade_button := Button.new()
+            armor_upgrade_button.text = "REINFORCE"
+            armor_upgrade_button.disabled = not at_blacksmith_for_armor or not GameState.can_upgrade_armor(item_id)
+            armor_upgrade_button.pressed.connect(_on_inventory_armor_upgrade.bind(item_id))
+            row.add_child(armor_upgrade_button)
         elif item_type == "weapon":
             var equip_button := Button.new()
             equip_button.text = "EQUIPPED" if item_id == equipped_id else "EQUIP"
@@ -255,6 +261,12 @@ func _refresh_inventory_panel() -> void:
             use_button.text = "USE"
             use_button.pressed.connect(_on_inventory_use.bind(item_id))
             row.add_child(use_button)
+
+func _on_inventory_armor_upgrade(item_id: String) -> void:
+    if is_instance_valid(player) and player.has_method("upgrade_armor_by_id"):
+        if player.upgrade_armor_by_id(item_id):
+            show_message("Armour reinforced to +" + str(GameState.get_armor_upgrade_level(item_id)) + ".")
+            _refresh_inventory_panel()
 
 func _on_inventory_armor(item_id: String) -> void:
     if is_instance_valid(player) and player.has_method("equip_armor_by_id"):
