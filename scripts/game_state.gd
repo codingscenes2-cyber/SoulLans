@@ -17,6 +17,7 @@ var data: Dictionary = {
     "player": {"health": 100.0, "stamina": 100.0, "level": 1, "soul_essence": 0, "attributes": {"vigor": 10, "endurance": 10, "strength": 10, "dexterity": 10}, "healing_flasks": 3, "max_healing_flasks": 3},
     "location": "ashen_kingdom_training_ground",
     "inventory": [],
+    "equipment": {"weapon": "ashen_iron_sword"},
     "discovered_areas": [],
     "defeated_bosses": [],
     "quest_flags": {},
@@ -30,12 +31,100 @@ var data: Dictionary = {
 
 func _ready() -> void:
     load_game()
+    _ensure_starter_inventory()
 
 func _process(delta: float) -> void:
     autosave_timer += delta
     if autosave_timer >= AUTOSAVE_INTERVAL:
         autosave_timer = 0.0
         save_game()
+
+const ITEM_CATALOG := {
+    "ashen_iron_sword": {"name": "Ashen Iron Sword", "type": "weapon", "description": "Balanced straight sword recovered from the old watchpost."},
+    "ashen_watch_dagger": {"name": "Ashen Watch Dagger", "type": "weapon", "description": "Fast sidearm with short reach and quick recovery."},
+    "ashen_tonic": {"name": "Ashen Tonic", "type": "consumable", "description": "Restores 45 HP. Cannot exceed maximum health."},
+    "ashen_scrap": {"name": "Ashen Scrap", "type": "material", "description": "Salvaged metal fragments from fallen Ashen foes."},
+    "tempered_plate": {"name": "Tempered Plate", "type": "material", "description": "A durable plate stripped from an Ashen Watch shield."}
+}
+
+func _ensure_starter_inventory() -> void:
+    var items: Array = data.get("inventory", [])
+    var changed := false
+    for starter_id in ["ashen_iron_sword", "ashen_watch_dagger", "ashen_tonic"]:
+        if get_item_count(starter_id) <= 0:
+            items.append({"id": starter_id, "quantity": 2 if starter_id == "ashen_tonic" else 1})
+            changed = true
+    data["inventory"] = items
+    var equipment: Dictionary = data.get("equipment", {})
+    if str(equipment.get("weapon", "")).is_empty():
+        equipment["weapon"] = "ashen_iron_sword"
+        data["equipment"] = equipment
+        changed = true
+    if changed:
+        save_game()
+
+func get_inventory() -> Array:
+    var items: Array = data.get("inventory", [])
+    return items.duplicate(true)
+
+func get_item_info(item_id: String) -> Dictionary:
+    return (ITEM_CATALOG.get(item_id, {}) as Dictionary).duplicate(true)
+
+func get_item_count(item_id: String) -> int:
+    var items: Array = data.get("inventory", [])
+    for entry in items:
+        if entry is Dictionary and str(entry.get("id", "")) == item_id:
+            return maxi(0, int(entry.get("quantity", 0)))
+    return 0
+
+func add_item(item_id: String, quantity: int = 1) -> bool:
+    if not ITEM_CATALOG.has(item_id) or quantity <= 0:
+        return false
+    var items: Array = data.get("inventory", [])
+    for index in range(items.size()):
+        if items[index] is Dictionary and str(items[index].get("id", "")) == item_id:
+            var entry: Dictionary = items[index]
+            entry["quantity"] = int(entry.get("quantity", 0)) + quantity
+            items[index] = entry
+            data["inventory"] = items
+            save_game()
+            return true
+    items.append({"id": item_id, "quantity": quantity})
+    data["inventory"] = items
+    save_game()
+    return true
+
+func remove_item(item_id: String, quantity: int = 1) -> bool:
+    if quantity <= 0 or get_item_count(item_id) < quantity:
+        return false
+    var items: Array = data.get("inventory", [])
+    for index in range(items.size()):
+        if items[index] is Dictionary and str(items[index].get("id", "")) == item_id:
+            var entry: Dictionary = items[index]
+            var remaining := int(entry.get("quantity", 0)) - quantity
+            if remaining <= 0:
+                items.remove_at(index)
+            else:
+                entry["quantity"] = remaining
+                items[index] = entry
+            data["inventory"] = items
+            save_game()
+            return true
+    return false
+
+func get_equipped_weapon_id() -> String:
+    var equipment: Dictionary = data.get("equipment", {})
+    return str(equipment.get("weapon", "ashen_iron_sword"))
+
+func equip_weapon(item_id: String) -> bool:
+    var info := get_item_info(item_id)
+    if str(info.get("type", "")) != "weapon" or get_item_count(item_id) <= 0:
+        return false
+    var equipment: Dictionary = data.get("equipment", {})
+    equipment["weapon"] = item_id
+    data["equipment"] = equipment
+    save_game()
+    return true
 
 func update_player_snapshot(health: float, stamina: float) -> void:
     var player_data: Dictionary = data.get("player", {})
