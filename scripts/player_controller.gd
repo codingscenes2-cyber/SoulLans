@@ -366,8 +366,8 @@ func _create_placeholder_body() -> void:
             _apply_hero_material(hero_rig)
             add_child(hero_rig)
             hero_animation_player = _find_animation_player(hero_rig)
-            if is_instance_valid(hero_animation_player) and hero_animation_player.has_animation("Idle"):
-                hero_animation_player.play("Idle")
+            if is_instance_valid(hero_animation_player) and hero_animation_player.has_animation("/Idle"):
+                hero_animation_player.play("/Idle")
                 current_hero_animation = "Idle"
             model_loaded = true
     if not model_loaded:
@@ -415,8 +415,9 @@ func _update_hero_animation(input_vector: Vector2, sprinting: bool) -> void:
         desired = "Sprint" if sprinting else "Jog_Fwd"
     if desired == current_hero_animation:
         return
-    if hero_animation_player.has_animation(desired):
-        hero_animation_player.play(desired, 0.12)
+    var clip_name := "/" + desired
+    if hero_animation_player.has_animation(clip_name):
+        hero_animation_player.play(clip_name, 0.12)
         current_hero_animation = desired
 
 func _sanitize_hero_meshes(root: Node) -> void:
