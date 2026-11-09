@@ -21,6 +21,7 @@ func _ready() -> void:
     if is_instance_valid(enemy_material):
         enemy_material.albedo_color = Color(0.25, 0.3, 0.38)
     _create_shield()
+    _create_guard_armor()
 
 func _physics_process(delta: float) -> void:
     guard_open_timer = maxf(0.0, guard_open_timer - delta)
@@ -91,3 +92,30 @@ func _create_shield() -> void:
     shield_material.roughness = 0.38
     shield_visual.material_override = shield_material
     add_child(shield_visual)
+
+func _create_guard_armor() -> void:
+    # Layered iron plates give the slow frontline unit a broad, defensive silhouette.
+    _add_enemy_armor_piece("GuardIronHelm", SphereMesh.new(), Vector3(0.0, 1.78, 0.0), Vector3(0.48, 0.32, 0.42), Color(0.19, 0.23, 0.29), 0.78)
+    _add_enemy_armor_piece("GuardBreastplate", BoxMesh.new(), Vector3(0.0, 1.22, -0.02), Vector3(0.88, 0.66, 0.34), Color(0.24, 0.29, 0.36), 0.82)
+    _add_enemy_armor_piece("GuardLeftPauldron", SphereMesh.new(), Vector3(-0.48, 1.43, 0.0), Vector3(0.34, 0.22, 0.34), Color(0.31, 0.34, 0.38), 0.76)
+    _add_enemy_armor_piece("GuardRightPauldron", SphereMesh.new(), Vector3(0.48, 1.43, 0.0), Vector3(0.34, 0.22, 0.34), Color(0.31, 0.34, 0.38), 0.76)
+    _add_enemy_armor_piece("GuardWaistFauld", BoxMesh.new(), Vector3(0.0, 0.82, 0.0), Vector3(0.72, 0.24, 0.32), Color(0.18, 0.21, 0.26), 0.68)
+
+func _add_enemy_armor_piece(node_name: String, mesh: Mesh, piece_position: Vector3, piece_scale: Vector3, color: Color, metalness: float) -> MeshInstance3D:
+    var piece := MeshInstance3D.new()
+    piece.name = node_name
+    mesh.resource_local_to_scene = true
+    if mesh is BoxMesh:
+        (mesh as BoxMesh).size = piece_scale
+        piece.scale = Vector3.ONE
+    else:
+        piece.scale = piece_scale
+    piece.mesh = mesh
+    piece.position = piece_position
+    var material := StandardMaterial3D.new()
+    material.albedo_color = color
+    material.metallic = metalness
+    material.roughness = 0.48
+    piece.material_override = material
+    add_child(piece)
+    return piece
