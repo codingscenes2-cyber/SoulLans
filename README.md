@@ -29,4 +29,4 @@ The repository now contains a playable-prototype foundation: third-person moveme
 - Touch-first Android UI and performance-conscious rendering.
 - Persistent choices, NPC relationships, quests and multiple endings.
 
-See ROADMAP.md and docs/ for the staged production plan and subsystem specifications.
+See [ROADMAP.md](ROADMAP.md), the [prototype readiness map](docs/PROTOTYPE_READINESS.md) and docs/ for the staged production plan, current build gates and subsystem specifications.
