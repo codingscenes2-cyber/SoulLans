@@ -29,7 +29,33 @@ func _run() -> void:
         quit(1)
         return
 
+    player.attack_cooldown = 0.5
+    player.attack_windup = 0.2
+    player.attack_active_timer = 0.0
+    player.dodge_timer = 0.0
+    player.perform_dodge()
+    if player.dodge_timer > 0.0:
+        push_error("Dodge must not cancel attack wind-up.")
+        quit(1)
+        return
+
+    player.attack_windup = 0.0
+    player.attack_active_timer = 0.1
+    player.perform_dodge()
+    if player.dodge_timer > 0.0:
+        push_error("Dodge must not cancel the active strike.")
+        quit(1)
+        return
+
+    player.attack_active_timer = 0.0
+    player.attack_cooldown = 0.3
+    player.perform_dodge()
+    if player.dodge_timer <= 0.0 or player.attack_cooldown > 0.0:
+        push_error("Dodge should cancel recovery when permitted.")
+        quit(1)
+        return
+
     player.queue_free()
     await process_frame
-    print("PASS: light and heavy attack movement commitment values")
+    print("PASS: attack commitment and recovery-only dodge cancel")
     quit(0)
