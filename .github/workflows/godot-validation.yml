@@ -18,9 +18,17 @@ jobs:
           version: 4.3.0
           use-dotnet: false
           include-templates: false
-      - name: Fetch pinned CC0 Quaternius humanoid\n        shell: bash\n        run: |\n          set -euo pipefail\n          mkdir -p assets/characters\n          curl -fL --retry 3 "https://raw.githubusercontent.com/programasweights/avatar/a488723e3a93d73d5c562d88f8a85353c37bc721/public/assets/character.glb" -o assets/characters/ashen_hero.glb\n          curl -fL --retry 3 "https://raw.githubusercontent.com/programasweights/avatar/a488723e3a93d73d5c562d88f8a85353c37bc721/public/assets/QUATERNIUS-LICENSE.txt" -o assets/characters/QUATERNIUS-LICENSE.txt\n          test "$(stat -c %s assets/characters/ashen_hero.glb)" -eq 741320\n      - name: Import project and validate scripts
+      - name: Fetch pinned CC0 Quaternius humanoid
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/characters
+          curl -fL --retry 3 "https://raw.githubusercontent.com/programasweights/avatar/a488723e3a93d73d5c562d88f8a85353c37bc721/public/assets/character.glb" -o assets/characters/ashen_hero.glb
+          curl -fL --retry 3 "https://raw.githubusercontent.com/programasweights/avatar/a488723e3a93d73d5c562d88f8a85353c37bc721/public/assets/QUATERNIUS-LICENSE.txt" -o assets/characters/QUATERNIUS-LICENSE.txt
+          test "$(stat -c %s assets/characters/ashen_hero.glb)" -eq 741320\n      - name: Import project and validate scripts
         run: godot --headless --editor --path . --quit
       - name: Launch main scene headlessly
         run: godot --headless --path . --quit-after 5
-      - name: Run rigged character asset smoke test\n        run: godot --headless --path . --script res://tests/character_asset_tests.gd\n      - name: Run save-system regression tests
+      - name: Run rigged character asset smoke test
+        run: godot --headless --path . --script res://tests/character_asset_tests.gd\n      - name: Run save-system regression tests
         run: godot --headless --path . --script res://tests/game_state_tests.gd
