@@ -26,13 +26,21 @@ func _run() -> void:
             enemy.queue_free()
             quit(1)
             return
-        animation_player.play(entry.idle)
-        if animation_player.current_animation != entry.idle:
-            push_error(entry.name + " could not start its idle animation.")
-            enemy.queue_free()
-            quit(1)
-            return
-        print("PASS: ", entry.name, " uses rigged animated humanoid")
+        var required_clips := ["Zombie_Idle", "Zombie_Walk_Fwd", "Jog_Fwd", "Sword_Regular_A", "Hit_Chest", "Death01"]
+        for clip in required_clips:
+            if not animation_player.has_animation(clip):
+                push_error(entry.name + " is missing required combat clip: " + clip)
+                enemy.queue_free()
+                quit(1)
+                return
+        for clip in [entry.idle, "Sword_Regular_A", "Hit_Chest", "Death01"]:
+            animation_player.play(clip)
+            if animation_player.current_animation != clip:
+                push_error(entry.name + " could not start animation: " + clip)
+                enemy.queue_free()
+                quit(1)
+                return
+        print("PASS: ", entry.name, " rig supports idle, locomotion, attack, stagger and death clips")
         enemy.queue_free()
         await process_frame
     quit(0)
