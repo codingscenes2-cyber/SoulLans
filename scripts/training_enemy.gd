@@ -312,13 +312,13 @@ func _update_enemy_animation() -> void:
         State.CHASE:
             candidates = ["Jog_Fwd", "Sprint"]
         State.WINDUP:
-            candidates = ["Zombie_Attack", "Sword_Attack", "Punch"]
+            candidates = ["Sword_Regular_A", "Sword_Attack", "Punch_Cross", "Punch_Jab"]
         State.RECOVERY:
             candidates = ["Zombie_Idle", "Sword_Idle", "Idle"]
         State.STAGGER:
-            candidates = ["Hit_Chest", "Hit_React", "Zombie_Hit"]
+            candidates = ["Hit_Chest", "Hit_Head", "Hit_Knockback"]
         State.DEAD:
-            candidates = ["Death01", "Zombie_Death", "Death"]
+            candidates = ["Death01"]
     for clip in candidates:
         if enemy_animation_player.has_animation(clip):
             if clip != current_enemy_animation:
