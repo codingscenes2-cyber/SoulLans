@@ -10,7 +10,7 @@
 
 ## Automated Android debug export
 
-Latest successful build: [GitHub Actions run #9 (0.2.1)](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42566158484). It installs matching Godot 4.3 export templates, Java 17 and required Android SDK packages, generates an ephemeral debug keystore, exports `SOUL_LAND_FALLEN_REALM-debug.apk`, verifies the APK signature (v1/v2/v3), calculates SHA-256 and uploads the APK plus checksum as a 14-day artifact. The build is debug-signed, not release-signed, and is not device-verified. Godot 4.3 setup requirements are documented in the [official Android export guide](https://docs.godotengine.org/en/4.3/tutorials/export/exporting_for_android.html), and command-line export uses the preset name with `--export-debug` as described in the [command-line tutorial](https://docs.godotengine.org/en/4.3/tutorials/editor/command_line_tutorial.html).
+Latest PBR build: [GitHub Actions run #12 (0.3.0 source candidate)](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42567132362). It downloads six 1K CC0 PBR maps (diffuse, OpenGL normal, roughness for Concrete Floor 01 and Rock Wall 17), imports them with Godot, and exports an ARM64 APK. Explicit apksigner verification is added to the next workflow run. The build is debug-signed using an ephemeral runner key and cannot update installs signed by a different key. It is not device-verified. Godot 4.3 setup requirements are documented in the [official Android export guide](https://docs.godotengine.org/en/4.3/tutorials/export/exporting_for_android.html), and command-line export uses the preset name with `--export-debug` as described in the [command-line tutorial](https://docs.godotengine.org/en/4.3/tutorials/editor/command_line_tutorial.html).
 
 ## Smoke tests
 1. Project imports without parse errors.
@@ -33,7 +33,7 @@ Latest successful build: [GitHub Actions run #9 (0.2.1)](https://github.com/codi
 Measure frame pacing, CPU/GPU time, memory, thermal behaviour and battery drain on actual target hardware. Test multiple graphics settings. Do not assert a frame-rate target until measured.
 
 ## Release gates
-The 0.2.1 debug APK has SHA-256 `983ab1669cddfd0a888b3d958c8b9efb3cf5b623bf245ac10aa63ecf0f9e5241`, size 24,196,306 bytes, and was exported from commit `9558f9f2f42be7a8ed614ee54970a0db466f44cf`. Both Godot orientation settings now use sensor-landscape (value 4). Install and launch it on the target device, then record device/OS, test results, known issues and performance. Do not label a debug build as release-ready. Never publish a fabricated or unverified download URL.
+The 0.3.0 PBR source candidate artifact from run #12 has SHA-256 `6a9dca978db374546413b001d4bf18be40b98a6d870d8ca1ebeb13a10751e06c` and size 32,062,133 bytes. It was built before the version-name bump to 0.3.0; run #13 is the versioned rebuild with explicit signature verification. The APK uses a newly generated debug key; do not uninstall the existing app or expect an in-place update until a persistent signing key is configured. Record device/OS, visual test results, known issues and performance after install. Do not label a debug build as release-ready. Never publish a fabricated or unverified download URL.
 
 
 ## Automated save-system regression checks
