@@ -11,6 +11,9 @@ var boss_health_bar: ProgressBar
 var inventory_panel: PanelContainer
 var inventory_list: VBoxContainer
 var inventory_refresh_timer := 0.0
+var quest_refresh_timer := 0.0
+var quest_panel: PanelContainer
+var quest_list: VBoxContainer
 var message_timer := 0.0
 
 func _ready() -> void:
@@ -79,7 +82,9 @@ func _ready() -> void:
     _add_button(root, "WEAPON", Vector2(-142, -350), "switch_weapon", Vector2(96, 52), true)
     _add_button(root, "FLASK", Vector2(-265, -350), "heal", Vector2(104, 52), true)
     _add_button(root, "BAG", Vector2(-270, -415), "inventory", Vector2(104, 48), true)
+    _add_button(root, "QUESTS", Vector2(-142, -415), "quest_journal", Vector2(112, 48), true)
     _create_inventory_panel(root)
+    _create_quest_panel(root)
     var joystick := Control.new()
     joystick.name = "MovementJoystick"
     joystick.set_script(JOYSTICK_SCRIPT)
@@ -113,6 +118,11 @@ func _process(delta: float) -> void:
         if inventory_refresh_timer >= 0.5:
             inventory_refresh_timer = 0.0
             _refresh_inventory_panel()
+    if is_instance_valid(quest_panel) and quest_panel.visible:
+        quest_refresh_timer += delta
+        if quest_refresh_timer >= 1.0:
+            quest_refresh_timer = 0.0
+            _refresh_quest_panel()
     var quest: Dictionary = GameState.get_quest_state("ashen_sigils")
     var quest_status := str(quest.get("status", "not_started"))
     if quest_status == "active":
@@ -172,6 +182,98 @@ func _create_inventory_panel(root: Control) -> void:
     inventory_list = VBoxContainer.new()
     inventory_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     scroll.add_child(inventory_list)
+
+func _create_quest_panel(root: Control) -> void:
+    quest_panel = PanelContainer.new()
+    quest_panel.name = "QuestJournalPanel"
+    quest_panel.anchor_left = 0.5
+    quest_panel.anchor_right = 0.5
+    quest_panel.anchor_top = 0.5
+    quest_panel.anchor_bottom = 0.5
+    quest_panel.offset_left = -245.0
+    quest_panel.offset_right = 245.0
+    quest_panel.offset_top = -225.0
+    quest_panel.offset_bottom = 225.0
+    quest_panel.visible = false
+    root.add_child(quest_panel)
+
+    var layout := VBoxContainer.new()
+    layout.add_theme_constant_override("separation", 10)
+    quest_panel.add_child(layout)
+    var heading := HBoxContainer.new()
+    layout.add_child(heading)
+    var title := Label.new()
+    title.text = "FIELD JOURNAL  /  QUESTS"
+    title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    title.add_theme_font_size_override("font_size", 20)
+    heading.add_child(title)
+    var close_button := Button.new()
+    close_button.text = "CLOSE"
+    close_button.pressed.connect(func() -> void: toggle_quest_journal(false))
+    heading.add_child(close_button)
+    var hint := Label.new()
+    hint.text = "Track accepted work, objective progress and completed rewards."
+    hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    layout.add_child(hint)
+    var scroll := ScrollContainer.new()
+    scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    layout.add_child(scroll)
+    quest_list = VBoxContainer.new()
+    quest_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    scroll.add_child(quest_list)
+
+func is_quest_journal_open() -> bool:
+    return is_instance_valid(quest_panel) and quest_panel.visible
+
+func toggle_quest_journal(force_open: bool = false) -> void:
+    if not is_instance_valid(quest_panel):
+        return
+    quest_panel.visible = force_open or not quest_panel.visible
+    if quest_panel.visible:
+        if is_instance_valid(inventory_panel):
+            inventory_panel.visible = false
+        _refresh_quest_panel()
+
+func _refresh_quest_panel() -> void:
+    if not is_instance_valid(quest_list):
+        return
+    for child in quest_list.get_children():
+        quest_list.remove_child(child)
+        child.queue_free()
+    var quests: Array = GameState.get_quest_log()
+    if quests.is_empty():
+        var empty_label := Label.new()
+        empty_label.text = "No recorded quests yet. Speak with Warden Eira to begin."
+        empty_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+        quest_list.add_child(empty_label)
+        return
+    for quest in quests:
+        if not quest is Dictionary:
+            continue
+        var card := PanelContainer.new()
+        quest_list.add_child(card)
+        var content := VBoxContainer.new()
+        content.add_theme_constant_override("separation", 5)
+        card.add_child(content)
+        var title := Label.new()
+        title.text = "%s  ·  %s" % [str(quest.get("title", "Unknown Quest")), str(quest.get("status", "not_started")).replace("_", " ").to_upper()]
+        title.add_theme_color_override("font_color", Color(0.95, 0.78, 0.48))
+        title.add_theme_font_size_override("font_size", 17)
+        content.add_child(title)
+        var details := Label.new()
+        details.text = "%s  |  %s\n%s" % [str(quest.get("region", "Unknown Region")), str(quest.get("giver", "Unknown")), str(quest.get("description", ""))]
+        details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+        content.add_child(details)
+        var progress := Label.new()
+        var status := str(quest.get("status", "not_started"))
+        if status == "active":
+            progress.text = "OBJECTIVE  %s  ·  %d / %d" % [str(quest.get("objective", "Progress")), int(quest.get("progress", 0)), int(quest.get("target", 0))]
+        elif status == "completed":
+            progress.text = "COMPLETE  ·  REWARD CLAIMED  ·  %d SOUL ESSENCE" % int(quest.get("reward", 0))
+        else:
+            progress.text = "NOT ACCEPTED  ·  REWARD %d SOUL ESSENCE" % int(quest.get("reward", 0))
+        progress.add_theme_color_override("font_color", Color(0.76, 0.86, 0.72))
+        content.add_child(progress)
 
 func is_inventory_open() -> bool:
     return is_instance_valid(inventory_panel) and inventory_panel.visible
