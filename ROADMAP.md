@@ -50,14 +50,14 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Training enemy state machine: idle, patrol, investigate, chase, windup, recovery, stagger and death.
 - [x] NavigationAgent3D path query integration with direct-steering fallback; bake a NavigationRegion3D before relying on pathfinding.
 - [x] Training enemy telegraphed attack wind-up and recovery.
-- [ ] Telegraph-based attack selection for varied enemy archetypes.
+- [x] Second enemy archetype prototype: Ashen Watch Shield Guard mitigates frontal hits, takes pressure from repeated attacks and exposes a timed guard-break opening.\n- [ ] Telegraph-based attack selection for varied enemy archetypes.
 - [ ] Group encounters, ranged enemies, elites and mini-bosses.
 - [ ] Boss framework with phase data, arena boundaries and rewards.
 
 ## 5. First vertical slice — Ashen Kingdom
 - [ ] Graybox route, combat spaces and traversal landmarks.
 - [ ] Finished art pass for one compact region.
-- [ ] Three regular enemy archetypes and one elite.
+- [ ] Three regular enemy archetypes and one elite (two basic archetypes are now present in the combat test arena).
 - [x] Prototype Sanctuary checkpoint, rest, death/respawn and Soul Essence recovery loop.
 - [x] Enemy reset-on-rest prototype.
 - [ ] World persistence rules and full checkpoint playtest.
