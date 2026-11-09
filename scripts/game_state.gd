@@ -157,9 +157,21 @@ func upgrade_weapon(item_id: String) -> bool:
     if not can_upgrade_weapon(item_id):
         return false
     var costs := get_weapon_upgrade_cost(item_id)
+    var items: Array = data.get("inventory", [])
+    # Apply all material deductions in memory and commit the upgrade in one save.
     for material_id in costs:
-        if not remove_item(str(material_id), int(costs[material_id])):
-            return false
+        var required := int(costs[material_id])
+        for index in range(items.size()):
+            if items[index] is Dictionary and str(items[index].get("id", "")) == str(material_id):
+                var entry: Dictionary = items[index]
+                var remaining := int(entry.get("quantity", 0)) - required
+                if remaining <= 0:
+                    items.remove_at(index)
+                else:
+                    entry["quantity"] = remaining
+                    items[index] = entry
+                break
+    data["inventory"] = items
     var upgrades: Dictionary = data.get("weapon_upgrades", {})
     upgrades[item_id] = get_weapon_upgrade_level(item_id) + 1
     data["weapon_upgrades"] = upgrades
