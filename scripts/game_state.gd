@@ -32,6 +32,7 @@ var data: Dictionary = {
     "inventory": [],
     "equipment": {"weapon": "ashen_iron_sword", "head": "scout_hood", "chest": "watch_coat", "legs": "road_greaves"},
     "weapon_upgrades": {},
+    "armor_upgrades": {},
     "inventory_initialized": false,
     "armor_initialized": false,
     "discovered_areas": [],
@@ -115,12 +116,72 @@ func equip_armor(item_id: String) -> bool:
     save_game()
     return true
 
+func get_armor_upgrade_level(item_id: String) -> int:
+    if str(get_item_info(item_id).get("type", "")) != "armor":
+        return 0
+    var upgrades: Dictionary = data.get("armor_upgrades", {})
+    return clampi(int(upgrades.get(item_id, 0)), 0, 3)
+
+func get_armor_defense(item_id: String) -> float:
+    var info := get_item_info(item_id)
+    if str(info.get("type", "")) != "armor":
+        return 0.0
+    return float(info.get("defense", 0.0)) + float(get_armor_upgrade_level(item_id) * 2)
+
+func get_armor_upgrade_cost(item_id: String) -> Dictionary:
+    if str(get_item_info(item_id).get("type", "")) != "armor":
+        return {}
+    match get_armor_upgrade_level(item_id):
+        0:
+            return {"ashen_scrap": 2}
+        1:
+            return {"ashen_scrap": 4, "tempered_plate": 2}
+        2:
+            return {"ashen_scrap": 6, "tempered_plate": 3, "regent_core": 1}
+    return {}
+
+func can_upgrade_armor(item_id: String) -> bool:
+    if get_item_count(item_id) <= 0:
+        return false
+    var costs := get_armor_upgrade_cost(item_id)
+    if costs.is_empty():
+        return false
+    for material_id in costs:
+        if get_item_count(str(material_id)) < int(costs[material_id]):
+            return false
+    return true
+
+func upgrade_armor(item_id: String) -> bool:
+    if not can_upgrade_armor(item_id):
+        return false
+    var costs := get_armor_upgrade_cost(item_id)
+    var items: Array = data.get("inventory", [])
+    for material_id in costs:
+        var required := int(costs[material_id])
+        for index in range(items.size()):
+            if items[index] is Dictionary and str(items[index].get("id", "")) == str(material_id):
+                var entry: Dictionary = items[index]
+                var remaining := int(entry.get("quantity", 0)) - required
+                if remaining <= 0:
+                    items.remove_at(index)
+                else:
+                    entry["quantity"] = remaining
+                    items[index] = entry
+                break
+    data["inventory"] = items
+    var upgrades: Dictionary = data.get("armor_upgrades", {})
+    upgrades[item_id] = get_armor_upgrade_level(item_id) + 1
+    data["armor_upgrades"] = upgrades
+    save_game()
+    return true
+
 func get_armor_stats() -> Dictionary:
     var defense := 0.0
     var weight := 0.0
     for slot in ["head", "chest", "legs"]:
-        var info := get_item_info(get_equipped_armor(slot))
-        defense += float(info.get("defense", 0.0))
+        var item_id := get_equipped_armor(slot)
+        var info := get_item_info(item_id)
+        defense += get_armor_defense(item_id)
         weight += float(info.get("weight", 0.0))
     return {"defense": defense, "weight": weight}
 
