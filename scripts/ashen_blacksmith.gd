@@ -76,4 +76,4 @@ func _ready() -> void:
     add_child(nameplate)
 
 func interact() -> String:
-    return "Blacksmith: Bring Ashen Scrap, Tempered Plates and a Regent Core. I can reinforce your weapons here. Open your inventory to upgrade; armour reinforcement is coming next."
+    return "Blacksmith: Bring Ashen Scrap, Tempered Plates and a Regent Core. I can reinforce weapons and armour here. Open your inventory to equip gear or spend materials on reinforcement."
