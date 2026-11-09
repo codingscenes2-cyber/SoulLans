@@ -51,7 +51,7 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
     if is_instance_valid(player) and player.has_method("get_status"):
         var data: Dictionary = player.get_status()
-        status_label.text = "SOUL LAND   LVL %d   HP %d/%d   STA %d/%d   SOULS %d   NEXT %d" % [
+        status_label.text = "SOUL LAND   LVL %d   HP %d/%d   STA %d/%d   SOULS %d   NEXT %d   FLASKS %d/%d" % [
             int(data.level), int(data.health), int(data.max_health), int(data.stamina), int(data.max_stamina), int(data.soul_essence), int(data.next_level_cost), int(data.healing_flasks), int(data.max_healing_flasks)
         ]
         if player.has_method("get_weapon_name"):
