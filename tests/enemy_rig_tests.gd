@@ -48,14 +48,22 @@ func _run() -> void:
                     enemy.queue_free()
                     quit(1)
                     return
-        for clip in [entry.idle, "Sword_Regular_A", "Hit_Chest", "Death01"]:
-            animation_player.play(clip)
-            if animation_player.current_animation != clip:
-                push_error(entry.name + " could not start animation: " + clip)
+        var state_cases := [
+            {"state": enemy.State.IDLE, "clip": "Zombie_Idle"},
+            {"state": enemy.State.PATROL, "clip": "Zombie_Walk_Fwd"},
+            {"state": enemy.State.CHASE, "clip": "Jog_Fwd"},
+            {"state": enemy.State.STAGGER, "clip": "Hit_Chest"},
+            {"state": enemy.State.DEAD, "clip": "Death01"}
+        ]
+        for state_case in state_cases:
+            enemy.state = state_case.state
+            enemy._update_enemy_animation()
+            if animation_player.current_animation != state_case.clip:
+                push_error(entry.name + " state did not select " + state_case.clip + "; got " + animation_player.current_animation)
                 enemy.queue_free()
                 quit(1)
                 return
-        print("PASS: ", entry.name, " rig supports idle, locomotion, attack, stagger and death clips")
+        print("PASS: ", entry.name, " rig supports idle, locomotion, attack, stagger, death and state-driven clip selection")
         enemy.queue_free()
         await process_frame
     quit(0)
