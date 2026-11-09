@@ -9,3 +9,6 @@ builds/
 *.apk
 *.aab
 *.keystore
+
+# Generated Android exports
+build/
