@@ -19,7 +19,7 @@ This is a readiness snapshot, not a claim that the game is finished or device-te
 | Save system | **Backup recovery and regression suite CI green** | Versioned saves, temp-file replacement, last-known-good backup restoration, legacy version-1 defaults, death/recovery and levelling are covered by headless regression tests. Device interruption and long-session testing remain. |
 | Ashen Kingdom level | **Connected graybox route and courtyard encounter; CI green** | Arena connects through a broken gate and ruined road into a walled outer courtyard. A Training Hollow now occupies the courtyard; a sealed destination gate and primitive lanterns provide landmarks. Runtime navigation, authored traversal, NPCs and environmental art remain. |
 | Characters / animation / audio | **Not production-ready** | Placeholder geometry; no production character rigs, animation sets, combat audio or VFX. |
-| Android export | **<badge>** |
+| Android export | **Debug APK built and signature verified** | [Run #6](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42565383797) exported an ARM64 APK (24,187,949 bytes); apksigner verified v2/v3. The artifact expires 23 Nov 2026. SHA-256: `bf4c9db464c10652f7b6627f45e049573a52abecd707801a24e537c7e7f0221e`. APK has not been installed on a physical device. |
 | Prototype package | **Debug prototype candidate; device QA pending** | Install and launch on the target phone, test touch controls, route traversal, combat, save persistence, orientation, frame pacing and crashes. This is not a release-signed build. |
 
 ## Prototype build gate
