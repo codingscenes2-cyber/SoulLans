@@ -20,6 +20,7 @@ var data: Dictionary = {
     "discovered_areas": [],
     "defeated_bosses": [],
     "quest_flags": {},
+    "quests": {},
     "world_flags": {},
     "sanctuary_position": [0.0, 1.05, 6.0],
     "dropped_essence": 0,
@@ -166,6 +167,55 @@ func set_player_location(location_id: String) -> void:
     if not discovered.has(location_id):
         discovered.append(location_id)
     data["discovered_areas"] = discovered
+
+func get_quest_state(quest_id: String) -> Dictionary:
+    var quests: Dictionary = data.get("quests", {})
+    var stored: Variant = quests.get(quest_id, {})
+    if stored is Dictionary:
+        if stored.is_empty():
+            return {"status": "not_started", "progress": 0, "target": 0, "reward": 0}
+        return stored.duplicate(true)
+    return {"status": "not_started", "progress": 0, "target": 0, "reward": 0}
+
+func start_quest(quest_id: String, target: int, reward: int) -> bool:
+    if quest_id.is_empty() or target <= 0 or reward < 0:
+        return false
+    if str(get_quest_state(quest_id).get("status", "not_started")) != "not_started":
+        return false
+    var quests: Dictionary = data.get("quests", {})
+    quests[quest_id] = {
+        "status": "active",
+        "progress": 0,
+        "target": target,
+        "reward": reward,
+        "reward_claimed": false
+    }
+    data["quests"] = quests
+    save_game()
+    return true
+
+func advance_quest(quest_id: String, amount: int = 1) -> bool:
+    if amount <= 0:
+        return false
+    var quest := get_quest_state(quest_id)
+    if str(quest.get("status", "not_started")) != "active":
+        return false
+    var target := maxi(1, int(quest.get("target", 1)))
+    quest["progress"] = mini(target, int(quest.get("progress", 0)) + amount)
+    var completed := int(quest["progress"]) >= target
+    if completed:
+        quest["status"] = "completed"
+    var quests: Dictionary = data.get("quests", {})
+    quests[quest_id] = quest
+    data["quests"] = quests
+    if completed and not bool(quest.get("reward_claimed", false)):
+        quest["reward_claimed"] = true
+        quests[quest_id] = quest
+        data["quests"] = quests
+        award_soul_essence(int(quest.get("reward", 0)))
+    else:
+        save_game()
+    return true
 
 func set_quest_flag(flag_id: String, value: Variant = true) -> void:
     var flags: Dictionary = data.get("quest_flags", {})
