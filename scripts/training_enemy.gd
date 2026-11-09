@@ -104,7 +104,7 @@ func _physics_process(delta: float) -> void:
             _stop_horizontal_motion(delta)
             if state_timer <= 0.0:
                 if is_instance_valid(player) and can_hit_player() and player.has_method("take_damage"):
-                    player.take_damage(attack_damage)
+                    player.take_damage(attack_damage, self)
                 _set_telegraph(false)
                 state = State.RECOVERY
                 state_timer = attack_recovery_duration
