@@ -1,5 +1,7 @@
 extends CharacterBody3D
 
+const STARTER_WEAPON = preload("res://resources/weapons/ashen_iron_sword.tres")
+
 signal stats_changed(health: float, stamina: float)
 signal died
 
@@ -13,6 +15,10 @@ signal died
 @export var min_camera_pitch := -0.75
 @export var max_camera_pitch := 0.35
 
+var equipped_weapon: Resource
+var current_attack_damage := 25.0
+var current_attack_range := 2.5
+var attack_active_duration := 0.11
 var health := 100.0
 var stamina := 100.0
 var target: Node3D
@@ -33,6 +39,7 @@ func _ready() -> void:
     add_to_group("player")
     health = max_health
     stamina = max_stamina
+    equipped_weapon = STARTER_WEAPON
     _setup_input_map()
     _create_placeholder_body()
     _create_camera_rig()
@@ -42,7 +49,7 @@ func _physics_process(delta: float) -> void:
     if attack_windup > 0.0:
         attack_windup -= delta
         if attack_windup <= 0.0:
-            attack_active_timer = 0.11
+            attack_active_timer = attack_active_duration
             attack_has_hit = false
     if attack_active_timer > 0.0:
         attack_active_timer = maxf(0.0, attack_active_timer - delta)
@@ -122,20 +129,27 @@ func perform_dodge() -> void:
     invulnerability_timer = 0.22
 
 func perform_attack() -> void:
-    if attack_cooldown > 0.0 or stamina < 12.0 or dodge_timer > 0.0:
+    var stamina_cost := float(equipped_weapon.get("stamina_cost")) if is_instance_valid(equipped_weapon) else 12.0
+    var windup := float(equipped_weapon.get("light_windup")) if is_instance_valid(equipped_weapon) else 0.13
+    var active := float(equipped_weapon.get("light_active")) if is_instance_valid(equipped_weapon) else 0.11
+    var recovery := float(equipped_weapon.get("light_recovery")) if is_instance_valid(equipped_weapon) else 0.41
+    if attack_cooldown > 0.0 or stamina < stamina_cost or dodge_timer > 0.0:
         return
-    stamina -= 12.0
-    attack_cooldown = 0.65
-    attack_windup = 0.13
+    stamina -= stamina_cost
+    current_attack_damage = float(equipped_weapon.get("base_damage")) if is_instance_valid(equipped_weapon) else attack_damage
+    current_attack_range = float(equipped_weapon.get("attack_range")) if is_instance_valid(equipped_weapon) else 2.5
+    attack_active_duration = active
+    attack_cooldown = windup + active + recovery
+    attack_windup = windup
 
 func _resolve_melee_hit() -> void:
     var hit_shape := SphereShape3D.new()
-    hit_shape.radius = 0.95
+    hit_shape.radius = maxf(0.7, current_attack_range * 0.38)
     var query := PhysicsShapeQueryParameters3D.new()
     query.shape = hit_shape
     query.transform = Transform3D(
         Basis.IDENTITY,
-        global_position - global_transform.basis.z * 1.25 + Vector3.UP * 1.0
+        global_position - global_transform.basis.z * (current_attack_range * 0.5) + Vector3.UP * 1.0
     )
     query.collision_mask = 1
     query.collide_with_bodies = true
@@ -145,7 +159,7 @@ func _resolve_melee_hit() -> void:
     for hit in hits:
         var collider: Object = hit.get("collider")
         if is_instance_valid(collider) and collider.has_method("take_damage"):
-            collider.take_damage(attack_damage)
+            collider.take_damage(current_attack_damage)
 
 func take_damage(amount: float) -> void:
     if invulnerability_timer > 0.0 or health <= 0.0:
