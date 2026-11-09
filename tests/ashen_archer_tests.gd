@@ -31,7 +31,7 @@ func _run() -> void:
         push_error("Archer attack must create exactly one ember projectile.")
         quit(1)
         return
-    var bolt: Area3D = projectiles[0]
+    var bolt: Variant = projectiles[0]
     if bolt.damage != archer.projectile_damage or bolt.speed != archer.projectile_speed:
         push_error("Ember projectile must inherit configured damage and speed.")
         quit(1)
