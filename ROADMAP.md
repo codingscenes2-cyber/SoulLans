@@ -9,7 +9,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Placeholder player, enemy and touch HUD.
 - [x] Validate project import and parser in Godot 4.x through GitHub Actions headless import.
 - [x] Add an arm64 Android debug export preset and a GitHub Actions export workflow.
-- [x] Export and signature-verify ARM64 debug APK 0.2.1 (run #9; sensor-landscape configured; device install pending).
+- [x] Export ARM64 PBR debug APK source candidate (run #12; 1K CC0 PBR maps imported; versioned 0.3.0 rebuild and signature verification pending).
 - [ ] Install and test on target hardware, including sensor-landscape rotation.
 - [x] Add automated headless import/startup check to CI; latest recorded runs passed.
 
@@ -48,7 +48,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Import and validate Quaternius Universal Animation Library test clips.
 - [ ] Build player locomotion AnimationTree and full combat animation set.
 - [ ] Replace primitive hero and enemy stand-ins with rigged, distinct models.
-- [ ] Replace stretched noise ground with separate PBR ash, soil and stone materials.
+- [x] Replace stretched noise ground with CC0 PBR concrete ground and rock-wall materials.\n- [ ] Add separate ash/soil/stone blend and material decals.
 - [ ] Build modular Ashen Kingdom architecture and authored prop set.
 - [ ] Complete environment lighting, fog, sky, VFX and audio pass.
 - [ ] Implement LODs, mobile texture compression and measured performance budgets.
