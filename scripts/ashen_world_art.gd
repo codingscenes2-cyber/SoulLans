@@ -1,8 +1,21 @@
 extends RefCounted
-# Original runtime-generated environment art. Procedural geometry and noise textures
-# keep the Android build self-contained and avoid unlicensed third-party content.
+# Authored Ashen Kingdom dressing and mobile-friendly PBR material setup.
+# CC0 source textures are fetched by CI from Poly Haven and imported by Godot.
+
+const MATERIAL_ROOT := "res://assets/materials/"
+const GROUND_DIFF := MATERIAL_ROOT + "concrete_floor_01_diff_1k.jpg"
+const GROUND_NORMAL := MATERIAL_ROOT + "concrete_floor_01_nor_gl_1k.jpg"
+const GROUND_ROUGH := MATERIAL_ROOT + "concrete_floor_01_rough_1k.jpg"
+const STONE_DIFF := MATERIAL_ROOT + "rock_wall_17_diff_1k.jpg"
+const STONE_NORMAL := MATERIAL_ROOT + "rock_wall_17_nor_gl_1k.jpg"
+const STONE_ROUGH := MATERIAL_ROOT + "rock_wall_17_rough_1k.jpg"
+
+static var _ground_mat: StandardMaterial3D
+static var _stone_mat: StandardMaterial3D
 
 static func build(parent: Node3D) -> void:
+    _ground_mat = _make_pbr(GROUND_DIFF, GROUND_NORMAL, GROUND_ROUGH, Color(0.43, 0.42, 0.40), 0.22, true)
+    _stone_mat = _make_pbr(STONE_DIFF, STONE_NORMAL, STONE_ROUGH, Color(0.55, 0.53, 0.50), 0.32, true)
     _add_ridge(parent, Vector3(-18, 5, -43), Vector3(18, 12, 15), Color(0.15, 0.14, 0.16))
     _add_ridge(parent, Vector3(19, 6, -51), Vector3(22, 15, 18), Color(0.13, 0.13, 0.15))
     _add_ridge(parent, Vector3(0, 7, -78), Vector3(34, 17, 18), Color(0.12, 0.12, 0.14))
@@ -19,24 +32,43 @@ static func build(parent: Node3D) -> void:
     _add_banner(parent, Vector3(-5.6, 0, -19), 1.0)
     _add_banner(parent, Vector3(5.6, 0, -19), -1.0)
     _add_banner(parent, Vector3(-10.8, 0, -59), 1.0)
-    _texture_existing_stone(parent)
+    _apply_surface_materials(parent)
 
-static func _stone() -> StandardMaterial3D:
-    var noise := FastNoiseLite.new()
-    noise.noise_type = FastNoiseLite.TYPE_SIMPLEX
-    noise.frequency = 0.035
-    noise.fractal_octaves = 4
-    var texture := NoiseTexture2D.new()
-    texture.width = 512
-    texture.height = 512
-    texture.seamless = true
-    texture.noise = noise
+static func ground_material() -> StandardMaterial3D:
+    if _ground_mat == null:
+        _ground_mat = _make_pbr(GROUND_DIFF, GROUND_NORMAL, GROUND_ROUGH, Color(0.43, 0.42, 0.40), 0.22, true)
+    return _ground_mat
+
+static func _make_pbr(diffuse_path: String, normal_path: String, rough_path: String, tint: Color, tiling: float, triplanar: bool) -> StandardMaterial3D:
     var material := StandardMaterial3D.new()
-    material.albedo_color = Color(0.72, 0.70, 0.67)
-    material.albedo_texture = texture
-    material.roughness = 1.0
-    material.uv1_scale = Vector3(3, 3, 3)
+    material.albedo_color = tint
+    material.roughness = 0.92
+    material.metallic = 0.0
+    material.uv1_scale = Vector3(tiling, tiling, tiling)
+    if triplanar:
+        material.uv1_triplanar = true
+        material.uv1_world_triplanar = true
+        material.uv1_triplanar_sharpness = 4.0
+    if ResourceLoader.exists(diffuse_path):
+        material.albedo_texture = load(diffuse_path)
+    if ResourceLoader.exists(normal_path):
+        material.normal_enabled = true
+        material.normal_texture = load(normal_path)
+    if ResourceLoader.exists(rough_path):
+        material.roughness_texture = load(rough_path)
+        material.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
     return material
+
+static func _apply_surface_materials(parent: Node3D) -> void:
+    for node in parent.get_children():
+        if node is StaticBody3D:
+            var n := String(node.name).to_lower()
+            var is_ground := n.contains("road") or n.contains("courtyard") or n.contains("floor") or n.contains("arena")
+            var is_stone := n.contains("wall") or n.contains("gate") or n.contains("masonry") or n.contains("pillar") or n.contains("marker")
+            if is_ground or is_stone:
+                for child in node.get_children():
+                    if child is MeshInstance3D and child.mesh is BoxMesh:
+                        child.material_override = _ground_mat if is_ground else _stone_mat
 
 static func _add_ridge(parent: Node3D, pos: Vector3, size: Vector3, tint: Color) -> void:
     var ridge := MeshInstance3D.new()
@@ -53,12 +85,12 @@ static func _add_ridge(parent: Node3D, pos: Vector3, size: Vector3, tint: Color)
     parent.add_child(ridge)
 
 static func _add_rocks(parent: Node3D, center: Vector3, count: int, size: float) -> void:
-    var mat := _stone()
+    var mat := _stone_mat
     for i in range(count):
         var rock := MeshInstance3D.new()
         var mesh := SphereMesh.new()
-        mesh.radial_segments = 7
-        mesh.rings = 4
+        mesh.radial_segments = 9
+        mesh.rings = 5
         rock.mesh = mesh
         var angle := TAU * float(i) / float(count)
         rock.position = center + Vector3(cos(angle) * (0.65 + float(i % 2) * 0.45), 0.35 + float(i % 3) * 0.13, sin(angle) * (0.65 + float(i % 2) * 0.45))
@@ -68,14 +100,14 @@ static func _add_rocks(parent: Node3D, center: Vector3, count: int, size: float)
         parent.add_child(rock)
 
 static func _add_arch(parent: Node3D, base: Vector3, lean: float) -> void:
-    var mat := _stone()
+    var mat := _stone_mat
     for side in [-1.0, 1.0]:
         var pillar := MeshInstance3D.new()
         var mesh := CylinderMesh.new()
         mesh.top_radius = 0.32
         mesh.bottom_radius = 0.52
         mesh.height = 4.2
-        mesh.radial_segments = 7
+        mesh.radial_segments = 10
         pillar.mesh = mesh
         pillar.position = base + Vector3(side * 2.2, 2.1, 0)
         pillar.rotation_degrees.z = side * lean * 5.0
@@ -140,11 +172,3 @@ static func _add_banner(parent: Node3D, base: Vector3, direction: float) -> void
     fabric.roughness = 0.95
     cloth.material_override = fabric
     parent.add_child(cloth)
-
-static func _texture_existing_stone(parent: Node3D) -> void:
-    var material := _stone()
-    for node in parent.get_children():
-        if node is StaticBody3D and (node.name.contains("Road") or node.name.contains("Wall") or node.name.contains("Gate") or node.name.contains("Masonry") or node.name.contains("Pillar")):
-            for child in node.get_children():
-                if child is MeshInstance3D and child.mesh is BoxMesh:
-                    child.material_override = material
