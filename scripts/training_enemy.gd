@@ -42,6 +42,8 @@ var current_attack_kind := "quick_slash"
 var current_attack_damage := 10.0
 var current_attack_range := 2.0
 var attacks_started := 0
+var attack_telegraph: MeshInstance3D
+var attack_telegraph_material: StandardMaterial3D
 
 func _ready() -> void:
     add_to_group("enemies")
@@ -53,6 +55,7 @@ func _ready() -> void:
     patrol_target = patrol_origin
     player = get_tree().get_first_node_in_group("player")
     _create_placeholder_enemy()
+    _create_attack_telegraph()
     navigation_agent = NavigationAgent3D.new()
     navigation_agent.name = "NavigationAgent3D"
     navigation_agent.path_desired_distance = 0.5
@@ -277,7 +280,34 @@ func _stop_horizontal_motion(delta: float) -> void:
     velocity.x = move_toward(velocity.x, 0.0, 10.0 * delta)
     velocity.z = move_toward(velocity.z, 0.0, 10.0 * delta)
 
+func _create_attack_telegraph() -> void:
+    attack_telegraph = MeshInstance3D.new()
+    attack_telegraph.name = "EnemyAttackTelegraph"
+    var ring := TorusMesh.new()
+    ring.inner_radius = 0.52
+    ring.outer_radius = 0.62
+    attack_telegraph.mesh = ring
+    attack_telegraph.position = Vector3(0.0, 0.065, 0.0)
+    attack_telegraph.visible = false
+    attack_telegraph_material = StandardMaterial3D.new()
+    attack_telegraph_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    attack_telegraph_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+    attack_telegraph_material.albedo_color = Color(1.0, 0.42, 0.08, 0.88)
+    attack_telegraph_material.emission_enabled = true
+    attack_telegraph_material.emission = Color(1.0, 0.22, 0.025)
+    attack_telegraph_material.emission_energy_multiplier = 1.25
+    attack_telegraph.material_override = attack_telegraph_material
+    add_child(attack_telegraph)
+
 func _set_telegraph(active: bool) -> void:
+    if is_instance_valid(attack_telegraph):
+        attack_telegraph.visible = active
+        if is_instance_valid(attack_telegraph_material):
+            var ring_color := Color(1.0, 0.12, 0.045) if current_attack_kind in ["heavy_overhead", "shield_bash"] else Color(1.0, 0.48, 0.08)
+            if current_attack_kind == "ember_bolt":
+                ring_color = Color(1.0, 0.24, 0.035)
+            attack_telegraph_material.albedo_color = Color(ring_color.r, ring_color.g, ring_color.b, 0.88)
+            attack_telegraph_material.emission = ring_color
     if not is_instance_valid(enemy_visual):
         return
     enemy_visual.scale = Vector3(1.12, 0.94, 1.12) if active else Vector3.ONE
