@@ -25,6 +25,7 @@ func _ready() -> void:
     _add_button(root, "LOCK", Vector2(-142, -258), "lock_on", Vector2(96, 54), true)
     _add_button(root, "REST / USE", Vector2(-270, -258), "interact", Vector2(112, 54), true)
     _add_button(root, "WEAPON", Vector2(-142, -350), "switch_weapon", Vector2(96, 52), true)
+    _add_button(root, "FLASK", Vector2(-265, -350), "heal", Vector2(104, 52), true)
     var joystick := Control.new()
     joystick.name = "MovementJoystick"
     joystick.set_script(JOYSTICK_SCRIPT)
@@ -51,7 +52,7 @@ func _process(_delta: float) -> void:
     if is_instance_valid(player) and player.has_method("get_status"):
         var data: Dictionary = player.get_status()
         status_label.text = "SOUL LAND   LVL %d   HP %d/%d   STA %d/%d   SOULS %d   NEXT %d" % [
-            int(data.level), int(data.health), int(data.max_health), int(data.stamina), int(data.max_stamina), int(data.soul_essence), int(data.next_level_cost)
+            int(data.level), int(data.health), int(data.max_health), int(data.stamina), int(data.max_stamina), int(data.soul_essence), int(data.next_level_cost), int(data.healing_flasks), int(data.max_healing_flasks)
         ]
         if player.has_method("get_weapon_name"):
             status_label.text += "   " + player.get_weapon_name()
