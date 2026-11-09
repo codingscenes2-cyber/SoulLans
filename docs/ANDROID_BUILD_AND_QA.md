@@ -15,7 +15,7 @@
 5. Dodge spends stamina and has expected recovery.
 6. Attack damages the training enemy only in range.
 7. Enemy detects, approaches and attacks the player.
-8. Touch controls respond and do not block unrelated UI.
+8. Touch controls respond and do not block unrelated UI.\n9. Shield Guard blocks frontal damage, opens after two pressured hits, and takes full damage during the guard-break window.\n10. Heavy attack consumes more stamina and causes greater poise damage than light attack.\n11. Parry during the enemy telegraph staggers the attacker; a mistimed parry does not.\n12. Touch buttons remain reachable at the target device resolution.
 9. Pause/resume and app background/foreground do not corrupt state.
 10. Android install, launch, orientation and safe-area layout are verified.
 
