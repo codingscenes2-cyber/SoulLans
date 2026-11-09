@@ -28,7 +28,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 ## 2. Combat foundation
 - [x] WeaponData resource schema with Ashen Iron Sword and Ashen Watch Dagger definitions; light attack reads damage, stamina cost, range and timing.
 - [x] Prototype weapon cycling on desktop Q and the mobile weapon button.
-- [ ] Weapon-specific movesets, equipment UI and weapon switching.
+- [ ] Weapon-specific movesets and animation-driven attack families.
 - [x] Basic light-attack startup/active timing and physics hit query.
 - [ ] Add weapon-specific animation-driven hit windows and full attack families.
 - [x] Prototype light and heavy attacks; heavy attack has increased damage/poise, longer windup/recovery and higher stamina cost.
@@ -63,7 +63,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Second enemy archetype prototype: Ashen Watch Shield Guard mitigates frontal hits, takes pressure from repeated attacks and exposes a timed guard-break opening.
 - [ ] Telegraph-based attack selection for varied enemy archetypes.
 - [ ] Group encounters, ranged enemies, elites and mini-bosses.
-- [ ] Boss framework with phase data, arena boundaries and rewards.
+- [x] First boss framework: quest-gated Ashen Regent, three combat phases, telegraphed slam, unique reward, boss HUD and persistent throne-gate progression; additional bosses and arena tuning remain.
 
 ## 5. First vertical slice — Ashen Kingdom
 - [x] Initial connected graybox route: arena, broken gate, ruined road, roadside landmarks and walled outer courtyard (headless CI passed; runtime validation pending).
@@ -102,7 +102,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 ## 8. Audio, UI and accessibility
 - [ ] Combat, environment, UI and creature audio.
 - [ ] Music and ambience implementation.
-- [ ] HUD, inventory, map, quest journal and settings.
+- [x] First mobile inventory/equipment panel plus quest and boss HUD prototypes.\n- [ ] Map, quest journal, settings and accessibility options.
 - [ ] Remappable controls, sensitivity, subtitles and readability options.
 
 ## 9. Android optimisation and release
