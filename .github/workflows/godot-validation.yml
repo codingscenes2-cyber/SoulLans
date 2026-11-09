@@ -18,10 +18,20 @@ jobs:
           version: 4.3.0
           use-dotnet: false
           include-templates: false
+      - name: Fetch pinned Quaternius Universal Animation Library
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/animations
+          curl -fL --retry 3 "https://raw.githubusercontent.com/Barbatos6669/elderforge/main/assets/animations/universal_animation_library_1/UAL1_Standard.glb" -o assets/animations/UAL1_Standard.glb
+          curl -fL --retry 3 "https://raw.githubusercontent.com/Barbatos6669/elderforge/main/assets/animations/universal_animation_library_1/LICENSE_Quaternius_CC0.txt" -o assets/animations/LICENSE_Quaternius_CC0.txt
+          test "$(stat -c %s assets/animations/UAL1_Standard.glb)" -eq 7618436
       - name: Import project and validate scripts
         run: godot --headless --editor --path . --quit
       - name: Launch main scene headlessly
         run: godot --headless --path . --quit-after 5
+      - name: Run Quaternius animation asset test
+        run: godot --headless --path . --script res://tests/animation_asset_tests.gd
       - name: Run rigged character asset smoke test
         run: godot --headless --path . --script res://tests/character_asset_tests.gd
       - name: Run save-system regression tests
