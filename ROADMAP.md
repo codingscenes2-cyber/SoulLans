@@ -18,7 +18,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Basic dodge action and stamina cost.
 - [x] Basic melee prototype with startup/active timing and a physics overlap query.
 - [x] Touch camera drag and analog virtual joystick prototype.
-- [ ] Camera collision, sensitivity and lock-on target switching.
+- [ ] Camera collision and sensitivity tuning.\n- [x] Lock-on target cycling across living enemy archetypes.
 - [ ] Jump, fall, landing and traversal.
 - [ ] Animation-driven locomotion and combat state integration.
 
