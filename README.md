@@ -17,7 +17,7 @@ The repository now contains a playable-prototype foundation: third-person moveme
 1. Install Godot 4.3 or later.
 2. Import the project.godot file.
 3. Run scenes/main.tscn (F6) or the main project (F5).
-4. Desktop controls: WASD move, Shift sprint, Space dodge, E interact/rest/recover, left mouse attack, Tab lock-on, right mouse drag camera.
+4. Desktop controls: WASD move, Shift sprint, Space dodge, E interact/rest/recover, left mouse attack, Tab lock-on, Q cycle weapons, right mouse drag camera. The prototype weapon set currently includes an Ashen Iron Sword and Ashen Watch Dagger.
 5. Android export requires Godot export templates and a configured Android SDK/JDK.
 
 ## Development pillars
