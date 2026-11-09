@@ -30,7 +30,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Add weapon-specific animation-driven hit windows and full attack families.
 - [ ] Light, heavy, charged, sprint and jump attacks.
 - [x] Prototype dodge invulnerability window.
-- [ ] Backstep, block, guard break and parry.
+- [x] Directional block with stamina drain and guard-break penalty; timed parry staggers the training enemy (prototype).
 - [ ] Riposte, backstab and hyperarmour.
 - [x] Enemy poise and stagger response prototype.
 - [ ] Damage types, resistances and status effects.
