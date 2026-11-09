@@ -62,7 +62,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Training enemy telegraphed attack wind-up and recovery.
 - [x] Second enemy archetype prototype: Ashen Watch Shield Guard mitigates frontal hits, takes pressure from repeated attacks and exposes a timed guard-break opening.
 - [ ] Telegraph-based attack selection for varied enemy archetypes.
-- [ ] Group encounters, ranged enemies, elites and mini-bosses.
+- [ ] Group encounters, elites and mini-bosses. (Ashen Ember Archer ranged archetype implemented and placed in the outer courtyard; headless regression validation pending.)
 - [x] First boss framework: quest-gated Ashen Regent, three combat phases, telegraphed slam, unique reward, boss HUD and persistent throne-gate progression; additional bosses and arena tuning remain.
 
 ## 5. First vertical slice — Ashen Kingdom
@@ -70,7 +70,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Add traversal beats, encounter spaces and a complete exploration loop.
 - [x] First procedural environment art pass: noise-textured stone, ruined arches, rock clusters, dead trees, ridges and banners.
 - [ ] Import and integrate selected external CC0/Quaternius 3D models with verified provenance.
-- [ ] Three regular enemy archetypes and one elite (two basic archetypes are now present in the combat test arena).
+- [ ] Three regular enemy archetypes and one elite (Training Hollow, Shield Guard and the newly implemented Ashen Ember Archer are present; CI verification and encounter playtest pending).
 - [x] Prototype Sanctuary checkpoint, rest, death/respawn and Soul Essence recovery loop.
 - [x] Enemy reset-on-rest prototype.
 - [ ] World persistence rules and full checkpoint playtest.
