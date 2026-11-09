@@ -34,6 +34,13 @@ func _ready() -> void:
 func _should_begin_attack(distance: float) -> bool:
     return distance <= preferred_range and distance >= retreat_range
 
+func _configure_attack_pattern(_distance: float) -> void:
+    current_attack_kind = "ember_bolt"
+    current_attack_damage = projectile_damage
+    current_attack_range = preferred_range
+    attack_windup_duration = 0.9
+    attack_recovery_duration = 1.05
+
 func _get_chase_destination() -> Vector3:
     if not is_instance_valid(player):
         return global_position
