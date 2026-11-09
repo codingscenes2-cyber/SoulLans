@@ -22,3 +22,5 @@ jobs:
         run: godot --headless --editor --path . --quit
       - name: Launch main scene headlessly
         run: godot --headless --path . --quit-after 5
+      - name: Run save-system regression tests
+        run: godot --headless --path . --script res://tests/game_state_tests.gd
