@@ -71,6 +71,7 @@ jobs:
           [resource]
           export/android/java_sdk_path = "$JAVA_HOME"
           export/android/android_sdk_path = "$ANDROID_HOME"
+          export/android/adb = "$ANDROID_HOME/platform-tools/adb"
           export/android/debug_keystore = "$HOME/.android/debug.keystore"
           export/android/debug_keystore_user = "androiddebugkey"
           export/android/debug_keystore_pass = "android"
@@ -80,7 +81,11 @@ jobs:
         shell: bash
         run: |
           godot --headless --editor --path . --quit
-          godot --headless --path . --export-debug "Android" build/SOUL_LAND_FALLEN_REALM-debug.apk
+          export PATH="$ANDROID_HOME/platform-tools:$PATH"
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH="$HOME/.android/debug.keystore" \
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER="androiddebugkey" \
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD="android" \
+          godot --headless --verbose --path . --export-debug "Android" build/SOUL_LAND_FALLEN_REALM-debug.apk
           test -s build/SOUL_LAND_FALLEN_REALM-debug.apk
           sha256sum build/SOUL_LAND_FALLEN_REALM-debug.apk | tee build/SOUL_LAND_FALLEN_REALM-debug.apk.sha256
           stat -c "APK size: %s bytes" build/SOUL_LAND_FALLEN_REALM-debug.apk
