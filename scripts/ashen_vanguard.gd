@@ -11,7 +11,7 @@ func _ready() -> void:
     poise = max_poise
     attack_damage = 18.0
     current_attack_damage = attack_damage
-    soul_reward = 115
+    soul_reward = 0
     detection_range = 17.0
     lose_target_range = 24.0
     group_alert_radius = 18.0
