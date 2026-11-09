@@ -63,7 +63,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Inventory, equipment, equip load and consumables.
 - [ ] Weapon/armour upgrades, infusions, relics and talismans.
 - [ ] Spell schools, focus resource and status effects.
-- [x] Versioned JSON save/load foundation for player/world state.\n- [ ] Add backup/restore, corruption recovery and full persistence tests.
+- [x] Versioned JSON save/load foundation for player/world state with periodic autosave.\n- [ ] Add backup/restore, corruption recovery and full persistence tests.
 
 ## 7. World, story and content
 - [ ] Lore bible and narrative state graph.
