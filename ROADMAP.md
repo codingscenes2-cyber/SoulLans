@@ -8,7 +8,8 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Runtime graybox arena.
 - [x] Placeholder player, enemy and touch HUD.
 - [x] Validate project import and parser in Godot 4.x through GitHub Actions headless import.
-- [ ] Configure Android export preset and test install on target hardware.
+- [x] Add an arm64 Android debug export preset and a manual GitHub Actions export workflow (first export pending).
+- [ ] Verify debug APK export, install and test on target hardware.
 - [x] Add automated headless import/startup check to CI; latest recorded runs passed.
 
 ## 1. Player controller and camera
@@ -58,7 +59,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Boss framework with phase data, arena boundaries and rewards.
 
 ## 5. First vertical slice — Ashen Kingdom
-- [x] Initial connected graybox route: arena, broken gate, ruined road, roadside landmarks and walled outer courtyard (CI/runtime validation pending).
+- [x] Initial connected graybox route: arena, broken gate, ruined road, roadside landmarks and walled outer courtyard (headless CI passed; runtime validation pending).
 - [ ] Add traversal beats, encounter spaces and a complete exploration loop.
 - [ ] Finished art pass for one compact region.
 - [ ] Three regular enemy archetypes and one elite (two basic archetypes are now present in the combat test arena).
