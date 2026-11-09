@@ -19,10 +19,10 @@ func _run() -> void:
     boss.connect("boss_defeated", _on_boss_defeated)
     await process_frame
 
-    _expect(not bool(boss.get_boss_status().get("active", true)), "boss remains dormant before Warden unlock")
-    var initial_health := boss.health
-    boss.take_damage(100.0)
-    _expect(is_equal_approx(boss.health, initial_health), "dormant boss cannot be damaged")
+    _expect(not bool(boss.call("get_boss_status").get("active", true)), "boss remains dormant before Warden unlock")
+    var initial_health: float = float(boss.get("health"))
+    boss.call("take_damage", 100.0)
+    _expect(is_equal_approx(float(boss.get("health")), initial_health), "dormant boss cannot be damaged")
 
     GameState.data["quests"] = {
         "ashen_sigils": {
@@ -37,24 +37,24 @@ func _run() -> void:
     warden.set_script(WARDEN_SCRIPT)
     root.add_child(warden)
     await process_frame
-    var warden_message: String = warden.interact()
+    var warden_message: String = str(warden.call("interact"))
     _expect(warden_message.contains("Ashen Regent"), "Warden reveals the regional boss after quest completion")
     await physics_frame
-    _expect(bool(boss.get_boss_status().get("active", false)), "boss activates through Warden interaction")
+    _expect(bool(boss.call("get_boss_status").get("active", false)), "boss activates through Warden interaction")
     warden.queue_free()
 
-    boss.health = boss.max_health * 0.59
-    boss._update_phase()
-    _expect(int(boss.get_boss_status().get("phase", 0)) == 2, "boss enters phase two below 60 percent health")
-    _expect(is_equal_approx(boss.attack_damage, 27.0), "phase two increases attack damage")
+    boss.set("health", float(boss.get("max_health")) * 0.59)
+    boss.call("_update_phase")
+    _expect(int(boss.call("get_boss_status").get("phase", 0)) == 2, "boss enters phase two below 60 percent health")
+    _expect(is_equal_approx(float(boss.get("attack_damage")), 27.0), "phase two increases attack damage")
 
-    boss.health = boss.max_health * 0.24
-    boss._update_phase()
-    _expect(int(boss.get_boss_status().get("phase", 0)) == 3, "boss enters final phase below 25 percent health")
-    _expect(is_equal_approx(boss.attack_damage, 34.0), "final phase increases attack damage")
+    boss.set("health", float(boss.get("max_health")) * 0.24)
+    boss.call("_update_phase")
+    _expect(int(boss.call("get_boss_status").get("phase", 0)) == 3, "boss enters final phase below 25 percent health")
+    _expect(is_equal_approx(float(boss.get("attack_damage")), 34.0), "final phase increases attack damage")
 
     var essence_before := GameState.get_soul_essence()
-    boss.take_damage(5000.0)
+    boss.call("take_damage", 5000.0)
     _expect(float(boss.get("health")) <= 0.0, "boss can be defeated")
     var defeated_bosses: Array = GameState.data.get("defeated_bosses", [])
     _expect(defeated_bosses.has("ashen_regent"), "boss defeat is recorded permanently")
