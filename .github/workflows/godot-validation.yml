@@ -49,6 +49,10 @@ jobs:
         run: godot --headless --path . --script res://tests/ashen_archer_tests.gd
       - name: Run enemy attack arc regression tests
         run: godot --headless --path . --script res://tests/enemy_attack_arc_tests.gd
+      - name: Run enemy attack pattern regression tests
+        run: godot --headless --path . --script res://tests/enemy_attack_pattern_tests.gd
+      - name: Run enemy group awareness regression tests
+        run: godot --headless --path . --script res://tests/enemy_group_awareness_tests.gd
       - name: Run enemy hit feedback regression tests
         run: godot --headless --path . --script res://tests/enemy_hit_feedback_tests.gd
       - name: Run player melee hit arc regression tests
