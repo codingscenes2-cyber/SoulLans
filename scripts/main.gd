@@ -4,6 +4,7 @@ const PLAYER_SCRIPT = preload("res://scripts/player_controller.gd")
 const ENEMY_SCRIPT = preload("res://scripts/training_enemy.gd")
 const SHIELD_GUARD_SCRIPT = preload("res://scripts/shield_guard.gd")
 const WARDEN_SCRIPT = preload("res://scripts/warden_eira.gd")
+const REGENT_SCRIPT = preload("res://scripts/ashen_regent.gd")
 const HUD_SCRIPT = preload("res://scripts/mobile_hud.gd")
 const ASHEN_WORLD_ART = preload("res://scripts/ashen_world_art.gd")
 
@@ -16,6 +17,7 @@ var enemy_respawn_timer := 0.0
 var guard_respawn_timer := 0.0
 var recovery_visual: MeshInstance3D
 var warden: StaticBody3D
+var ashen_regent: CharacterBody3D
 
 func _ready() -> void:
     _build_environment()
@@ -37,6 +39,7 @@ func _ready() -> void:
     _spawn_shield_guard()
     _spawn_courtyard_enemy()
     _spawn_warden()
+    _spawn_ashen_regent()
     GameState.recovery_changed.connect(_update_recovery_marker)
     GameState.sanctuary_restored.connect(_on_sanctuary_restored)
     _update_recovery_marker(GameState.get_recovery_position(), GameState.get_dropped_essence(), GameState.has_recovery())
@@ -324,6 +327,16 @@ func _spawn_warden() -> void:
     warden.set_script(WARDEN_SCRIPT)
     warden.position = Vector3(-7.0, 0.0, -59.0)
     add_child(warden)
+
+func _spawn_ashen_regent() -> void:
+    var defeated: Array = GameState.data.get("defeated_bosses", [])
+    if defeated.has("ashen_regent"):
+        return
+    ashen_regent = CharacterBody3D.new()
+    ashen_regent.name = "AshenRegent"
+    ashen_regent.set_script(REGENT_SCRIPT)
+    ashen_regent.position = Vector3(0.0, 1.0, -61.0)
+    add_child(ashen_regent)
 
 func _spawn_courtyard_enemy() -> void:
     courtyard_enemy = CharacterBody3D.new()
