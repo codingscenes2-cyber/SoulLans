@@ -2,11 +2,14 @@ extends Node3D
 
 const PLAYER_SCRIPT = preload("res://scripts/player_controller.gd")
 const ENEMY_SCRIPT = preload("res://scripts/training_enemy.gd")
+const SHIELD_GUARD_SCRIPT = preload("res://scripts/shield_guard.gd")
 const HUD_SCRIPT = preload("res://scripts/mobile_hud.gd")
 
 var player: CharacterBody3D
 var enemy: CharacterBody3D
+var shield_guard: CharacterBody3D
 var enemy_respawn_timer := 0.0
+var guard_respawn_timer := 0.0
 var recovery_visual: MeshInstance3D
 
 func _ready() -> void:
@@ -41,11 +44,20 @@ func _process(delta: float) -> void:
             _spawn_enemy()
     else:
         enemy_respawn_timer = 0.0
+    if not is_instance_valid(shield_guard):
+        guard_respawn_timer += delta
+        if guard_respawn_timer >= 4.0:
+            _spawn_shield_guard()
+    else:
+        guard_respawn_timer = 0.0
 
 func _on_sanctuary_restored(_position: Vector3) -> void:
     if is_instance_valid(enemy):
         enemy.queue_free()
+    if is_instance_valid(shield_guard):
+        shield_guard.queue_free()
     _spawn_enemy()
+    _spawn_shield_guard()
 
 func _on_player_died() -> void:
     GameState.register_player_death(player.global_position)
@@ -59,6 +71,14 @@ func _spawn_enemy() -> void:
     enemy.global_position = Vector3(0.0, 1.0, -4.0)
     player.set("target", enemy)
     enemy_respawn_timer = 0.0
+
+func _spawn_shield_guard() -> void:
+    shield_guard = CharacterBody3D.new()
+    shield_guard.name = "AshenWatchShieldGuard"
+    shield_guard.set_script(SHIELD_GUARD_SCRIPT)
+    add_child(shield_guard)
+    shield_guard.global_position = Vector3(4.0, 1.0, -7.0)
+    guard_respawn_timer = 0.0
 
 func _build_sanctuary() -> void:
     var altar := MeshInstance3D.new()
