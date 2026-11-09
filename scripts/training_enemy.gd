@@ -31,6 +31,7 @@ var last_known_player_position := Vector3.ZERO
 var enemy_visual: Node3D
 var enemy_material: StandardMaterial3D
 var enemy_animation_player: AnimationPlayer
+var enemy_weapon_attachment: BoneAttachment3D
 var current_enemy_animation := ""
 var navigation_agent: NavigationAgent3D
 
@@ -221,6 +222,7 @@ func _create_placeholder_enemy() -> void:
                 _apply_enemy_material(enemy_visual)
                 add_child(enemy_visual)
                 enemy_animation_player = _find_enemy_animation_player(enemy_visual)
+                _attach_enemy_weapon(enemy_visual)
                 if is_instance_valid(enemy_animation_player) and enemy_animation_player.has_animation("Zombie_Idle"):
                     enemy_animation_player.play("Zombie_Idle")
                     current_enemy_animation = "Zombie_Idle"
@@ -249,6 +251,47 @@ func _apply_enemy_material(node: Node) -> void:
         if child is MeshInstance3D and child.mesh != null:
             child.material_override = enemy_material
         _apply_enemy_material(child)
+
+func _attach_enemy_weapon(model: Node) -> void:
+    var skeleton := _find_enemy_skeleton(model)
+    if skeleton == null or skeleton.find_bone("hand_r") < 0:
+        return
+    enemy_weapon_attachment = BoneAttachment3D.new()
+    enemy_weapon_attachment.name = "HollowRustBladeAttachment"
+    enemy_weapon_attachment.bone_name = "hand_r"
+    skeleton.add_child(enemy_weapon_attachment)
+    var weapon := Node3D.new()
+    weapon.name = "RustBlade"
+    enemy_weapon_attachment.add_child(weapon)
+
+    var blade := MeshInstance3D.new()
+    var blade_mesh := BoxMesh.new()
+    blade_mesh.size = Vector3(0.09, 0.78, 0.04)
+    blade.mesh = blade_mesh
+    blade.position.z = -0.48
+    var blade_material := StandardMaterial3D.new()
+    blade_material.albedo_color = Color(0.28, 0.22, 0.2)
+    blade_material.metallic = 0.72
+    blade_material.roughness = 0.58
+    blade.material_override = blade_material
+    weapon.add_child(blade)
+
+    var guard := MeshInstance3D.new()
+    var guard_mesh := BoxMesh.new()
+    guard_mesh.size = Vector3(0.34, 0.06, 0.08)
+    guard.mesh = guard_mesh
+    guard.position.z = -0.04
+    guard.material_override = blade_material
+    weapon.add_child(guard)
+
+func _find_enemy_skeleton(node: Node) -> Skeleton3D:
+    if node is Skeleton3D:
+        return node
+    for child in node.get_children():
+        var found := _find_enemy_skeleton(child)
+        if found != null:
+            return found
+    return null
 
 func _find_enemy_animation_player(node: Node) -> AnimationPlayer:
     if node is AnimationPlayer:
