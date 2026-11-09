@@ -371,7 +371,7 @@ func _create_placeholder_body() -> void:
             hero_animation_player = _find_animation_player(hero_rig)
             _attach_weapon_to_hand(hero_rig)
             if is_instance_valid(hero_animation_player):
-                _play_hero_animation(["Idle_Loop", "Idle", "Sword_Idle"])
+                _play_hero_animation(["Idle", "Sword_Idle", "Sword_Block"])
             model_loaded = true
     if not model_loaded:
         var visual := MeshInstance3D.new()
@@ -484,7 +484,7 @@ func _find_animation_player(node: Node) -> AnimationPlayer:
 func _update_hero_animation(input_vector: Vector2, sprinting: bool) -> void:
     if not is_instance_valid(hero_animation_player):
         return
-    var candidates: Array[String] = ["Idle_Loop", "Idle", "Sword_Idle"]
+    var candidates: Array[String] = ["Idle", "Sword_Idle", "Sword_Block"]
     if health <= 0.0:
         candidates = ["Death01"]
     elif dodge_timer > 0.0:
@@ -494,9 +494,9 @@ func _update_hero_animation(input_vector: Vector2, sprinting: bool) -> void:
     elif attack_cooldown > 0.0:
         candidates = ["Sword_Idle", "Idle_Loop"]
     elif is_blocking:
-        candidates = ["Sword_Idle", "Shield_Block", "Idle_Loop"]
+        candidates = ["Sword_Block", "Sword_Idle", "Idle"]
     elif input_vector.length() > 0.12:
-        candidates = ["Sprint_Loop", "Sprint", "Jog_Fwd_Loop", "Jog_Fwd"] if sprinting else ["Jog_Fwd_Loop", "Jog_Fwd", "Walk_Loop", "Walk"]
+        candidates = ["Sprint", "Jog_Fwd"] if sprinting else ["Jog_Fwd", "Walk"]
     _play_hero_animation(candidates)
 
 func _play_hero_animation(candidates: Array[String]) -> void:
