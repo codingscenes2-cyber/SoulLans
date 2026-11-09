@@ -54,6 +54,7 @@ func _ready() -> void:
     health = max_health
     stamina = max_stamina
     equipped_weapon = WEAPON_CATALOG[weapon_index]
+    equip_weapon_by_id(GameState.get_equipped_weapon_id(), false)
     _apply_attributes(false)
     _setup_input_map()
     _create_placeholder_body()
@@ -95,6 +96,8 @@ func _physics_process(delta: float) -> void:
         _interact_with_world()
     if Input.is_action_just_pressed("switch_weapon"):
         switch_weapon()
+    if Input.is_action_just_pressed("inventory") and is_instance_valid(hud) and hud.has_method("toggle_inventory"):
+        hud.toggle_inventory()
     if Input.is_action_just_pressed("level_vigor"):
         level_up_attribute("vigor")
     if Input.is_action_just_pressed("level_endurance"):
@@ -195,13 +198,49 @@ func perform_dodge() -> void:
     dodge_timer = 0.36
     invulnerability_timer = 0.22
 
+func get_owned_weapon_ids() -> Array[String]:
+    var owned: Array[String] = []
+    for entry in GameState.get_inventory():
+        if not entry is Dictionary:
+            continue
+        var item_id := str(entry.get("id", ""))
+        if str(GameState.get_item_info(item_id).get("type", "")) == "weapon":
+            owned.append(item_id)
+    return owned
+
+func equip_weapon_by_id(item_id: String, persist: bool = true) -> bool:
+    if attack_cooldown > 0.0 and persist:
+        return false
+    if not GameState.equip_weapon(item_id):
+        return false
+    for index in range(WEAPON_CATALOG.size()):
+        if str(WEAPON_CATALOG[index].get("weapon_id")) == item_id:
+            weapon_index = index
+            equipped_weapon = WEAPON_CATALOG[index]
+            _refresh_weapon_visual()
+            stats_changed.emit(health, stamina)
+            return true
+    return false
+
 func switch_weapon() -> void:
-    if attack_cooldown > 0.0 or WEAPON_CATALOG.is_empty():
+    if attack_cooldown > 0.0:
         return
-    weapon_index = (weapon_index + 1) % WEAPON_CATALOG.size()
-    equipped_weapon = WEAPON_CATALOG[weapon_index]
-    _refresh_weapon_visual()
-    stats_changed.emit(health, stamina)
+    var owned := get_owned_weapon_ids()
+    if owned.size() < 2:
+        return
+    var current_id := GameState.get_equipped_weapon_id()
+    var current_index := owned.find(current_id)
+    var next_index := (current_index + 1) % owned.size()
+    equip_weapon_by_id(owned[next_index])
+
+func use_inventory_item(item_id: String) -> bool:
+    if item_id == "ashen_tonic":
+        if health >= max_health or not GameState.remove_item(item_id, 1):
+            return false
+        health = minf(max_health, health + 45.0)
+        stats_changed.emit(health, stamina)
+        return true
+    return false
 
 func level_up_attribute(attribute_id: String) -> bool:
     if global_position.distance_to(GameState.get_sanctuary_position()) > 3.0:
@@ -607,6 +646,7 @@ func _setup_input_map() -> void:
     _ensure_key_action("parry", KEY_G)
     _ensure_key_action("interact", KEY_E)
     _ensure_key_action("switch_weapon", KEY_Q)
+    _ensure_key_action("inventory", KEY_I)
     _ensure_key_action("level_vigor", KEY_1)
     _ensure_key_action("level_endurance", KEY_2)
     _ensure_key_action("level_strength", KEY_3)
