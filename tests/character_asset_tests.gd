@@ -24,7 +24,7 @@ func _run() -> void:
         quit(1)
         return
 
-    var required := ["Idle", "Walk", "Jog_Fwd", "Sprint", "Roll", "Sword_Attack", "Sword_Idle", "Death01", "Hit_Chest"]
+    var required := ["Idle_Loop", "Walk_Loop", "Jog_Fwd_Loop", "Sprint_Loop", "Roll", "Sword_Attack", "Sword_Idle", "Death01", "Hit_Chest"]
     var available: Array[String] = []
     for library_name in player.get_animation_library_list():
         var library: AnimationLibrary = player.get_animation_library(library_name)
@@ -38,9 +38,9 @@ func _run() -> void:
             quit(1)
             return
 
-    player.play("Idle")
-    if player.current_animation != "Idle":
-        push_error("Idle animation failed to start.")
+    player.play("Idle_Loop")
+    if player.current_animation != "Idle_Loop":
+        push_error("Idle_Loop animation failed to start.")
         instance.queue_free()
         quit(1)
         return
