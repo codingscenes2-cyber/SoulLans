@@ -7,25 +7,25 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Mobile-compatible GL Compatibility renderer baseline.
 - [x] Runtime graybox arena.
 - [x] Placeholder player, enemy and touch HUD.
-- [ ] Validate project import and parser in Godot 4.x.
+- [x] Validate project import and parser in Godot 4.x through GitHub Actions headless import.
 - [ ] Configure Android export preset and test install on target hardware.
-- [ ] Add automated headless import/startup check to CI.
+- [x] Add automated headless import/startup check to CI; latest recorded runs passed.
 
 ## 1. Player controller and camera
 - [x] Basic third-person movement and gravity.
 - [x] Basic sprint and stamina drain.
 - [x] Basic dodge action and stamina cost.
-- [x] Basic melee range/damage prototype.
-- [ ] Touch joystick and camera drag.
+- [x] Basic melee prototype with startup/active timing and a physics overlap query.
+- [x] Touch camera drag and on-screen directional movement buttons.\n- [ ] Replace directional buttons with a proper virtual joystick.
 - [ ] Camera collision, sensitivity and lock-on target switching.
 - [ ] Jump, fall, landing and traversal.
 - [ ] Animation-driven locomotion and combat state integration.
 
 ## 2. Combat foundation
 - [ ] Weapon data resources and weapon-specific movesets.
-- [ ] Attack startup/active/recovery windows and hitbox timing.
+- [x] Basic light-attack startup/active timing and physics hit query.\n- [ ] Add weapon-specific animation-driven hit windows and full attack families.
 - [ ] Light, heavy, charged, sprint and jump attacks.
-- [ ] Dodge i-frames, backstep, block, guard break and parry.
+- [x] Prototype dodge invulnerability window.\n- [ ] Backstep, block, guard break and parry.
 - [ ] Riposte, backstab, stagger, poise and hyperarmour.
 - [ ] Damage types, resistances and status effects.
 - [ ] Combat feedback, hit-stop, sound and VFX.
@@ -43,7 +43,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Basic training enemy chase and attack prototype.
 - [ ] State-machine AI: idle, patrol, detect, investigate, chase, combat, attack, defend, dodge, stagger, retreat, death.
 - [ ] NavigationAgent3D pathfinding and obstacle avoidance.
-- [ ] Telegraph-based attack selection and recovery windows.
+- [x] Training enemy telegraphed attack wind-up and recovery.\n- [ ] Telegraph-based attack selection for varied enemy archetypes.
 - [ ] Group encounters, ranged enemies, elites and mini-bosses.
 - [ ] Boss framework with phase data, arena boundaries and rewards.
 
@@ -51,7 +51,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Graybox route, combat spaces and traversal landmarks.
 - [ ] Finished art pass for one compact region.
 - [ ] Three regular enemy archetypes and one elite.
-- [ ] One Sanctuary checkpoint and rest/death/recovery loop.
+- [x] Prototype Sanctuary checkpoint, rest, death/respawn and Soul Essence recovery loop.\n- [ ] Add enemy reset-on-rest, world persistence rules and full checkpoint playtest.
 - [ ] One NPC, dialogue system and branching quest.
 - [ ] One multi-phase region boss.
 - [ ] Playtest, difficulty tuning and performance budget.
@@ -59,11 +59,11 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 ## 6. RPG systems
 - [ ] Character creation and eight starting classes.
 - [ ] Vigor, Endurance, Strength, Dexterity, Intelligence, Faith, Arcana and Mind.
-- [ ] Soul Essence levelling and death-drop recovery.
+- [x] Soul Essence reward, death-drop and recovery prototype.\n- [ ] Soul Essence levelling and upgrade costs.
 - [ ] Inventory, equipment, equip load and consumables.
 - [ ] Weapon/armour upgrades, infusions, relics and talismans.
 - [ ] Spell schools, focus resource and status effects.
-- [ ] Versioned save/load and backup/restore tests.
+- [x] Versioned JSON save/load foundation for player/world state.\n- [ ] Add backup/restore, corruption recovery and full persistence tests.
 
 ## 7. World, story and content
 - [ ] Lore bible and narrative state graph.
