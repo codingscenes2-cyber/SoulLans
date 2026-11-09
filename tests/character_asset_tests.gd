@@ -1,7 +1,7 @@
 extends SceneTree
 
 func _initialize() -> void:
-    var model_path := "res://assets/characters/ashen_hero.glb"
+    var model_path := "res://assets/characters/ashen_hero_animated.glb"
     var packed := load(model_path) as PackedScene
     if packed == null:
         push_error("Rigged hero GLB did not import as a PackedScene: " + model_path)
