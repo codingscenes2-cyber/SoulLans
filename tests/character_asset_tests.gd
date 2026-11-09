@@ -51,7 +51,43 @@ func _run() -> void:
         quit(1)
         return
 
-    print("PASS: hero rig, meshes, 43+ animation clips and Idle/Sword_Attack playback")
+    var player_body := CharacterBody3D.new()
+    player_body.name = "ArmorAttachmentRegressionPlayer"
+    player_body.set_script(load("res://scripts/player_controller.gd"))
+    player_body.set("enable_visual_body", true)
+    root.add_child(player_body)
+    await process_frame
+    var armor_roots: Dictionary = player_body.get("armor_visual_roots")
+    if armor_roots.size() != 3:
+        push_error("Hero rig must expose head, chest and legs armour attachment points. Found: " + str(armor_roots.keys()))
+        player_body.queue_free()
+        instance.queue_free()
+        quit(1)
+        return
+    for slot in ["head", "chest", "legs"]:
+        var armor_root: Node3D = armor_roots.get(slot)
+        if not is_instance_valid(armor_root) or armor_root.get_child_count() == 0:
+            push_error("Equipped " + slot + " armour must create visible meshes on the hero rig.")
+            player_body.queue_free()
+            instance.queue_free()
+            quit(1)
+            return
+    var initial_head_count := (armor_roots["head"] as Node3D).get_child_count()
+    if not player_body.equip_armor_by_id("scout_hood"):
+        push_error("Re-equipping owned armour must succeed.")
+        player_body.queue_free()
+        instance.queue_free()
+        quit(1)
+        return
+    if (armor_roots["head"] as Node3D).get_child_count() != initial_head_count:
+        push_error("Changing equipped armour must refresh its visual attachment.")
+        player_body.queue_free()
+        instance.queue_free()
+        quit(1)
+        return
+    print("PASS: equipped head, chest and leg armour attach to animated hero skeleton and refresh on equip")
+    player_body.queue_free()
+\n    print("PASS: hero rig, meshes, 43+ animation clips and Idle/Sword_Attack playback")
     instance.queue_free()
     quit(0)
 
