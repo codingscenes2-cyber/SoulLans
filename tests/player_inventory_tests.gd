@@ -63,8 +63,6 @@ func _run() -> void:
     _expect(not bool(player.call("use_inventory_item", "ashen_tonic")), "consumed tonics cannot be used again")
 
     print("Inventory test: tonic checks passed")
-    player.queue_free()
-    await process_frame
     if failures.is_empty():
         print("SOUL LAND player inventory regression tests: PASS")
         quit(0)
