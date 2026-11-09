@@ -305,22 +305,23 @@ func _find_enemy_animation_player(node: Node) -> AnimationPlayer:
 func _update_enemy_animation() -> void:
     if not is_instance_valid(enemy_animation_player):
         return
-    var desired := "Zombie_Idle"
+    var candidates: Array[String] = ["Zombie_Idle", "Idle_Loop", "Idle"]
     match state:
         State.PATROL, State.INVESTIGATE:
-            desired = "Zombie_Walk_Fwd"
+            candidates = ["Zombie_Walk_Fwd", "Walk_Loop", "Walk", "Jog_Fwd_Loop"]
         State.CHASE:
-            desired = "Jog_Fwd"
+            candidates = ["Zombie_Run_Fwd", "Jog_Fwd_Loop", "Jog_Fwd", "Sprint_Loop"]
         State.WINDUP:
-            desired = "Sword_Attack"
+            candidates = ["Zombie_Attack", "Sword_Attack", "Punch"]
         State.RECOVERY:
-            desired = "Sword_Idle"
+            candidates = ["Zombie_Idle", "Sword_Idle", "Idle_Loop"]
         State.STAGGER:
-            desired = "Hit_Chest"
+            candidates = ["Hit_Chest", "Hit_React", "Zombie_Hit"]
         State.DEAD:
-            desired = "Death01"
-    if desired == current_enemy_animation:
-        return
-    if enemy_animation_player.has_animation(desired):
-        enemy_animation_player.play(desired, 0.16)
-        current_enemy_animation = desired
+            candidates = ["Death01", "Zombie_Death", "Death"]
+    for clip in candidates:
+        if enemy_animation_player.has_animation(clip):
+            if clip != current_enemy_animation:
+                enemy_animation_player.play(clip, 0.16)
+                current_enemy_animation = clip
+            return
