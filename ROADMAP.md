@@ -18,7 +18,8 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Basic dodge action and stamina cost.
 - [x] Basic melee prototype with startup/active timing and a physics overlap query.
 - [x] Touch camera drag and analog virtual joystick prototype.
-- [ ] Camera collision and sensitivity tuning.\n- [x] Lock-on target cycling across living enemy archetypes.
+- [ ] Camera collision and sensitivity tuning.
+- [x] Lock-on target cycling across living enemy archetypes.
 - [ ] Jump, fall, landing and traversal.
 - [ ] Animation-driven locomotion and combat state integration.
 
@@ -28,7 +29,8 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Weapon-specific movesets, equipment UI and weapon switching.
 - [x] Basic light-attack startup/active timing and physics hit query.
 - [ ] Add weapon-specific animation-driven hit windows and full attack families.
-- [x] Prototype light and heavy attacks; heavy attack has increased damage/poise, longer windup/recovery and higher stamina cost.\n- [ ] Charged, sprint and jump attacks.
+- [x] Prototype light and heavy attacks; heavy attack has increased damage/poise, longer windup/recovery and higher stamina cost.
+- [ ] Charged, sprint and jump attacks.
 - [x] Prototype dodge invulnerability window.
 - [x] Directional block with stamina drain and guard-break penalty; timed parry staggers the training enemy (prototype).
 - [ ] Riposte, backstab and hyperarmour.
@@ -50,12 +52,14 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Training enemy state machine: idle, patrol, investigate, chase, windup, recovery, stagger and death.
 - [x] NavigationAgent3D path query integration with direct-steering fallback; bake a NavigationRegion3D before relying on pathfinding.
 - [x] Training enemy telegraphed attack wind-up and recovery.
-- [x] Second enemy archetype prototype: Ashen Watch Shield Guard mitigates frontal hits, takes pressure from repeated attacks and exposes a timed guard-break opening.\n- [ ] Telegraph-based attack selection for varied enemy archetypes.
+- [x] Second enemy archetype prototype: Ashen Watch Shield Guard mitigates frontal hits, takes pressure from repeated attacks and exposes a timed guard-break opening.
+- [ ] Telegraph-based attack selection for varied enemy archetypes.
 - [ ] Group encounters, ranged enemies, elites and mini-bosses.
 - [ ] Boss framework with phase data, arena boundaries and rewards.
 
 ## 5. First vertical slice — Ashen Kingdom
-- [ ] Graybox route, combat spaces and traversal landmarks.
+- [x] Initial connected graybox route: arena, broken gate, ruined road, roadside landmarks and walled outer courtyard (CI/runtime validation pending).
+- [ ] Add traversal beats, encounter spaces and a complete exploration loop.
 - [ ] Finished art pass for one compact region.
 - [ ] Three regular enemy archetypes and one elite (two basic archetypes are now present in the combat test arena).
 - [x] Prototype Sanctuary checkpoint, rest, death/respawn and Soul Essence recovery loop.
@@ -71,7 +75,8 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Intelligence, Faith, Arcana and Mind.
 - [x] Soul Essence reward, death-drop and recovery prototype.
 - [x] Soul Essence level-up cost curve and attribute spending prototype.
-- [x] Three-charge healing flask, 45 HP restore and Sanctuary refill prototype.\n- [ ] Inventory, equipment, equip load and broader consumables.
+- [x] Three-charge healing flask, 45 HP restore and Sanctuary refill prototype.
+- [ ] Inventory, equipment, equip load and broader consumables.
 - [ ] Weapon/armour upgrades, infusions, relics and talismans.
 - [ ] Spell schools, focus resource and status effects.
 - [x] Versioned JSON save/load foundation for player/world state with periodic autosave.
