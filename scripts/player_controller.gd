@@ -233,6 +233,14 @@ func switch_weapon() -> void:
     var next_index := (current_index + 1) % owned.size()
     equip_weapon_by_id(owned[next_index])
 
+func upgrade_weapon_by_id(item_id: String) -> bool:
+    if global_position.distance_to(GameState.get_sanctuary_position()) > 3.0:
+        return false
+    if not GameState.upgrade_weapon(item_id):
+        return false
+    stats_changed.emit(health, stamina)
+    return true
+
 func use_inventory_item(item_id: String) -> bool:
     if item_id == "ashen_tonic":
         if health >= max_health or not GameState.remove_item(item_id, 1):
@@ -271,11 +279,14 @@ func _get_scaled_weapon_damage() -> float:
     var dexterity := maxf(0.0, float(attributes.get("dexterity", 10)) - 10.0)
     var scaling := float(equipped_weapon.get("strength_scaling")) * strength
     scaling += float(equipped_weapon.get("dexterity_scaling")) * dexterity
-    return float(equipped_weapon.get("base_damage")) * (1.0 + scaling * 0.025)
+    var upgrade_level := GameState.get_weapon_upgrade_level(str(equipped_weapon.get("weapon_id")))
+    return float(equipped_weapon.get("base_damage")) * (1.0 + scaling * 0.025) * (1.0 + float(upgrade_level) * 0.12)
 
 func get_weapon_name() -> String:
     if is_instance_valid(equipped_weapon):
-        return str(equipped_weapon.get("display_name"))
+        var weapon_name := str(equipped_weapon.get("display_name"))
+        var upgrade_level := GameState.get_weapon_upgrade_level(str(equipped_weapon.get("weapon_id")))
+        return weapon_name + (" +" + str(upgrade_level) if upgrade_level > 0 else "")
     return "Unarmed"
 
 func perform_attack() -> void:
