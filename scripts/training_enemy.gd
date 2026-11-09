@@ -23,6 +23,7 @@ var poise := 36.0
 var state := State.IDLE
 var player: Node3D
 var state_timer := 0.0
+var death_timer := 0.0
 var idle_timer := 0.0
 var patrol_origin := Vector3.ZERO
 var patrol_target := Vector3.ZERO
@@ -50,6 +51,9 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
     if state == State.DEAD:
+        death_timer = maxf(0.0, death_timer - delta)
+        if death_timer <= 0.0:
+            queue_free()
         return
     if not is_instance_valid(player):
         player = get_tree().get_first_node_in_group("player")
@@ -169,8 +173,9 @@ func take_damage(amount: float, poise_damage: float = 12.0) -> void:
     if health <= 0.0:
         state = State.DEAD
         velocity = Vector3.ZERO
+        death_timer = 1.65
         GameState.award_soul_essence(soul_reward)
-        queue_free()
+        _update_enemy_animation()
         return
     if poise <= 0.0:
         state = State.STAGGER
