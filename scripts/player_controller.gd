@@ -260,6 +260,13 @@ func upgrade_weapon_by_id(item_id: String) -> bool:
     stats_changed.emit(health, stamina)
     return true
 
+func upgrade_armor_by_id(item_id: String) -> bool:
+    if not is_near_blacksmith() or not game_state.upgrade_armor(item_id):
+        return false
+    _refresh_armor_stats()
+    stats_changed.emit(health, stamina)
+    return true
+
 func equip_armor_by_id(item_id: String) -> bool:
     if attack_cooldown > 0.0 or not game_state.equip_armor(item_id):
         return false
