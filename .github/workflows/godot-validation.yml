@@ -41,7 +41,7 @@ jobs:
         run: godot --headless --path . --script res://tests/animation_asset_tests.gd
       - name: Run rigged character asset smoke test
         run: godot --headless --path . --script res://tests/character_asset_tests.gd
-      - name: Run rigged enemy animation tests
+      - name: Run shared enemy rig and archetype visual identity tests
         run: godot --headless --path . --script res://tests/enemy_rig_tests.gd
       - name: Run Shield Guard combat regression tests
         run: godot --headless --path . --script res://tests/shield_guard_tests.gd
