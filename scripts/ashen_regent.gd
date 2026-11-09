@@ -10,6 +10,10 @@ signal boss_defeated
 var phase_index := 0
 var encounter_active := false
 var boss_title := "ASHEN REGENT"
+var special_attack_cooldown := 5.0
+var special_attack_windup := 0.0
+var special_attack_radius := 4.8
+var special_attack_ring: MeshInstance3D
 
 func _ready() -> void:
     max_health = 1200.0
@@ -34,6 +38,7 @@ func _ready() -> void:
         enemy_material.metallic = 0.32
         enemy_material.roughness = 0.66
     _add_regent_crown()
+    _create_special_attack_ring()
     encounter_active = _is_unlocked() and not _is_defeated()
     if not encounter_active:
         state = State.IDLE
@@ -53,6 +58,7 @@ func _physics_process(delta: float) -> void:
         velocity = Vector3.ZERO
         return
     _update_phase()
+    _update_special_attack(delta)
     super._physics_process(delta)
 
 func take_damage(amount: float, poise_damage: float = 12.0) -> void:
@@ -122,6 +128,58 @@ func _update_phase() -> void:
     state = State.STAGGER
     state_timer = 0.85
     velocity = Vector3.ZERO
+
+func _update_special_attack(delta: float) -> void:
+    if phase_index < 1 or not encounter_active or state == State.DEAD:
+        return
+    if special_attack_windup > 0.0:
+        special_attack_windup = maxf(0.0, special_attack_windup - delta)
+        if is_instance_valid(player):
+            _face_toward(player.global_position, delta * 2.0)
+        if special_attack_windup <= 0.0:
+            if is_instance_valid(special_attack_ring):
+                special_attack_ring.visible = false
+            _set_telegraph(false)
+            if is_instance_valid(player) and global_position.distance_to(player.global_position) <= special_attack_radius and absf(player.global_position.y - global_position.y) <= 2.0:
+                var slam_damage := 25.0 if phase_index == 1 else 34.0
+                if player.has_method("take_damage"):
+                    player.take_damage(slam_damage, self)
+            special_attack_cooldown = 7.0 if phase_index == 1 else 5.0
+        return
+    special_attack_cooldown = maxf(0.0, special_attack_cooldown - delta)
+    if special_attack_cooldown > 0.0 or not is_instance_valid(player):
+        return
+    if state in [State.WINDUP, State.RECOVERY, State.STAGGER]:
+        return
+    if global_position.distance_to(player.global_position) > special_attack_radius + 3.0:
+        return
+    special_attack_windup = 1.15 if phase_index == 1 else 0.9
+    state = State.RECOVERY
+    state_timer = special_attack_windup
+    velocity = Vector3.ZERO
+    _set_telegraph(true)
+    if is_instance_valid(special_attack_ring):
+        special_attack_ring.visible = true
+
+func _create_special_attack_ring() -> void:
+    special_attack_ring = MeshInstance3D.new()
+    special_attack_ring.name = "RegentSlamTelegraph"
+    var disk := CylinderMesh.new()
+    disk.top_radius = 3.35
+    disk.bottom_radius = 3.35
+    disk.height = 0.025
+    special_attack_ring.mesh = disk
+    special_attack_ring.position.y = 0.08
+    var warning := StandardMaterial3D.new()
+    warning.albedo_color = Color(0.95, 0.12, 0.04, 0.28)
+    warning.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+    warning.emission_enabled = true
+    warning.emission = Color(0.9, 0.08, 0.02)
+    warning.emission_energy_multiplier = 1.1
+    warning.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    special_attack_ring.material_override = warning
+    special_attack_ring.visible = false
+    add_child(special_attack_ring)
 
 func _record_defeat() -> void:
     var defeated: Array = GameState.data.get("defeated_bosses", [])
