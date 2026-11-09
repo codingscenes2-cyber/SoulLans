@@ -6,9 +6,18 @@ func _initialize() -> void:
 func _run() -> void:
     var player := CharacterBody3D.new()
     player.name = "PlayerMeleeArcTest"
-    player.set_script(load("res://scripts/player_controller.gd"))
+    var player_script: Script = load("res://scripts/player_controller.gd")
+    if player_script == null:
+        push_error("Player controller script failed to load.")
+        quit(1)
+        return
+    player.set_script(player_script)
     root.add_child(player)
     await process_frame
+    if not player.has_method("is_target_in_melee_arc"):
+        push_error("Player controller did not initialise the melee arc API.")
+        quit(1)
+        return
     player.global_position = Vector3.ZERO
     player.rotation = Vector3.ZERO
     player.current_attack_range = 2.5
