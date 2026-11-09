@@ -29,6 +29,7 @@ func _ready() -> void:
     if is_instance_valid(enemy_material):
         enemy_material.albedo_color = Color(0.38, 0.19, 0.11)
     _create_bow_visual()
+    _create_archer_kit()
 
 func _should_begin_attack(distance: float) -> bool:
     return distance <= preferred_range and distance >= retreat_range
@@ -111,3 +112,32 @@ func _update_enemy_animation() -> void:
                 current_enemy_animation = clip
             return
     super._update_enemy_animation()
+
+func _create_archer_kit() -> void:
+    # Cloth hood, mantle and a back quiver distinguish the ranged hunter at distance.
+    _add_archer_piece("ArcherAshHood", SphereMesh.new(), Vector3(0.0, 1.78, 0.02), Vector3(0.42, 0.38, 0.4), Color(0.16, 0.105, 0.075), 0.0)
+    _add_archer_piece("ArcherShoulderMantle", BoxMesh.new(), Vector3(0.0, 1.42, 0.12), Vector3(0.94, 0.34, 0.26), Color(0.25, 0.12, 0.075), 0.0)
+    _add_archer_piece("ArcherBackQuiver", CylinderMesh.new(), Vector3(-0.43, 1.34, 0.24), Vector3(0.15, 0.43, 0.15), Color(0.11, 0.075, 0.05), 0.0)
+    _add_archer_piece("ArcherBelt", BoxMesh.new(), Vector3(0.0, 0.91, 0.0), Vector3(0.62, 0.12, 0.3), Color(0.12, 0.075, 0.045), 0.0)
+
+func _add_archer_piece(node_name: String, mesh: Mesh, piece_position: Vector3, piece_scale: Vector3, color: Color, metalness: float) -> MeshInstance3D:
+    var piece := MeshInstance3D.new()
+    piece.name = node_name
+    if mesh is BoxMesh:
+        (mesh as BoxMesh).size = piece_scale
+        piece.scale = Vector3.ONE
+    elif mesh is CylinderMesh:
+        (mesh as CylinderMesh).top_radius = piece_scale.x
+        (mesh as CylinderMesh).bottom_radius = piece_scale.x * 1.15
+        (mesh as CylinderMesh).height = piece_scale.y * 2.0
+    else:
+        piece.scale = piece_scale
+    piece.mesh = mesh
+    piece.position = piece_position
+    var material := StandardMaterial3D.new()
+    material.albedo_color = color
+    material.metallic = metalness
+    material.roughness = 0.86
+    piece.material_override = material
+    add_child(piece)
+    return piece
