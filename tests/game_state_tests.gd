@@ -12,7 +12,7 @@ func _initialize() -> void:
 
 func _run() -> void:
     _remove_test_files()
-    var state: Node = GAME_STATE_SCRIPT.new()
+    var state: Variant = GAME_STATE_SCRIPT.new()
     root.add_child(state)
 
     state.data["player"]["soul_essence"] = 321
