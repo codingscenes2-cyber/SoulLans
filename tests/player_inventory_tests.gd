@@ -21,7 +21,12 @@ func _run() -> void:
     _expect(str(game_state.call("get_equipped_weapon_id")) == "ashen_watch_dagger", "player equipment change persists")
 
     var damage_before_upgrade: float = float(player.call("_get_scaled_weapon_damage"))
-    player.global_position = game_state.call("get_sanctuary_position")
+    var test_smith := Node3D.new()
+    test_smith.add_to_group("blacksmiths")
+    test_smith.global_position = Vector3(4.2, 1.05, 6.0)
+    root.add_child(test_smith)
+    player.global_position = test_smith.global_position
+    _expect(bool(player.call("is_near_blacksmith")), "blacksmith proximity is detected")
     game_state.call("add_item", "ashen_scrap", 3)
     _expect(bool(player.call("upgrade_weapon_by_id", "ashen_watch_dagger")), "weapon can be upgraded at the Sanctuary")
     var damage_after_upgrade: float = float(player.call("_get_scaled_weapon_damage"))
