@@ -460,8 +460,11 @@ func _add_button(parent: Control, caption: String, offset: Vector2, action: Stri
     button.add_theme_color_override("font_hover_color", Color(1.0, 0.8, 0.42))
     button.modulate = Color(1.0, 1.0, 1.0, 0.86)
     parent.add_child(button)
-    button.button_down.connect(func() -> void: Input.action_press(action))
-    button.button_up.connect(func() -> void: Input.action_release(action))
+    if action == "quest_journal":
+        button.pressed.connect(toggle_quest_journal)
+    else:
+        button.button_down.connect(func() -> void: Input.action_press(action))
+        button.button_up.connect(func() -> void: Input.action_release(action))
 
 func _add_level_button(parent: HBoxContainer, caption: String, action: String) -> void:
     var button := Button.new()
