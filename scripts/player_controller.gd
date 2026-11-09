@@ -67,7 +67,7 @@ func _ready() -> void:
     _create_camera_rig()
 
 func _physics_process(delta: float) -> void:
-    if is_instance_valid(hud) and hud.has_method("is_inventory_open") and hud.is_inventory_open():
+    if is_instance_valid(hud) and ((hud.has_method("is_inventory_open") and hud.is_inventory_open()) or (hud.has_method("is_quest_journal_open") and hud.is_quest_journal_open())):
         velocity = Vector3.ZERO
         move_and_slide()
         _update_camera()
@@ -109,6 +109,8 @@ func _physics_process(delta: float) -> void:
         switch_weapon()
     if Input.is_action_just_pressed("inventory") and is_instance_valid(hud) and hud.has_method("toggle_inventory"):
         hud.toggle_inventory()
+    if Input.is_action_just_pressed("quest_journal") and is_instance_valid(hud) and hud.has_method("toggle_quest_journal"):
+        hud.toggle_quest_journal()
     if Input.is_action_just_pressed("level_vigor"):
         level_up_attribute("vigor")
     if Input.is_action_just_pressed("level_endurance"):
@@ -712,6 +714,7 @@ func _setup_input_map() -> void:
     _ensure_key_action("interact", KEY_E)
     _ensure_key_action("switch_weapon", KEY_Q)
     _ensure_key_action("inventory", KEY_I)
+    _ensure_key_action("quest_journal", KEY_J)
     _ensure_key_action("level_vigor", KEY_1)
     _ensure_key_action("level_endurance", KEY_2)
     _ensure_key_action("level_strength", KEY_3)
