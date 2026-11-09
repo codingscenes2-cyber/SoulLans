@@ -32,6 +32,7 @@ var enemy_material: StandardMaterial3D
 var navigation_agent: NavigationAgent3D
 
 func _ready() -> void:
+    add_to_group("enemies")
     health = max_health
     poise = max_poise
     patrol_origin = global_position
