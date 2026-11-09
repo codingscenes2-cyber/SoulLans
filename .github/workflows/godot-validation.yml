@@ -18,14 +18,6 @@ jobs:
           version: 4.3.0
           use-dotnet: false
           include-templates: false
-      - name: Fetch pinned CC0 Quaternius humanoid
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p assets/characters
-          curl -fL --retry 3 "https://raw.githubusercontent.com/programasweights/avatar/a488723e3a93d73d5c562d88f8a85353c37bc721/public/assets/character.glb" -o assets/characters/ashen_hero.glb
-          curl -fL --retry 3 "https://raw.githubusercontent.com/programasweights/avatar/a488723e3a93d73d5c562d88f8a85353c37bc721/public/assets/QUATERNIUS-LICENSE.txt" -o assets/characters/QUATERNIUS-LICENSE.txt
-          test "$(stat -c %s assets/characters/ashen_hero.glb)" -eq 741320
       - name: Import project and validate scripts
         run: godot --headless --editor --path . --quit
       - name: Launch main scene headlessly
