@@ -35,7 +35,7 @@ func _run() -> void:
     player.stamina = player.max_stamina
     attacker.global_position = Vector3(0.0, 0.0, 2.0)
     player.is_blocking = true
-    var expected_rear_damage := 20.0 * (1.0 - player.get_damage_reduction())
+    var expected_rear_damage: float = 20.0 * (1.0 - float(player.call("get_damage_reduction")))
     player.take_damage(20.0, attacker)
     if not is_equal_approx(player.health, player.max_health - expected_rear_damage):
         push_error("A rear attack must bypass a forward-facing block while armour still mitigates damage.")
