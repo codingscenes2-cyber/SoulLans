@@ -6,6 +6,9 @@ on:
     branches: [main]
     paths:
       - "export_presets.cfg"
+      - "project.godot"
+      - "scripts/main.gd"
+      - "scripts/ashen_world_art.gd"
       - ".github/workflows/android-prototype-export.yml"
 
 jobs:
