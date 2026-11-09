@@ -25,6 +25,11 @@ func _run() -> void:
         push_error("Enemy wind-up must display a ground-ring telegraph.")
         quit(1)
         return
+    hollow._set_telegraph(false)
+    if hollow.attack_telegraph.visible:
+        push_error("Attack telegraph must disappear when the wind-up ends.")
+        quit(1)
+        return
 
     hollow._begin_attack(1.5)
     if hollow.current_attack_kind != "heavy_overhead":
