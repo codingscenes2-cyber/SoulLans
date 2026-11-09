@@ -35,6 +35,8 @@ var active_enemies: Array[Node] = []
 var world_root: Node3D
 var player: Node3D
 var hud: Node
+var trigger_marker: MeshInstance3D
+var marker_time := 0.0
 
 func configure(root: Node3D, player_node: Node3D, hud_node: Node) -> void:
     world_root = root
@@ -42,8 +44,15 @@ func configure(root: Node3D, player_node: Node3D, hud_node: Node) -> void:
     hud = hud_node
     if _is_complete_in_save():
         encounter_state = EncounterState.COMPLETE
+    else:
+        _create_trigger_marker()
 
 func update_encounter(delta: float) -> void:
+    if encounter_state == EncounterState.DORMANT and is_instance_valid(trigger_marker):
+        marker_time += delta
+        trigger_marker.rotation.y += delta * 0.45
+        var pulse := 1.0 + sin(marker_time * 2.2) * 0.035
+        trigger_marker.scale = Vector3(pulse, 1.0, pulse)
     if encounter_state == EncounterState.COMPLETE or not is_instance_valid(player):
         return
     if encounter_state == EncounterState.DORMANT:
@@ -66,6 +75,8 @@ func update_encounter(delta: float) -> void:
 
 func _start_encounter() -> void:
     encounter_state = EncounterState.ACTIVE
+    if is_instance_valid(trigger_marker):
+        trigger_marker.visible = false
     current_wave = 0
     _show_message("ASHEN COURTYARD: Hold the road. Three waves incoming.")
     _spawn_next_wave()
@@ -112,6 +123,8 @@ func _complete_encounter() -> void:
     if encounter_state == EncounterState.COMPLETE:
         return
     encounter_state = EncounterState.COMPLETE
+    if is_instance_valid(trigger_marker):
+        trigger_marker.visible = false
     GameState.set_world_flag(ENCOUNTER_FLAG, true)
     GameState.add_item("ashen_scrap", 4)
     GameState.add_item("tempered_plate", 2)
@@ -128,6 +141,26 @@ func reset_encounter() -> void:
     current_wave = 0
     intermission_timer = 0.0
     encounter_state = EncounterState.COMPLETE if _is_complete_in_save() else EncounterState.DORMANT
+    if is_instance_valid(trigger_marker):
+        trigger_marker.visible = encounter_state == EncounterState.DORMANT
+
+func _create_trigger_marker() -> void:
+    trigger_marker = MeshInstance3D.new()
+    trigger_marker.name = "AshenCourtyardEncounterMarker"
+    var ring := TorusMesh.new()
+    ring.inner_radius = 1.45
+    ring.outer_radius = 1.62
+    trigger_marker.mesh = ring
+    trigger_marker.position = TRIGGER_POSITION + Vector3.UP * 0.08
+    var material := StandardMaterial3D.new()
+    material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+    material.albedo_color = Color(1.0, 0.28, 0.07, 0.76)
+    material.emission_enabled = true
+    material.emission = Color(1.0, 0.12, 0.025)
+    material.emission_energy_multiplier = 1.6
+    material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+    trigger_marker.material_override = material
+    world_root.add_child(trigger_marker)
 
 func _is_complete_in_save() -> bool:
     return bool(GameState.data.get("world_flags", {}).get(ENCOUNTER_FLAG, false))
