@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-09
 
-Latest completed validation: [GitHub Actions run #99 — passed](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564648199). The headless save/progression suite also passed in [run #97](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564586387). The Android export workflow's first run is [queued as run #1](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564764601). CI does not replace hands-on gameplay or Android device testing.
+Latest completed validation: [GitHub Actions run #99 — passed](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564648199). The headless save/progression suite also passed in [run #97](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564586387). The first Android export attempt [run #1 failed](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564764601) because the SDK setup action requested Google's removed `tools` package. The workflow now uses setup-android v4.0.2 with that package disabled; [retry #2 is running](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564839680) and [retry #3 is queued](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564895704). CI does not replace hands-on gameplay or Android device testing.
 
 This is a readiness snapshot, not a claim that a finished Android build exists. "CI green" means Godot headless import and main-scene startup passed in GitHub Actions; it does not prove full gameplay or device compatibility.
 
