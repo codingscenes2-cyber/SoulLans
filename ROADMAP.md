@@ -22,7 +22,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Animation-driven locomotion and combat state integration.
 
 ## 2. Combat foundation
-- [ ] Weapon data resources and weapon-specific movesets.
+- [x] WeaponData resource schema and Ashen Iron Sword starter definition; light attack reads its damage, stamina cost and timing.\n- [ ] Weapon-specific movesets, equipment UI and weapon switching.
 - [x] Basic light-attack startup/active timing and physics hit query.\n- [ ] Add weapon-specific animation-driven hit windows and full attack families.
 - [ ] Light, heavy, charged, sprint and jump attacks.
 - [x] Prototype dodge invulnerability window.\n- [ ] Backstep, block, guard break and parry.
