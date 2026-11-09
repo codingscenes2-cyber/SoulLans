@@ -61,7 +61,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] NavigationAgent3D path query integration with direct-steering fallback; bake a NavigationRegion3D before relying on pathfinding.
 - [x] Training enemy telegraphed attack wind-up and recovery.
 - [x] Second enemy archetype prototype: Ashen Watch Shield Guard mitigates frontal hits, takes pressure from repeated attacks and exposes a timed guard-break opening.
-- [x] Telegraph-based attack selection: Hollow alternates quick slashes and slower, higher-damage overheads with distinct wind-up/recovery windows; Archer retains a dedicated ranged bolt profile.
+- [x] Telegraph-based attack selection: Hollow alternates quick slashes and slower, higher-damage overheads; Shield Guard uses a heavier shield bash; Archer retains a dedicated ranged bolt profile. Each has a distinct timing/damage profile.
 - [x] Nearby enemy group awareness: nearby idle/patrolling allies investigate the initiating enemy's last known player position; distant enemies remain uninvolved.
 - [ ] Group encounters, elites and mini-bosses. (Ashen Ember Archer ranged archetype implemented and placed in the outer courtyard; headless regression validation pending.)
 - [x] First boss framework: quest-gated Ashen Regent, three combat phases, telegraphed slam, unique reward, boss HUD and persistent throne-gate progression; additional bosses and arena tuning remain.
