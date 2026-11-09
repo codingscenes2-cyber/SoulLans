@@ -415,7 +415,6 @@ func _update_hero_animation(input_vector: Vector2, sprinting: bool) -> void:
         desired = "Sprint" if sprinting else "Jog_Fwd"
     if desired == current_hero_animation:
         return
-    var clip_name := "/" + desired
     if hero_animation_player.has_animation(desired):
         hero_animation_player.play(desired, 0.12)
         current_hero_animation = desired
