@@ -60,6 +60,6 @@ jobs:
       - name: Run save-system regression tests
         run: godot --headless --path . --script res://tests/game_state_tests.gd
       - name: Run player inventory and equipment regression tests
-        run: godot --headless --path . --script res://tests/player_inventory_tests.gd
+        run: timeout 90s godot --headless --path . --script res://tests/player_inventory_tests.gd
       - name: Run Ashen Regent boss encounter regression tests
         run: godot --headless --path . --script res://tests/ashen_regent_tests.gd
