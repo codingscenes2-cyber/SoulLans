@@ -5,6 +5,8 @@ extends "res://scripts/training_enemy.gd"
 const BOSS_ID := "ashen_regent"
 const UNLOCK_FLAG := "ashen_regent_unlocked"
 
+signal boss_defeated
+
 var phase_index := 0
 var encounter_active := false
 var boss_title := "ASHEN REGENT"
@@ -130,6 +132,7 @@ func _record_defeat() -> void:
     flags["ashen_regent_defeated"] = true
     GameState.data["world_flags"] = flags
     GameState.save_game()
+    boss_defeated.emit()
 
 func _add_regent_crown() -> void:
     var crown := MeshInstance3D.new()
