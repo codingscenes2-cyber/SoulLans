@@ -51,13 +51,15 @@ var guard_broken_timer := 0.0
 var armor_defense := 0.0
 var equip_load := 0.0
 var equip_load_tier := "light"
+var game_state: Variant
 
 func _ready() -> void:
+    game_state = get_node("/root/GameState")
     add_to_group("player")
     health = max_health
     stamina = max_stamina
     equipped_weapon = WEAPON_CATALOG[weapon_index]
-    equip_weapon_by_id(GameState.get_equipped_weapon_id(), false)
+    equip_weapon_by_id(game_state.get_equipped_weapon_id(), false)
     _apply_attributes(false)
     _refresh_armor_stats()
     _setup_input_map()
@@ -211,18 +213,18 @@ func perform_dodge() -> void:
 
 func get_owned_weapon_ids() -> Array[String]:
     var owned: Array[String] = []
-    for entry in GameState.get_inventory():
+    for entry in game_state.get_inventory():
         if not entry is Dictionary:
             continue
         var item_id := str(entry.get("id", ""))
-        if str(GameState.get_item_info(item_id).get("type", "")) == "weapon":
+        if str(game_state.get_item_info(item_id).get("type", "")) == "weapon":
             owned.append(item_id)
     return owned
 
 func equip_weapon_by_id(item_id: String, persist: bool = true) -> bool:
     if attack_cooldown > 0.0 and persist:
         return false
-    if not GameState.equip_weapon(item_id):
+    if not game_state.equip_weapon(item_id):
         return false
     for index in range(WEAPON_CATALOG.size()):
         if str(WEAPON_CATALOG[index].get("weapon_id")) == item_id:
@@ -239,7 +241,7 @@ func switch_weapon() -> void:
     var owned := get_owned_weapon_ids()
     if owned.size() < 2:
         return
-    var current_id := GameState.get_equipped_weapon_id()
+    var current_id := game_state.get_equipped_weapon_id()
     var current_index := owned.find(current_id)
     var next_index := (current_index + 1) % owned.size()
     equip_weapon_by_id(owned[next_index])
@@ -253,20 +255,20 @@ func is_near_blacksmith() -> bool:
 func upgrade_weapon_by_id(item_id: String) -> bool:
     if not is_near_blacksmith():
         return false
-    if not GameState.upgrade_weapon(item_id):
+    if not game_state.upgrade_weapon(item_id):
         return false
     stats_changed.emit(health, stamina)
     return true
 
 func equip_armor_by_id(item_id: String) -> bool:
-    if attack_cooldown > 0.0 or not GameState.equip_armor(item_id):
+    if attack_cooldown > 0.0 or not game_state.equip_armor(item_id):
         return false
     _refresh_armor_stats()
     stats_changed.emit(health, stamina)
     return true
 
 func _refresh_armor_stats() -> void:
-    var armor: Dictionary = GameState.get_armor_stats()
+    var armor: Dictionary = game_state.get_armor_stats()
     armor_defense = maxf(0.0, float(armor.get("defense", 0.0)))
     equip_load = maxf(0.0, float(armor.get("weight", 0.0)))
     equip_load_tier = "light" if equip_load <= 6.0 else ("medium" if equip_load <= 12.0 else "heavy")
@@ -288,7 +290,7 @@ func get_damage_reduction() -> float:
 
 func use_inventory_item(item_id: String) -> bool:
     if item_id == "ashen_tonic":
-        if health >= max_health or not GameState.remove_item(item_id, 1):
+        if health >= max_health or not game_state.remove_item(item_id, 1):
             return false
         health = minf(max_health, health + 45.0)
         stats_changed.emit(health, stamina)
@@ -296,9 +298,9 @@ func use_inventory_item(item_id: String) -> bool:
     return false
 
 func level_up_attribute(attribute_id: String) -> bool:
-    if global_position.distance_to(GameState.get_sanctuary_position()) > 3.0:
+    if global_position.distance_to(game_state.get_sanctuary_position()) > 3.0:
         return false
-    if not GameState.level_up_attribute(attribute_id):
+    if not game_state.level_up_attribute(attribute_id):
         return false
     _apply_attributes(true)
     return true
@@ -306,7 +308,7 @@ func level_up_attribute(attribute_id: String) -> bool:
 func _apply_attributes(keep_current_ratio: bool) -> void:
     var old_health := max_health
     var old_stamina := max_stamina
-    var attributes := GameState.get_player_attributes()
+    var attributes := game_state.get_player_attributes()
     max_health = 100.0 + float(attributes.get("vigor", 10) - 10) * 15.0
     max_stamina = 100.0 + float(attributes.get("endurance", 10) - 10) * 10.0
     if keep_current_ratio:
@@ -319,18 +321,18 @@ func _apply_attributes(keep_current_ratio: bool) -> void:
 func _get_scaled_weapon_damage() -> float:
     if not is_instance_valid(equipped_weapon):
         return attack_damage
-    var attributes := GameState.get_player_attributes()
+    var attributes := game_state.get_player_attributes()
     var strength := maxf(0.0, float(attributes.get("strength", 10)) - 10.0)
     var dexterity := maxf(0.0, float(attributes.get("dexterity", 10)) - 10.0)
     var scaling := float(equipped_weapon.get("strength_scaling")) * strength
     scaling += float(equipped_weapon.get("dexterity_scaling")) * dexterity
-    var upgrade_level := GameState.get_weapon_upgrade_level(str(equipped_weapon.get("weapon_id")))
+    var upgrade_level := game_state.get_weapon_upgrade_level(str(equipped_weapon.get("weapon_id")))
     return float(equipped_weapon.get("base_damage")) * (1.0 + scaling * 0.025) * (1.0 + float(upgrade_level) * 0.12)
 
 func get_weapon_name() -> String:
     if is_instance_valid(equipped_weapon):
         var weapon_name := str(equipped_weapon.get("display_name"))
-        var upgrade_level := GameState.get_weapon_upgrade_level(str(equipped_weapon.get("weapon_id")))
+        var upgrade_level := game_state.get_weapon_upgrade_level(str(equipped_weapon.get("weapon_id")))
         return weapon_name + (" +" + str(upgrade_level) if upgrade_level > 0 else "")
     return "Unarmed"
 
@@ -412,7 +414,7 @@ func is_target_in_melee_arc(target_position: Vector3) -> bool:
 func use_healing_flask() -> bool:
     if health >= max_health or dodge_timer > 0.0 or attack_cooldown > 0.0:
         return false
-    if not GameState.consume_healing_flask():
+    if not game_state.consume_healing_flask():
         return false
     health = minf(max_health, health + 45.0)
     stats_changed.emit(health, stamina)
@@ -466,8 +468,8 @@ func respawn_at(position: Vector3) -> void:
     invulnerability_timer = 1.5
 
 func _interact_with_world() -> void:
-    if global_position.distance_to(GameState.get_sanctuary_position()) <= 3.0:
-        GameState.rest_at_sanctuary(GameState.get_sanctuary_position(), self)
+    if global_position.distance_to(game_state.get_sanctuary_position()) <= 3.0:
+        game_state.rest_at_sanctuary(game_state.get_sanctuary_position(), self)
         return
 
     var nearest: Node3D
@@ -485,7 +487,7 @@ func _interact_with_world() -> void:
             hud.show_message(message)
         return
 
-    GameState.try_recover_souls(global_position)
+    game_state.try_recover_souls(global_position)
 
 func apply_saved_state(saved: Dictionary) -> void:
     health = clampf(float(saved.get("health", max_health)), 0.0, max_health)
@@ -493,7 +495,7 @@ func apply_saved_state(saved: Dictionary) -> void:
     stats_changed.emit(health, stamina)
 
 func get_status() -> Dictionary:
-    return {"health": health, "max_health": max_health, "stamina": stamina, "max_stamina": max_stamina, "level": GameState.get_player_level(), "soul_essence": GameState.get_soul_essence(), "next_level_cost": GameState.get_next_level_cost(), "healing_flasks": GameState.get_healing_flasks(), "max_healing_flasks": GameState.get_max_healing_flasks(), "armor_defense": armor_defense, "damage_reduction": get_damage_reduction(), "equip_load": equip_load, "equip_load_tier": equip_load_tier}
+    return {"health": health, "max_health": max_health, "stamina": stamina, "max_stamina": max_stamina, "level": game_state.get_player_level(), "soul_essence": game_state.get_soul_essence(), "next_level_cost": game_state.get_next_level_cost(), "healing_flasks": game_state.get_healing_flasks(), "max_healing_flasks": game_state.get_max_healing_flasks(), "armor_defense": armor_defense, "damage_reduction": get_damage_reduction(), "equip_load": equip_load, "equip_load_tier": equip_load_tier}
 
 func _create_placeholder_body() -> void:
     # Load the licensed humanoid when the asset pipeline has supplied it.
