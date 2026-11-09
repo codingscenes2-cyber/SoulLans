@@ -51,6 +51,15 @@ func _run() -> void:
     _expect(int(boss.get_boss_status().get("phase", 0)) == 3, "boss enters final phase below 25 percent health")
     _expect(is_equal_approx(boss.attack_damage, 34.0), "final phase increases attack damage")
 
+    var essence_before := GameState.get_soul_essence()
+    boss.take_damage(5000.0)
+    _expect(float(boss.get("health")) <= 0.0, "boss can be defeated")
+    var defeated_bosses: Array = GameState.data.get("defeated_bosses", [])
+    _expect(defeated_bosses.has("ashen_regent"), "boss defeat is recorded permanently")
+    var final_flags: Dictionary = GameState.data.get("world_flags", {})
+    _expect(bool(final_flags.get("ashen_regent_defeated", false)), "boss defeat sets a persistent world flag")
+    _expect(GameState.get_soul_essence() >= essence_before + 300, "boss awards its 300 Soul Essence reward")
+
     boss.queue_free()
     await process_frame
     if failures.is_empty():
