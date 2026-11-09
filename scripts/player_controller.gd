@@ -30,6 +30,8 @@ var target: Node3D
 var camera: Camera3D
 var camera_pivot: Node3D
 var hero_animation_player: AnimationPlayer
+var weapon_attachment: BoneAttachment3D
+var weapon_visual_root: Node3D
 var current_hero_animation := ""
 var dodge_timer := 0.0
 var attack_cooldown := 0.0
@@ -188,6 +190,7 @@ func switch_weapon() -> void:
         return
     weapon_index = (weapon_index + 1) % WEAPON_CATALOG.size()
     equipped_weapon = WEAPON_CATALOG[weapon_index]
+    _refresh_weapon_visual()
     stats_changed.emit(health, stamina)
 
 func level_up_attribute(attribute_id: String) -> bool:
@@ -366,6 +369,7 @@ func _create_placeholder_body() -> void:
             _apply_hero_material(hero_rig)
             add_child(hero_rig)
             hero_animation_player = _find_animation_player(hero_rig)
+            _attach_weapon_to_hand(hero_rig)
             if is_instance_valid(hero_animation_player) and hero_animation_player.has_animation("Idle"):
                 hero_animation_player.play("Idle")
                 current_hero_animation = "Idle"
@@ -389,6 +393,85 @@ func _create_placeholder_body() -> void:
     collision.shape = shape
     collision.position.y = 0.89
     add_child(collision)
+
+func _find_skeleton(node: Node) -> Skeleton3D:
+    if node is Skeleton3D:
+        return node
+    for child in node.get_children():
+        var found := _find_skeleton(child)
+        if found != null:
+            return found
+    return null
+
+func _attach_weapon_to_hand(hero_rig: Node) -> void:
+    var skeleton := _find_skeleton(hero_rig)
+    if skeleton == null or skeleton.find_bone("hand_r") < 0:
+        return
+    weapon_attachment = BoneAttachment3D.new()
+    weapon_attachment.name = "RightHandWeaponAttachment"
+    weapon_attachment.bone_name = "hand_r"
+    skeleton.add_child(weapon_attachment)
+    weapon_visual_root = Node3D.new()
+    weapon_visual_root.name = "EquippedWeaponVisual"
+    weapon_attachment.add_child(weapon_visual_root)
+    _refresh_weapon_visual()
+
+func _refresh_weapon_visual() -> void:
+    if not is_instance_valid(weapon_visual_root):
+        return
+    for child in weapon_visual_root.get_children():
+        weapon_visual_root.remove_child(child)
+        child.queue_free()
+
+    var is_dagger := is_instance_valid(equipped_weapon) and str(equipped_weapon.get("weapon_id")).contains("dagger")
+    var blade_length := 0.52 if is_dagger else 0.88
+    var blade_width := 0.075 if is_dagger else 0.105
+    var blade := MeshInstance3D.new()
+    var blade_mesh := BoxMesh.new()
+    blade_mesh.size = Vector3(blade_width, blade_length, 0.035)
+    blade.mesh = blade_mesh
+    blade.position = Vector3(0.0, 0.0, -blade_length * 0.62)
+    var blade_material := StandardMaterial3D.new()
+    blade_material.albedo_color = Color(0.46, 0.5, 0.56)
+    blade_material.metallic = 0.88
+    blade_material.roughness = 0.24
+    blade.material_override = blade_material
+    weapon_visual_root.add_child(blade)
+
+    var guard := MeshInstance3D.new()
+    var guard_mesh := BoxMesh.new()
+    guard_mesh.size = Vector3(0.42 if not is_dagger else 0.28, 0.055, 0.085)
+    guard.mesh = guard_mesh
+    guard.position.z = -0.045
+    var guard_material := StandardMaterial3D.new()
+    guard_material.albedo_color = Color(0.24, 0.2, 0.14)
+    guard_material.metallic = 0.78
+    guard_material.roughness = 0.34
+    guard.material_override = guard_material
+    weapon_visual_root.add_child(guard)
+
+    var grip := MeshInstance3D.new()
+    var grip_mesh := CylinderMesh.new()
+    grip_mesh.top_radius = 0.035
+    grip_mesh.bottom_radius = 0.045
+    grip_mesh.height = 0.24
+    grip.mesh = grip_mesh
+    grip.rotation.x = PI * 0.5
+    grip.position.z = 0.105
+    var grip_material := StandardMaterial3D.new()
+    grip_material.albedo_color = Color(0.12, 0.075, 0.045)
+    grip_material.roughness = 0.92
+    grip.material_override = grip_material
+    weapon_visual_root.add_child(grip)
+
+    var pommel := MeshInstance3D.new()
+    var pommel_mesh := SphereMesh.new()
+    pommel_mesh.radius = 0.065
+    pommel_mesh.height = 0.13
+    pommel.mesh = pommel_mesh
+    pommel.position.z = 0.235
+    pommel.material_override = guard_material
+    weapon_visual_root.add_child(pommel)
 
 func _find_animation_player(node: Node) -> AnimationPlayer:
     if node is AnimationPlayer:
