@@ -192,6 +192,9 @@ func _refresh_inventory_panel() -> void:
     var equipped_id := GameState.get_equipped_weapon_id()
     var equipment_title := Label.new()
     equipment_title.text = "EQUIPPED  " + str(GameState.get_item_info(equipped_id).get("name", "Unarmed"))
+    if is_instance_valid(player) and player.has_method("get_status"):
+        var player_status: Dictionary = player.get_status()
+        equipment_title.text += "\nARMOUR  DEF %.0f  |  DMG REDUCTION %.1f%%  |  LOAD %.1f (%s)" % [float(player_status.get("armor_defense", 0.0)), float(player_status.get("damage_reduction", 0.0)) * 100.0, float(player_status.get("equip_load", 0.0)), str(player_status.get("equip_load_tier", "light")).to_upper()]
     equipment_title.add_theme_color_override("font_color", Color(0.95, 0.78, 0.48))
     inventory_list.add_child(equipment_title)
     for entry in GameState.get_inventory():
@@ -226,7 +229,16 @@ func _refresh_inventory_panel() -> void:
         details.add_theme_font_size_override("font_size", 14)
         row.add_child(details)
         var item_type := str(info.get("type", ""))
-        if item_type == "weapon":
+        if item_type == "armor":
+            var armor_slot := str(info.get("slot", ""))
+            var armor_equipped := GameState.get_equipped_armor(armor_slot) == item_id
+            details.text = "%s  |  %s\nDEF %.0f  |  WEIGHT %.1f\n%s" % [item_title, armor_slot.to_upper(), float(info.get("defense", 0.0)), float(info.get("weight", 0.0)), str(info.get("description", ""))]
+            var armor_button := Button.new()
+            armor_button.text = "WORN" if armor_equipped else "EQUIP"
+            armor_button.disabled = armor_equipped
+            armor_button.pressed.connect(_on_inventory_armor.bind(item_id))
+            row.add_child(armor_button)
+        elif item_type == "weapon":
             var equip_button := Button.new()
             equip_button.text = "EQUIPPED" if item_id == equipped_id else "EQUIP"
             equip_button.disabled = item_id == equipped_id
@@ -245,6 +257,12 @@ func _refresh_inventory_panel() -> void:
             use_button.text = "USE"
             use_button.pressed.connect(_on_inventory_use.bind(item_id))
             row.add_child(use_button)
+
+func _on_inventory_armor(item_id: String) -> void:
+    if is_instance_valid(player) and player.has_method("equip_armor_by_id"):
+        if player.equip_armor_by_id(item_id):
+            show_message("Armour equipped. Defence and movement load recalculated.")
+            _refresh_inventory_panel()
 
 func _on_inventory_equip(item_id: String) -> void:
     if is_instance_valid(player) and player.has_method("equip_weapon_by_id"):
