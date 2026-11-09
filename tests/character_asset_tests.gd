@@ -4,44 +4,73 @@ func _initialize() -> void:
     call_deferred("_run")
 
 func _run() -> void:
-    var model_path := "res://assets/characters/ashen_hero_animated.glb"
-    var packed := load(model_path) as PackedScene
+    var path := "res://assets/characters/ashen_hero_animated.glb"
+    var packed := load(path) as PackedScene
     if packed == null:
-        push_error("Rigged hero GLB did not import as a PackedScene: " + model_path)
+        push_error("Animated hero GLB did not import as a PackedScene: " + path)
         quit(1)
         return
+
     var instance := packed.instantiate()
-    var report := {"skeletons": 0, "meshes": 0, "null_meshes": 0, "animation_players": 0, "animation_libraries": [], "skeleton_paths": []}
+    root.add_child(instance)
+    await process_frame
+
+    var report := {"skeletons": 0, "meshes": 0, "null_meshes": 0}
     _inspect_model(instance, report)
-    print("HERO_ASSET_REPORT ", JSON.stringify(report))
-    if report.skeletons < 1 or report.meshes < 1 or report.null_meshes > 0:
-        push_error("Hero asset must contain a skeleton and valid meshes.")
-        instance.free()
+    var player := _find_animation_player(instance)
+    if report.skeletons < 1 or report.meshes < 1 or report.null_meshes > 0 or player == null:
+        push_error("Animated hero must contain a valid skeleton, meshes and AnimationPlayer.")
+        instance.queue_free()
         quit(1)
         return
-    instance.free()
+
+    var required := ["/Idle", "/Walk", "/Jog_Fwd", "/Sprint", "/Roll", "/Sword_Attack", "/Sword_Idle", "/Death01", "/Hit_Chest"]
+    var available: Array[String] = []
+    for library_name in player.get_animation_library_list():
+        var library: AnimationLibrary = player.get_animation_library(library_name)
+        for clip in library.get_animation_list():
+            available.append(str(library_name) + "/" + str(clip))
+    print("HERO_ANIMATION_CLIPS ", available)
+    for clip in required:
+        if not player.has_animation(clip):
+            push_error("Required animation is missing from imported hero: " + clip)
+            instance.queue_free()
+            quit(1)
+            return
+
+    player.play("/Idle")
+    if player.current_animation != "/Idle":
+        push_error("Idle animation failed to start.")
+        instance.queue_free()
+        quit(1)
+        return
+    player.play("/Sword_Attack")
+    if player.current_animation != "/Sword_Attack":
+        push_error("Sword attack animation failed to start.")
+        instance.queue_free()
+        quit(1)
+        return
+
+    print("PASS: hero rig, meshes, 43+ animation clips and Idle/Sword_Attack playback")
+    instance.queue_free()
     quit(0)
 
 func _inspect_model(node: Node, report: Dictionary) -> void:
     if node is Skeleton3D:
         report.skeletons += 1
-        var bones: Array[String] = []
-        for index in range(node.get_bone_count()):
-            bones.append(node.get_bone_name(index))
-        report.skeleton_paths.append({"path": str(node.get_path()), "bones": bones})
     if node is MeshInstance3D:
         if node.mesh == null:
             report.null_meshes += 1
-            print("NULL_MESH_NODE ", node.get_path())
         else:
             report.meshes += 1
-    if node is AnimationPlayer:
-        report.animation_players += 1
-        var libraries: Array[String] = []
-        for library_name in node.get_animation_library_list():
-            var library: AnimationLibrary = node.get_animation_library(library_name)
-            for animation_name in library.get_animation_list():
-                libraries.append(str(library_name) + "/" + str(animation_name))
-        report.animation_libraries.append({"path": str(node.get_path()), "clips": libraries})
     for child in node.get_children():
         _inspect_model(child, report)
+
+func _find_animation_player(node: Node) -> AnimationPlayer:
+    if node is AnimationPlayer:
+        return node
+    for child in node.get_children():
+        var found := _find_animation_player(child)
+        if found != null:
+            return found
+    return null
