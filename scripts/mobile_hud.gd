@@ -5,6 +5,7 @@ const JOYSTICK_SCRIPT = preload("res://scripts/mobile_joystick.gd")
 var player: Node
 var status_label: Label
 var message_label: Label
+var quest_label: Label
 var message_timer := 0.0
 
 func _ready() -> void:
@@ -30,6 +31,14 @@ func _ready() -> void:
     message_label.add_theme_color_override("font_color", Color(0.98, 0.84, 0.62))
     message_label.visible = false
     root.add_child(message_label)
+
+    quest_label = Label.new()
+    quest_label.position = Vector2(22, 174)
+    quest_label.size = Vector2(520, 34)
+    quest_label.add_theme_font_size_override("font_size", 16)
+    quest_label.add_theme_color_override("font_color", Color(0.78, 0.86, 0.78))
+    quest_label.visible = false
+    root.add_child(quest_label)
 
     _add_button(root, "ATTACK", Vector2(-142, -150), "attack", Vector2(112, 68), true)
     _add_button(root, "HEAVY", Vector2(-142, -225), "heavy_attack", Vector2(112, 56), true)
@@ -67,6 +76,17 @@ func _process(delta: float) -> void:
         message_timer = maxf(0.0, message_timer - delta)
         if message_timer <= 0.0:
             message_label.visible = false
+    var quest: Dictionary = GameState.get_quest_state("ashen_sigils")
+    var quest_status := str(quest.get("status", "not_started"))
+    if quest_status == "active":
+        quest_label.text = "QUEST  Ashes on the Road  %d/%d foes defeated" % [int(quest.get("progress", 0)), int(quest.get("target", 3))]
+        quest_label.visible = true
+    elif quest_status == "completed":
+        quest_label.text = "QUEST COMPLETE  Ashes on the Road"
+        quest_label.visible = true
+    else:
+        quest_label.visible = false
+
     if is_instance_valid(player) and player.has_method("get_status"):
         var data: Dictionary = player.get_status()
         status_label.text = "SOUL LAND   LVL %d   HP %d/%d   STA %d/%d   SOULS %d   NEXT %d   FLASKS %d/%d" % [
