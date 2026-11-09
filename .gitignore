@@ -12,3 +12,7 @@ builds/
 
 # Generated Android exports
 build/
+
+*.jks
+*.base64
+soulland-upload*
