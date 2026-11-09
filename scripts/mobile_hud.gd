@@ -6,6 +6,8 @@ var player: Node
 var status_label: Label
 var message_label: Label
 var quest_label: Label
+var boss_label: Label
+var boss_health_bar: ProgressBar
 var message_timer := 0.0
 
 func _ready() -> void:
@@ -39,6 +41,30 @@ func _ready() -> void:
     quest_label.add_theme_color_override("font_color", Color(0.78, 0.86, 0.78))
     quest_label.visible = false
     root.add_child(quest_label)
+
+    boss_label = Label.new()
+    boss_label.anchor_left = 0.5
+    boss_label.anchor_right = 0.5
+    boss_label.offset_left = -230.0
+    boss_label.offset_right = 230.0
+    boss_label.offset_top = 62.0
+    boss_label.offset_bottom = 88.0
+    boss_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+    boss_label.add_theme_font_size_override("font_size", 20)
+    boss_label.add_theme_color_override("font_color", Color(0.95, 0.78, 0.58))
+    boss_label.visible = false
+    root.add_child(boss_label)
+
+    boss_health_bar = ProgressBar.new()
+    boss_health_bar.anchor_left = 0.5
+    boss_health_bar.anchor_right = 0.5
+    boss_health_bar.offset_left = -220.0
+    boss_health_bar.offset_right = 220.0
+    boss_health_bar.offset_top = 91.0
+    boss_health_bar.offset_bottom = 108.0
+    boss_health_bar.show_percentage = false
+    boss_health_bar.visible = false
+    root.add_child(boss_health_bar)
 
     _add_button(root, "ATTACK", Vector2(-142, -150), "attack", Vector2(112, 68), true)
     _add_button(root, "HEAVY", Vector2(-142, -225), "heavy_attack", Vector2(112, 56), true)
@@ -76,6 +102,7 @@ func _process(delta: float) -> void:
         message_timer = maxf(0.0, message_timer - delta)
         if message_timer <= 0.0:
             message_label.visible = false
+    _update_boss_hud()
     var quest: Dictionary = GameState.get_quest_state("ashen_sigils")
     var quest_status := str(quest.get("status", "not_started"))
     if quest_status == "active":
@@ -94,6 +121,26 @@ func _process(delta: float) -> void:
         ]
         if player.has_method("get_weapon_name"):
             status_label.text += "   " + player.get_weapon_name()
+
+func _update_boss_hud() -> void:
+    var visible_boss: Node
+    for candidate in get_tree().get_nodes_in_group("bosses"):
+        if is_instance_valid(candidate) and candidate.has_method("get_boss_status"):
+            var candidate_status: Dictionary = candidate.get_boss_status()
+            if bool(candidate_status.get("active", false)):
+                visible_boss = candidate
+                break
+    if not is_instance_valid(visible_boss):
+        boss_label.visible = false
+        boss_health_bar.visible = false
+        return
+    var status: Dictionary = visible_boss.get_boss_status()
+    var maximum := maxf(1.0, float(status.get("max_health", 1.0)))
+    boss_label.text = "%s  -  PHASE %d" % [str(status.get("name", "BOSS")), int(status.get("phase", 1))]
+    boss_health_bar.max_value = maximum
+    boss_health_bar.value = clampf(float(status.get("health", 0.0)), 0.0, maximum)
+    boss_label.visible = true
+    boss_health_bar.visible = true
 
 func show_message(message: String) -> void:
     if not is_instance_valid(message_label):
