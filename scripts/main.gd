@@ -4,6 +4,7 @@ const PLAYER_SCRIPT = preload("res://scripts/player_controller.gd")
 const ENEMY_SCRIPT = preload("res://scripts/training_enemy.gd")
 const SHIELD_GUARD_SCRIPT = preload("res://scripts/shield_guard.gd")
 const ASHEN_ARCHER_SCRIPT = preload("res://scripts/ashen_archer.gd")
+const ASHEN_VANGUARD_SCRIPT = preload("res://scripts/ashen_vanguard.gd")
 const WARDEN_SCRIPT = preload("res://scripts/warden_eira.gd")
 const BLACKSMITH_SCRIPT = preload("res://scripts/ashen_blacksmith.gd")
 const REGENT_SCRIPT = preload("res://scripts/ashen_regent.gd")
@@ -15,6 +16,7 @@ var enemy: CharacterBody3D
 var shield_guard: CharacterBody3D
 var courtyard_enemy: CharacterBody3D
 var archer_enemy: CharacterBody3D
+var ashen_vanguard: CharacterBody3D
 var archer_respawn_timer := 0.0
 var courtyard_enemy_respawn_timer := 0.0
 var enemy_respawn_timer := 0.0
@@ -46,6 +48,7 @@ func _ready() -> void:
     _spawn_shield_guard()
     _spawn_courtyard_enemy()
     _spawn_ashen_archer()
+    _spawn_ashen_vanguard()
     _spawn_warden()
     _spawn_ashen_regent()
     if _has_defeated_ashen_regent():
@@ -384,6 +387,15 @@ func _spawn_courtyard_enemy() -> void:
     courtyard_enemy.position = Vector3(0.0, 1.0, -53.0)
     add_child(courtyard_enemy)
     courtyard_enemy_respawn_timer = 0.0
+
+func _spawn_ashen_vanguard() -> void:
+    if bool(GameState.data.get("world_flags", {}).get("ashen_vanguard_defeated", false)):
+        return
+    ashen_vanguard = CharacterBody3D.new()
+    ashen_vanguard.name = "AshenVanguard"
+    ashen_vanguard.set_script(ASHEN_VANGUARD_SCRIPT)
+    ashen_vanguard.position = Vector3(-4.0, 1.0, -47.0)
+    add_child(ashen_vanguard)
 
 func _spawn_ashen_archer() -> void:
     archer_enemy = CharacterBody3D.new()
