@@ -2,7 +2,7 @@
 
 **Project:** SOUL LAND: THE FALLEN REALM  
 **Engine:** Godot 4.3+ · **Target:** Android ARM64 first · **Renderer:** GL Compatibility  
-**Status:** Production plan. The external models and animation packs below are candidates only; none are integrated until their files are imported, tested and committed.
+**Status:** In progress. A Quaternius CC0 humanoid is bundled and the 43-clip Universal Animation Library Standard set is merged onto its matching skeleton in CI. The player now selects first-pass clips from movement/combat state. Enemy rigs, armour, weapon attachments, AnimationTree blending and on-device polish remain open.
 
 This plan replaces the current primitive graybox presentation with a coherent authored dark-fantasy visual identity. Build a small number of excellent reusable assets, prove them in the Ashen Kingdom vertical slice, profile them on Android, then scale the pipeline.
 
@@ -16,7 +16,7 @@ The latest in-game screenshot exposes these production blockers:
 - The scene is under-lit. Large areas disappear into black; the horizon lacks atmosphere and depth.
 - The environment lacks convincing scale, authored landmark composition, debris layering and foreground/midground/background depth.
 - The HUD is functional prototype UI, not final art direction.
-- There is no production animation system. Movement and combat rely on controller logic and primitive visuals rather than rigged characters and animation-driven actions.
+- The first rigged hero and animation pass now exists, but it is not production-ready: clip switching is basic, enemy bodies remain placeholders, armour/weapon attachment is missing, and combat hit windows are not yet synchronized to animation events.
 
 **Quality rule:** adding more primitive meshes or another full-screen noise texture is not an acceptable art upgrade. Each asset must improve material readability, silhouette, animation, lighting or world composition.
 
@@ -97,7 +97,7 @@ Use original work or sources whose **exact asset page** permits intended use. Re
 3. **Quaternius Universal Base Characters** — six humanoid base characters, animation-friendly topology and humanoid rig; the page states CC0 and provides glTF/FBX. Evaluate the art style and proportions before adopting.  
    https://quaternius.com/packs/universalbasecharacters.html
 
-4. **Quaternius Universal Animation Library** — reusable humanoid locomotion/action clips. Validate the exact release, rig naming and retargeting in Godot before adopting.  
+4. **Quaternius Universal Animation Library** — 43 Standard clips are now integrated and validated against the hero's 66-node skeleton. The build pipeline maps all 8,385 channels by matching node names; future work adds UAL2 combat/parkour clips and authored weapon-specific moves.  
    https://quaternius.itch.io/universal-animation-library
 
 5. **Godot Asset Library listing for Universal Animation Library** — alternative distribution/reference listing; check current package status and version notes.  
