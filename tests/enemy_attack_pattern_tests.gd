@@ -21,6 +21,10 @@ func _run() -> void:
         return
     var quick_windup := hollow.state_timer
     var quick_recovery := hollow.attack_recovery_duration
+    if hollow.attack_telegraph == null or not hollow.attack_telegraph.visible:
+        push_error("Enemy wind-up must display a ground-ring telegraph.")
+        quit(1)
+        return
 
     hollow._begin_attack(1.5)
     if hollow.current_attack_kind != "heavy_overhead":
@@ -33,6 +37,10 @@ func _run() -> void:
         return
     if hollow.state_timer <= quick_windup or hollow.attack_recovery_duration <= quick_recovery:
         push_error("Heavy overhead must expose a longer, readable wind-up and recovery.")
+        quit(1)
+        return
+    if hollow.attack_telegraph_material.albedo_color.r < 0.9 or hollow.attack_telegraph_material.albedo_color.g > 0.3:
+        push_error("Heavy overhead telegraph must use the stronger danger colour.")
         quit(1)
         return
     if hollow.attacks_started != 2:
@@ -55,5 +63,10 @@ func _run() -> void:
         quit(1)
         return
 
-    print("PASS: Hollow alternates quick/heavy attacks; Archer keeps dedicated ranged attack profile")
+    if not archer.attack_telegraph.visible:
+        push_error("Archer ember-bolt wind-up must display its own telegraph.")
+        quit(1)
+        return
+
+    print("PASS: Hollow attack variety, visual telegraphs and Archer ranged profile")
     quit(0)
