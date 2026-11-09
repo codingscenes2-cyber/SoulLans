@@ -205,7 +205,7 @@ func _read_supported_save(path: String) -> Dictionary:
     if not _is_supported_save_text(contents):
         return {}
     var parsed: Variant = JSON.parse_string(contents)
-    return parsed as Dictionary
+    return parsed
 
 func save_game() -> bool:
     data["version"] = SAVE_VERSION
