@@ -8,16 +8,16 @@ This is an original game world. Use original characters, locations, dialogue, mu
 
 ## Current status
 
-The repository now contains the first Godot project scaffold: project configuration, a runtime graybox arena, placeholder third-person player, basic movement/sprint/dodge/stamina/melee logic, a training enemy and temporary touch HUD.
+The repository now contains a playable-prototype foundation: third-person movement and camera orbit, touch controls, timed melee hit detection, a telegraphed training enemy, a Sanctuary altar, death/respawn, Soul Essence drops and recovery, and versioned local save data. The GitHub Actions workflow has successfully imported the project and launched the main scene headlessly.
 
-**This is an early prototype, not a finished game or verified APK.** Open it in Godot 4.x and complete parser, runtime and Android device testing before calling the prototype validated.
+**This remains an early prototype, not a finished game or verified Android build.** The player and enemy are still primitive placeholders; there are no production character models, animation sets, full weapon movesets, or device performance results. Headless CI success does not replace testing on the target Android device.
 
 ## Quick start
 
 1. Install Godot 4.3 or later.
 2. Import the project.godot file.
 3. Run scenes/main.tscn (F6) or the main project (F5).
-4. Desktop controls: WASD move, Shift sprint, Space dodge, left mouse attack, Tab lock-on.
+4. Desktop controls: WASD move, Shift sprint, Space dodge, E interact/rest/recover, left mouse attack, Tab lock-on, right mouse drag camera.
 5. Android export requires Godot export templates and a configured Android SDK/JDK.
 
 ## Development pillars
