@@ -71,6 +71,10 @@ func _run() -> void:
     _expect(state.remove_item("ashen_scrap", 2), "partial stack removal succeeds")
     _expect(state.get_item_count("ashen_scrap") == 1, "partial removal leaves the correct quantity")
     _expect(not state.remove_item("ashen_scrap", 2), "inventory prevents removing more than owned")
+    _expect(state.get_item_count("ashen_tonic") == 2, "new save receives two starter tonics")
+    _expect(state.remove_item("ashen_tonic", 2), "starter tonics can be consumed")
+    state.call("_ensure_starter_inventory")
+    _expect(state.get_item_count("ashen_tonic") == 0, "consumed starter tonics do not respawn on inventory initialization")
 
     state.free()
     _remove_test_files()
