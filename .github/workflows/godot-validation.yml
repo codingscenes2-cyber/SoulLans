@@ -1,5 +1,10 @@
 name: Godot project validation
 
+# Keep only the newest pending run so rapid commits do not flood hosted runners.
+concurrency:
+  group: soul-land-godot-validation-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main]
