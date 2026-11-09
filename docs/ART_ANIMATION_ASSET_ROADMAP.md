@@ -10,13 +10,13 @@ This plan replaces the current primitive graybox presentation with a coherent au
 
 The latest in-game screenshot exposes these production blockers:
 
-- Player and enemies are capsule/primitive stand-ins: no readable anatomy, face, armour, hands, weapon grip or character identity.
+- The player and three enemy archetypes now use a shared rigged humanoid base, but still need production-quality bespoke silhouettes, faces, material authoring and fit review. Guard armour/shield and Archer hood/mantle/quiver/bow are first-pass procedural identity kits, not final authored assets.
 - The ground's procedural noise is high-contrast, stretched and repetitive. It reads as static, not stone, soil or ash.
 - Walls and props share placeholder treatment; masonry, wood, metal, cloth, leather, mud and vegetation are not visually distinct.
 - The scene is under-lit. Large areas disappear into black; the horizon lacks atmosphere and depth.
 - The environment lacks convincing scale, authored landmark composition, debris layering and foreground/midground/background depth.
 - The HUD is functional prototype UI, not final art direction.
-- The first rigged hero and animation pass now exists, but it is not production-ready: clip switching is basic, enemy bodies remain placeholders, armour/weapon attachment is missing, and combat hit windows are not yet synchronized to animation events.
+- The rigged hero and shared enemy animation pass exist, but are not production-ready: clip switching is basic, enemy archetype equipment is procedural, AnimationTree blending is absent, and combat hit windows are not synchronized to animation events.
 
 **Quality rule:** adding more primitive meshes or another full-screen noise texture is not an acceptable art upgrade. Each asset must improve material readability, silhouette, animation, lighting or world composition.
 
