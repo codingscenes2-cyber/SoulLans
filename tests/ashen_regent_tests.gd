@@ -67,6 +67,7 @@ func _run() -> void:
     _expect(bool(final_flags.get("ashen_regent_defeated", false)), "boss defeat sets a persistent world flag")
     _expect(boss_defeat_events == 1, "boss emits one defeat event for the world gate")
     _expect(GameState.get_soul_essence() >= essence_before + 300, "boss awards its 300 Soul Essence reward")
+    _expect(GameState.get_item_count("regent_core") == 1, "boss drops its unique Regent Core")
 
     boss.queue_free()
     await process_frame
