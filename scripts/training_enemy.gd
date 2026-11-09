@@ -36,6 +36,11 @@ var current_enemy_animation := ""
 var navigation_agent: NavigationAgent3D
 var hit_flash_timer := 0.0
 var hit_flash_restore_color := Color(0.34, 0.16, 0.14)
+var attack_pattern_index := 0
+var current_attack_kind := "quick_slash"
+var current_attack_damage := 10.0
+var current_attack_range := 2.0
+var attacks_started := 0
 
 func _ready() -> void:
     add_to_group("enemies")
@@ -97,17 +102,15 @@ func _physics_process(delta: float) -> void:
                 state = State.INVESTIGATE
                 _set_navigation_target(last_known_player_position)
             elif _should_begin_attack(distance):
-                state = State.WINDUP
-                state_timer = attack_windup_duration
+                _begin_attack(distance)
                 _stop_horizontal_motion(delta)
-                _set_telegraph(true)
             else:
                 _move_toward_point(_get_chase_destination(), chase_speed, delta)
         State.WINDUP:
             _stop_horizontal_motion(delta)
             if state_timer <= 0.0:
                 if is_instance_valid(player) and can_hit_player() and player.has_method("take_damage"):
-                    player.take_damage(attack_damage, self)
+                    player.take_damage(current_attack_damage, self)
                 _set_telegraph(false)
                 state = State.RECOVERY
                 state_timer = attack_recovery_duration
@@ -136,7 +139,7 @@ func can_hit_player() -> bool:
     if not is_instance_valid(player):
         return false
     var to_player := player.global_position - global_position
-    if to_player.length() > attack_range + 0.5:
+    if to_player.length() > current_attack_range + 0.5:
         return false
     if absf(to_player.y) > 1.4:
         return false
@@ -149,6 +152,30 @@ func can_hit_player() -> bool:
 
 func _should_begin_attack(distance: float) -> bool:
     return distance <= attack_range
+
+# Alternate between a fast, low-commitment cut and a slower, higher-damage
+# overhead. The wind-up/recovery timings are readable dodge/parry windows.
+func _configure_attack_pattern(_distance: float) -> void:
+    if attack_pattern_index % 2 == 0:
+        current_attack_kind = "quick_slash"
+        current_attack_damage = attack_damage
+        current_attack_range = attack_range
+        attack_windup_duration = 0.42
+        attack_recovery_duration = 0.62
+    else:
+        current_attack_kind = "heavy_overhead"
+        current_attack_damage = attack_damage * 1.55
+        current_attack_range = attack_range + 0.25
+        attack_windup_duration = 0.88
+        attack_recovery_duration = 1.12
+    attack_pattern_index += 1
+
+func _begin_attack(distance: float) -> void:
+    _configure_attack_pattern(distance)
+    state = State.WINDUP
+    state_timer = attack_windup_duration
+    attacks_started += 1
+    _set_telegraph(true)
 
 func _get_chase_destination() -> Vector3:
     return player.global_position if is_instance_valid(player) else global_position
@@ -230,7 +257,8 @@ func _set_telegraph(active: bool) -> void:
         return
     enemy_visual.scale = Vector3(1.12, 0.94, 1.12) if active else Vector3.ONE
     if is_instance_valid(enemy_material):
-        enemy_material.albedo_color = Color(0.9, 0.22, 0.08) if active else Color(0.42, 0.13, 0.11)
+        var telegraph_color := Color(1.0, 0.12, 0.045) if current_attack_kind == "heavy_overhead" else Color(0.9, 0.32, 0.08)
+        enemy_material.albedo_color = telegraph_color if active else Color(0.42, 0.13, 0.11)
 
 func _flash_hit() -> void:
     if not is_instance_valid(enemy_material):
