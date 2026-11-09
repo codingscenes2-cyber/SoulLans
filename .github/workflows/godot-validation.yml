@@ -49,5 +49,7 @@ jobs:
         run: godot --headless --path . --script res://tests/enemy_attack_arc_tests.gd
       - name: Run player melee hit arc regression tests
         run: godot --headless --path . --script res://tests/player_melee_arc_tests.gd
+      - name: Run attacker-aware parry regression tests
+        run: godot --headless --path . --script res://tests/parry_attacker_tests.gd
       - name: Run save-system regression tests
         run: godot --headless --path . --script res://tests/game_state_tests.gd
