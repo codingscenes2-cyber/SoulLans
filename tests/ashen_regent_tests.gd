@@ -20,6 +20,7 @@ func _run() -> void:
     await process_frame
 
     _expect(not bool(boss.call("get_boss_status").get("active", true)), "boss remains dormant before Warden unlock")
+    _expect(not boss.is_in_group("enemies"), "dormant boss is excluded from lock-on targeting")
     var initial_health: float = float(boss.get("health"))
     boss.call("take_damage", 100.0)
     _expect(is_equal_approx(float(boss.get("health")), initial_health), "dormant boss cannot be damaged")
@@ -41,6 +42,7 @@ func _run() -> void:
     _expect(warden_message.contains("Ashen Regent"), "Warden reveals the regional boss after quest completion")
     await physics_frame
     _expect(bool(boss.call("get_boss_status").get("active", false)), "boss activates through Warden interaction")
+    _expect(boss.is_in_group("enemies"), "unlocked boss joins lock-on targeting")
     warden.queue_free()
 
     boss.set("health", float(boss.get("max_health")) * 0.59)
