@@ -1,0 +1,89 @@
+import { NodeIO } from '@gltf-transform/core';
+import { KHRONOS_EXTENSIONS } from '@gltf-transform/extensions';
+import fs from 'node:fs/promises';
+
+const [characterPath, animationPath, outputPath] = process.argv.slice(2);
+if (!characterPath || !animationPath || !outputPath) {
+  console.error('Usage: node merge_animations.mjs <character.glb> <animations.glb> <output.glb>');
+  process.exit(2);
+}
+
+const io = new NodeIO().registerExtensions(KHRONOS_EXTENSIONS);
+const character = await io.read(characterPath);
+const animationLibrary = await io.read(animationPath);
+const characterRoot = character.getRoot();
+const animationRoot = animationLibrary.getRoot();
+
+const characterNodes = new Map();
+for (const node of characterRoot.listNodes()) {
+  if (node.getName()) characterNodes.set(node.getName(), node);
+}
+
+const mappedNodes = new Map();
+const unmatched = [];
+for (const node of animationRoot.listNodes()) {
+  const name = node.getName();
+  if (!name) continue;
+  const destination = characterNodes.get(name);
+  if (destination) mappedNodes.set(node, destination);
+  else unmatched.push(name);
+}
+
+const copyAccessor = (source) => {
+  const array = source.getArray();
+  const accessor = character.createAccessor()
+    .setType(source.getType())
+    .setNormalized(source.getNormalized());
+  if (array) accessor.setArray(array.slice());
+  return accessor;
+};
+
+let copiedClips = 0;
+let copiedChannels = 0;
+for (const animation of animationRoot.listAnimations()) {
+  const name = animation.getName();
+  if (!name || characterRoot.listAnimations().some(existing => existing.getName() === name)) {
+    throw new Error(`Missing or duplicate animation clip name: ${name}`);
+  }
+  const destinationAnimation = character.createAnimation(name);
+  for (const channel of animation.listChannels()) {
+    const target = mappedNodes.get(channel.getTargetNode());
+    const sampler = channel.getSampler();
+    if (!target || !sampler?.getInput() || !sampler?.getOutput()) continue;
+    const destinationSampler = character.createAnimationSampler()
+      .setInput(copyAccessor(sampler.getInput()))
+      .setOutput(copyAccessor(sampler.getOutput()))
+      .setInterpolation(sampler.getInterpolation());
+    destinationAnimation.addSampler(destinationSampler).addChannel(
+      character.createAnimationChannel()
+        .setTargetNode(target)
+        .setTargetPath(channel.getTargetPath())
+        .setSampler(destinationSampler)
+    );
+    copiedChannels++;
+  }
+  if (destinationAnimation.listChannels().length === 0) {
+    characterRoot.listAnimations().includes(destinationAnimation)
+      ? characterRoot.removeAnimation(destinationAnimation)
+      : null;
+    continue;
+  }
+  copiedClips++;
+}
+
+const required = ['Idle', 'Walk', 'Jog_Fwd', 'Sprint', 'Jump', 'Jump_Land', 'Roll', 'Sword_Attack', 'Sword_Idle', 'Death01', 'Hit_Chest'];
+const names = new Set(characterRoot.listAnimations().map(animation => animation.getName()));
+const missing = required.filter(name => !names.has(name));
+if (missing.length) throw new Error(`Required combat/locomotion clips missing: ${missing.join(', ')}`);
+if (mappedNodes.size < 60) throw new Error(`Only ${mappedNodes.size} skeleton nodes matched; expected at least 60.`);
+
+const bytes = await io.writeBinary(character);
+await fs.writeFile(outputPath, bytes);
+console.log(JSON.stringify({
+  mappedNodes: mappedNodes.size,
+  unmatchedNodeNames: [...new Set(unmatched)],
+  copiedClips,
+  copiedChannels,
+  outputBytes: bytes.byteLength,
+  requiredClips: required
+}, null, 2));
