@@ -10,6 +10,7 @@ const BLACKSMITH_SCRIPT = preload("res://scripts/ashen_blacksmith.gd")
 const REGENT_SCRIPT = preload("res://scripts/ashen_regent.gd")
 const HUD_SCRIPT = preload("res://scripts/mobile_hud.gd")
 const ASHEN_WORLD_ART = preload("res://scripts/ashen_world_art.gd")
+const ENCOUNTER_DIRECTOR_SCRIPT = preload("res://scripts/encounter_director.gd")
 
 var player: CharacterBody3D
 var enemy: CharacterBody3D
@@ -26,6 +27,7 @@ var warden: StaticBody3D
 var blacksmith: StaticBody3D
 var ashen_regent: CharacterBody3D
 var throne_gate_door: StaticBody3D
+var encounter_director: Node
 
 func _ready() -> void:
     _build_environment()
@@ -63,8 +65,15 @@ func _ready() -> void:
     add_child(hud)
     hud.set("player", player)
     player.set("hud", hud)
+    encounter_director = Node.new()
+    encounter_director.name = "EncounterDirector"
+    encounter_director.set_script(ENCOUNTER_DIRECTOR_SCRIPT)
+    add_child(encounter_director)
+    encounter_director.configure(self, player, hud)
 
 func _process(delta: float) -> void:
+    if is_instance_valid(encounter_director):
+        encounter_director.update_encounter(delta)
     if not is_instance_valid(enemy):
         enemy_respawn_timer += delta
         if enemy_respawn_timer >= 4.0:
@@ -91,6 +100,8 @@ func _process(delta: float) -> void:
         courtyard_enemy_respawn_timer = 0.0
 
 func _on_sanctuary_restored(_position: Vector3) -> void:
+    if is_instance_valid(encounter_director):
+        encounter_director.reset_encounter()
     if is_instance_valid(enemy):
         enemy.queue_free()
     if is_instance_valid(shield_guard):
