@@ -74,6 +74,7 @@ func _die_guard() -> void:
     velocity = Vector3.ZERO
     death_timer = 1.65
     GameState.award_soul_essence(soul_reward)
+    GameState.advance_quest("ashen_sigils", 1)
     _update_enemy_animation()
 
 func _create_shield() -> void:
