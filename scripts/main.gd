@@ -69,11 +69,11 @@ func _ready() -> void:
     encounter_director.name = "EncounterDirector"
     encounter_director.set_script(ENCOUNTER_DIRECTOR_SCRIPT)
     add_child(encounter_director)
-    encounter_director.configure(self, player, hud)
+    encounter_director.call("configure", self, player, hud)
 
 func _process(delta: float) -> void:
     if is_instance_valid(encounter_director):
-        encounter_director.update_encounter(delta)
+        encounter_director.call("update_encounter", delta)
     if not is_instance_valid(enemy):
         enemy_respawn_timer += delta
         if enemy_respawn_timer >= 4.0:
@@ -101,7 +101,7 @@ func _process(delta: float) -> void:
 
 func _on_sanctuary_restored(_position: Vector3) -> void:
     if is_instance_valid(encounter_director):
-        encounter_director.reset_encounter()
+        encounter_director.call("reset_encounter")
     if is_instance_valid(enemy):
         enemy.queue_free()
     if is_instance_valid(shield_guard):
