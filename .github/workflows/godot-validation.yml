@@ -41,5 +41,7 @@ jobs:
         run: godot --headless --path . --script res://tests/animation_asset_tests.gd
       - name: Run rigged character asset smoke test
         run: godot --headless --path . --script res://tests/character_asset_tests.gd
+      - name: Run rigged enemy animation tests
+        run: godot --headless --path . --script res://tests/enemy_rig_tests.gd
       - name: Run save-system regression tests
         run: godot --headless --path . --script res://tests/game_state_tests.gd
