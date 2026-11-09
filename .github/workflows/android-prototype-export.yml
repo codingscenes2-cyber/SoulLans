@@ -9,7 +9,9 @@ on:
       - "project.godot"
       - "scripts/main.gd"
       - "scripts/ashen_world_art.gd"
-      - "assets/ASSET_CREDITS.md"\n      - "assets/characters/**"
+      - "assets/ASSET_CREDITS.md"
+      - "assets/characters/**"
+      - "scripts/player_controller.gd"
       - ".github/workflows/android-prototype-export.yml"
 
 jobs:
@@ -71,7 +73,10 @@ jobs:
           done
           mkdir -p "$HOME/.config/godot" "$HOME/.android" build
           printf '%s' "$SOULLAND_KEYSTORE_BASE64" | base64 --decode > "$HOME/.android/soulland.keystore"
-          keytool -list -keystore "$HOME/.android/soulland.keystore" -storepass "$SOULLAND_KEYSTORE_PASSWORD" -alias "$SOULLAND_KEY_ALIAS" >/dev/null\n          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$HOME/.android/soulland.keystore" >> "$GITHUB_ENV"\n          echo "GODOT_ANDROID_KEYSTORE_DEBUG_USER=$SOULLAND_KEY_ALIAS" >> "$GITHUB_ENV"\n          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=$SOULLAND_KEY_PASSWORD" >> "$GITHUB_ENV"
+          keytool -list -keystore "$HOME/.android/soulland.keystore" -storepass "$SOULLAND_KEYSTORE_PASSWORD" -alias "$SOULLAND_KEY_ALIAS" >/dev/null
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$HOME/.android/soulland.keystore" >> "$GITHUB_ENV"
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_USER=$SOULLAND_KEY_ALIAS" >> "$GITHUB_ENV"
+          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=$SOULLAND_KEY_PASSWORD" >> "$GITHUB_ENV"
           cat > "$HOME/.config/godot/editor_settings-4.3.tres" <<EOF
           [gd_resource type="EditorSettings" format=3]
 
@@ -124,9 +129,6 @@ jobs:
         run: |
           godot --headless --editor --path . --quit
           export PATH="$ANDROID_HOME/platform-tools:$PATH"
-          GODOT_ANDROID_KEYSTORE_DEBUG_PATH="$HOME/.android/debug.keystore" \
-          GODOT_ANDROID_KEYSTORE_DEBUG_USER="androiddebugkey" \
-          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD="android" \
           godot --headless --verbose --path . --export-debug "Android" build/SOUL_LAND_FALLEN_REALM-debug.apk
           test -s build/SOUL_LAND_FALLEN_REALM-debug.apk
           sha256sum build/SOUL_LAND_FALLEN_REALM-debug.apk | tee build/SOUL_LAND_FALLEN_REALM-debug.apk.sha256
