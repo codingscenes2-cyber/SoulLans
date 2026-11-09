@@ -80,7 +80,8 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Weapon/armour upgrades, infusions, relics and talismans.
 - [ ] Spell schools, focus resource and status effects.
 - [x] Versioned JSON save/load foundation for player/world state with periodic autosave.
-- [ ] Add backup/restore, corruption recovery and full persistence tests.
+- [x] Add last-known-good backup recovery, corrupt-primary restoration, legacy-save defaults and headless death/recovery/levelling regression tests.
+- [ ] Device interruption, long-session and full persistence playtests.
 
 ## 7. World, story and content
 - [ ] Lore bible and narrative state graph.
