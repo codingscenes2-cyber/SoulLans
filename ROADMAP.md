@@ -41,13 +41,17 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Combat feedback, hit-stop, sound and VFX.
 
 ## 3. Character art and animation
-- [ ] Select original or correctly licensed humanoid character assets.
-- [ ] Establish scale, skeleton and retargeting conventions.
-- [ ] Player idle/walk/run/sprint blend tree.
-- [ ] Dodge directions, attacks, block, parry and hit reactions.
-- [ ] Enemy locomotion, telegraphs, attacks and death animations.
-- [ ] Boss phase transitions and signature animation sets.
-- [ ] Mobile LODs, texture compression and material budgets.
+
+**The current capsule characters, stretched noise floor and flat lighting are known quality blockers.** Detailed production gates, target budgets, candidate asset sources, animation inventory and milestone exit criteria are in [docs/ART_ANIMATION_ASSET_ROADMAP.md](docs/ART_ANIMATION_ASSET_ROADMAP.md).
+- [ ] Deliver visual overhaul per [Art, Character and Animation Production Roadmap](docs/ART_ANIMATION_ASSET_ROADMAP.md).
+- [ ] Import and validate one CC0 humanoid base model and shared skeleton.
+- [ ] Import and validate Quaternius Universal Animation Library test clips.
+- [ ] Build player locomotion AnimationTree and full combat animation set.
+- [ ] Replace primitive hero and enemy stand-ins with rigged, distinct models.
+- [ ] Replace stretched noise ground with separate PBR ash, soil and stone materials.
+- [ ] Build modular Ashen Kingdom architecture and authored prop set.
+- [ ] Complete environment lighting, fog, sky, VFX and audio pass.
+- [ ] Implement LODs, mobile texture compression and measured performance budgets.
 
 ## 4. Enemy AI and encounters
 - [x] Basic training enemy chase and attack prototype.
