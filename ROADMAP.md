@@ -109,7 +109,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Combat, environment, UI and creature audio.
 - [ ] Music and ambience implementation.
 - [x] First mobile inventory/equipment panel plus quest and boss HUD prototypes.
-- [ ] Map, quest journal, settings and accessibility options.
+- [ ] Map, settings and accessibility options. (Mobile field journal prototype now lists authored quests, acceptance state, objective progress, completion history and claimed rewards; quest-log API has regression coverage.)
 - [ ] Remappable controls, sensitivity, subtitles and readability options.
 
 ## 9. Android optimisation and release
