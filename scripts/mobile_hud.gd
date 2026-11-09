@@ -234,14 +234,14 @@ func _refresh_inventory_panel() -> void:
             var armor_equipped := GameState.get_equipped_armor(armor_slot) == item_id
             var armor_level := GameState.get_armor_upgrade_level(item_id)
             var armor_costs := GameState.get_armor_upgrade_cost(item_id)
-            details.text = "%s +%d  |  %s\\nDEF %.0f  |  WEIGHT %.1f\\n%s" % [item_title, armor_level, armor_slot.to_upper(), GameState.get_armor_defense(item_id), float(info.get("weight", 0.0)), str(info.get("description", ""))]
+            details.text = "%s +%d  |  %s\nDEF %.0f  |  WEIGHT %.1f\n%s" % [item_title, armor_level, armor_slot.to_upper(), GameState.get_armor_defense(item_id), float(info.get("weight", 0.0)), str(info.get("description", ""))]
             if armor_costs.is_empty():
-                details.text += "\\nMAX REINFORCEMENT"
+                details.text += "\nMAX REINFORCEMENT"
             else:
                 var armor_cost_parts: Array[String] = []
                 for material_id in armor_costs:
                     armor_cost_parts.append("%s x%d" % [str(GameState.get_item_info(str(material_id)).get("name", material_id)), int(armor_costs[material_id])])
-                details.text += "\\nNext: " + ", ".join(armor_cost_parts)
+                details.text += "\nNext: " + ", ".join(armor_cost_parts)
             var armor_button := Button.new()
             armor_button.text = "WORN" if armor_equipped else "EQUIP"
             armor_button.disabled = armor_equipped
