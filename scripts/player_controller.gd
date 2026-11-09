@@ -81,6 +81,8 @@ func _physics_process(delta: float) -> void:
         perform_dodge()
     if Input.is_action_just_pressed("attack") and not is_blocking:
         perform_attack()
+    if Input.is_action_just_pressed("heavy_attack") and not is_blocking:
+        perform_heavy_attack()
     if Input.is_action_just_pressed("heal"):
         use_healing_flask()
     if Input.is_action_just_pressed("interact"):
@@ -214,6 +216,26 @@ func perform_attack() -> void:
     current_attack_damage = _get_scaled_weapon_damage()
     current_attack_poise_damage = float(equipped_weapon.get("poise_damage")) if is_instance_valid(equipped_weapon) else 12.0
     current_attack_range = float(equipped_weapon.get("attack_range")) if is_instance_valid(equipped_weapon) else 2.5
+    attack_active_duration = active
+    attack_cooldown = windup + active + recovery
+    attack_windup = windup
+
+func perform_heavy_attack() -> void:
+    var base_cost := float(equipped_weapon.get("stamina_cost")) if is_instance_valid(equipped_weapon) else 12.0
+    var base_windup := float(equipped_weapon.get("light_windup")) if is_instance_valid(equipped_weapon) else 0.13
+    var base_active := float(equipped_weapon.get("light_active")) if is_instance_valid(equipped_weapon) else 0.11
+    var base_recovery := float(equipped_weapon.get("light_recovery")) if is_instance_valid(equipped_weapon) else 0.41
+    var stamina_cost := base_cost * 1.7
+    var windup := base_windup + 0.28
+    var active := base_active + 0.07
+    var recovery := base_recovery + 0.34
+    if attack_cooldown > 0.0 or stamina < stamina_cost or dodge_timer > 0.0 or is_blocking:
+        return
+    stamina -= stamina_cost
+    stamina_regen_timer = stamina_regen_delay
+    current_attack_damage = _get_scaled_weapon_damage() * 1.65
+    current_attack_poise_damage = (float(equipped_weapon.get("poise_damage")) if is_instance_valid(equipped_weapon) else 12.0) * 2.1
+    current_attack_range = (float(equipped_weapon.get("attack_range")) if is_instance_valid(equipped_weapon) else 2.5) + 0.2
     attack_active_duration = active
     attack_cooldown = windup + active + recovery
     attack_windup = windup
@@ -355,6 +377,7 @@ func _setup_input_map() -> void:
     _ensure_key_action("heal", KEY_R)
     _ensure_key_action("lock_on", KEY_TAB)
     _ensure_key_action("block", KEY_F)
+    _ensure_key_action("heavy_attack", KEY_H)
     _ensure_key_action("parry", KEY_G)
     _ensure_key_action("interact", KEY_E)
     _ensure_key_action("switch_weapon", KEY_Q)
