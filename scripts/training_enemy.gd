@@ -103,7 +103,7 @@ func _physics_process(delta: float) -> void:
         State.WINDUP:
             _stop_horizontal_motion(delta)
             if state_timer <= 0.0:
-                if is_instance_valid(player) and global_position.distance_to(player.global_position) <= attack_range + 0.5 and player.has_method("take_damage"):
+                if is_instance_valid(player) and can_hit_player() and player.has_method("take_damage"):
                     player.take_damage(attack_damage)
                 _set_telegraph(false)
                 state = State.RECOVERY
@@ -124,6 +124,25 @@ func _physics_process(delta: float) -> void:
         velocity.y = -0.5
     move_and_slide()
     _update_enemy_animation()
+
+
+# The enemy only connects if the player remains inside its frontal strike arc.
+# This makes sidesteps and rolls meaningful instead of applying proximity damage
+# through the enemy's back or from directly beside its weapon.
+func can_hit_player() -> bool:
+    if not is_instance_valid(player):
+        return false
+    var to_player := player.global_position - global_position
+    if to_player.length() > attack_range + 0.5:
+        return false
+    if absf(to_player.y) > 1.4:
+        return false
+    to_player.y = 0.0
+    if to_player.length() <= 0.01:
+        return true
+    var forward := -global_transform.basis.z
+    forward.y = 0.0
+    return forward.normalized().dot(to_player.normalized()) >= cos(deg_to_rad(55.0))
 
 func _move_toward_point(point: Vector3, speed: float, delta: float) -> bool:
     var destination := point
