@@ -8,6 +8,8 @@ const HUD_SCRIPT = preload("res://scripts/mobile_hud.gd")
 var player: CharacterBody3D
 var enemy: CharacterBody3D
 var shield_guard: CharacterBody3D
+var courtyard_enemy: CharacterBody3D
+var courtyard_enemy_respawn_timer := 0.0
 var enemy_respawn_timer := 0.0
 var guard_respawn_timer := 0.0
 var recovery_visual: MeshInstance3D
@@ -28,6 +30,7 @@ func _ready() -> void:
     player.connect("stats_changed", GameState.update_player_snapshot)
     player.connect("died", _on_player_died)
     _spawn_enemy()
+    _spawn_courtyard_enemy()
     GameState.recovery_changed.connect(_update_recovery_marker)
     GameState.sanctuary_restored.connect(_on_sanctuary_restored)
     _update_recovery_marker(GameState.get_recovery_position(), GameState.get_dropped_essence(), GameState.has_recovery())
@@ -51,14 +54,23 @@ func _process(delta: float) -> void:
             _spawn_shield_guard()
     else:
         guard_respawn_timer = 0.0
+    if not is_instance_valid(courtyard_enemy):
+        courtyard_enemy_respawn_timer += delta
+        if courtyard_enemy_respawn_timer >= 4.0:
+            _spawn_courtyard_enemy()
+    else:
+        courtyard_enemy_respawn_timer = 0.0
 
 func _on_sanctuary_restored(_position: Vector3) -> void:
     if is_instance_valid(enemy):
         enemy.queue_free()
     if is_instance_valid(shield_guard):
         shield_guard.queue_free()
+    if is_instance_valid(courtyard_enemy):
+        courtyard_enemy.queue_free()
     _spawn_enemy()
     _spawn_shield_guard()
+    _spawn_courtyard_enemy()
 
 func _on_player_died() -> void:
     GameState.register_player_death(player.global_position)
@@ -276,3 +288,11 @@ func _add_ashen_lantern(position: Vector3) -> void:
     glow.emission_energy_multiplier = 1.6
     flame.material_override = glow
     add_child(flame)
+
+func _spawn_courtyard_enemy() -> void:
+    courtyard_enemy = CharacterBody3D.new()
+    courtyard_enemy.name = "AshenRoadHollow"
+    courtyard_enemy.set_script(ENEMY_SCRIPT)
+    courtyard_enemy.position = Vector3(0.0, 1.0, -53.0)
+    add_child(courtyard_enemy)
+    courtyard_enemy_respawn_timer = 0.0
