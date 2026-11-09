@@ -32,7 +32,7 @@ func _ready() -> void:
     _create_archer_kit()
 
 func _should_begin_attack(distance: float) -> bool:
-    return distance <= preferred_range and distance >= retreat_range
+    return distance <= preferred_range and distance >= retreat_range and _is_primary_group_attacker()
 
 func _configure_attack_pattern(_distance: float) -> void:
     current_attack_kind = "ember_bolt"
@@ -44,6 +44,8 @@ func _configure_attack_pattern(_distance: float) -> void:
 func _get_chase_destination() -> Vector3:
     if not is_instance_valid(player):
         return global_position
+    if _get_group_rank() > 0:
+        return _get_group_flank_destination(maxf(4.5, preferred_range * 0.78))
     var away := global_position - player.global_position
     away.y = 0.0
     if away.length() < retreat_range:
