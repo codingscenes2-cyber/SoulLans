@@ -34,6 +34,8 @@ var camera_pivot: Node3D
 var hero_animation_player: AnimationPlayer
 var weapon_attachment: BoneAttachment3D
 var weapon_visual_root: Node3D
+var armor_visual_attachments: Dictionary = {}
+var armor_visual_roots: Dictionary = {}
 var current_hero_animation := ""
 var dodge_timer := 0.0
 var attack_cooldown := 0.0
@@ -270,6 +272,7 @@ func upgrade_armor_by_id(item_id: String) -> bool:
     if not is_near_blacksmith() or not game_state.upgrade_armor(item_id):
         return false
     _refresh_armor_stats()
+    _refresh_armor_visuals()
     stats_changed.emit(health, stamina)
     return true
 
@@ -527,6 +530,7 @@ func _create_placeholder_body() -> void:
             add_child(hero_rig)
             hero_animation_player = _find_animation_player(hero_rig)
             _attach_weapon_to_hand(hero_rig)
+            _attach_armor_visuals(hero_rig)
             if is_instance_valid(hero_animation_player):
                 _play_hero_animation(["Idle", "Sword_Idle", "Sword_Block"])
             model_loaded = true
@@ -631,6 +635,111 @@ func _refresh_weapon_visual() -> void:
     pommel.position.z = 0.235
     pommel.material_override = guard_material
     weapon_visual_root.add_child(pommel)
+
+func _attach_armor_visuals(hero_rig: Node) -> void:
+    var skeleton := _find_skeleton(hero_rig)
+    if skeleton == null:
+        return
+    var slot_bones := {
+        "head": ["head", "Head", "mixamorig:Head"],
+        "chest": ["spine_02", "spine2", "Spine2", "spine", "mixamorig:Spine2"],
+        "legs": ["hips", "pelvis", "Hips", "mixamorig:Hips"]
+    }
+    for slot in slot_bones:
+        var selected_bone := ""
+        for candidate in slot_bones[slot]:
+            if skeleton.find_bone(candidate) >= 0:
+                selected_bone = candidate
+                break
+        if selected_bone.is_empty():
+            continue
+        var attachment := BoneAttachment3D.new()
+        attachment.name = "Armor_%s_Attachment" % slot.capitalize()
+        attachment.bone_name = selected_bone
+        skeleton.add_child(attachment)
+        var visual_root := Node3D.new()
+        visual_root.name = "Armor_%s_Visual" % slot.capitalize()
+        attachment.add_child(visual_root)
+        armor_visual_attachments[slot] = attachment
+        armor_visual_roots[slot] = visual_root
+    _refresh_armor_visuals()
+
+func _refresh_armor_visuals() -> void:
+    if not is_instance_valid(game_state):
+        return
+    for slot in ["head", "chest", "legs"]:
+        var root: Node3D = armor_visual_roots.get(slot)
+        if not is_instance_valid(root):
+            continue
+        for child in root.get_children():
+            root.remove_child(child)
+            child.queue_free()
+        var item_id := game_state.get_equipped_armor(slot)
+        if item_id.is_empty():
+            continue
+        var level := game_state.get_armor_upgrade_level(item_id)
+        var base_material := StandardMaterial3D.new()
+        base_material.albedo_color = Color(0.19, 0.16, 0.14) if slot == "head" else (Color(0.22, 0.24, 0.27) if slot == "chest" else Color(0.17, 0.19, 0.22))
+        base_material.metallic = 0.28 + float(level) * 0.12
+        base_material.roughness = maxf(0.3, 0.72 - float(level) * 0.08)
+        var trim_material := StandardMaterial3D.new()
+        trim_material.albedo_color = Color(0.43, 0.29, 0.14)
+        trim_material.metallic = 0.72
+        trim_material.roughness = 0.38
+        match slot:
+            "head":
+                var hood := MeshInstance3D.new()
+                var hood_mesh := SphereMesh.new()
+                hood_mesh.radius = 0.19
+                hood_mesh.height = 0.38
+                hood.mesh = hood_mesh
+                hood.position = Vector3(0.0, 0.11, 0.015)
+                hood.scale = Vector3(1.15, 1.0, 1.2)
+                hood.material_override = base_material
+                root.add_child(hood)
+                var brow := MeshInstance3D.new()
+                var brow_mesh := BoxMesh.new()
+                brow_mesh.size = Vector3(0.34, 0.055, 0.22)
+                brow.mesh = brow_mesh
+                brow.position = Vector3(0.0, 0.015, -0.11)
+                brow.material_override = trim_material
+                root.add_child(brow)
+            "chest":
+                var cuirass := MeshInstance3D.new()
+                var cuirass_mesh := BoxMesh.new()
+                cuirass_mesh.size = Vector3(0.52, 0.56, 0.2)
+                cuirass.mesh = cuirass_mesh
+                cuirass.position = Vector3(0.0, 0.0, 0.075)
+                cuirass.material_override = base_material
+                root.add_child(cuirass)
+                for side in [-1.0, 1.0]:
+                    var pauldron := MeshInstance3D.new()
+                    var pauldron_mesh := SphereMesh.new()
+                    pauldron_mesh.radius = 0.16
+                    pauldron_mesh.height = 0.22
+                    pauldron.mesh = pauldron_mesh
+                    pauldron.position = Vector3(side * 0.28, 0.19, 0.035)
+                    pauldron.scale = Vector3(1.0, 0.7, 1.0)
+                    pauldron.material_override = trim_material if level >= 2 else base_material
+                    root.add_child(pauldron)
+            "legs":
+                for side in [-1.0, 1.0]:
+                    var greave := MeshInstance3D.new()
+                    var greave_mesh := CapsuleMesh.new()
+                    greave_mesh.radius = 0.105
+                    greave_mesh.height = 0.48
+                    greave.mesh = greave_mesh
+                    greave.position = Vector3(side * 0.17, -0.3, 0.055)
+                    greave.material_override = base_material
+                    root.add_child(greave)
+                    var knee := MeshInstance3D.new()
+                    var knee_mesh := SphereMesh.new()
+                    knee_mesh.radius = 0.12
+                    knee_mesh.height = 0.16
+                    knee.mesh = knee_mesh
+                    knee.position = Vector3(side * 0.17, -0.12, 0.1)
+                    knee.material_override = trim_material if level >= 2 else base_material
+                    root.add_child(knee)
 
 func _find_animation_player(node: Node) -> AnimationPlayer:
     if node is AnimationPlayer:
