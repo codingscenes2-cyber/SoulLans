@@ -45,6 +45,8 @@ jobs:
         run: godot --headless --path . --script res://tests/enemy_rig_tests.gd
       - name: Run Shield Guard combat regression tests
         run: godot --headless --path . --script res://tests/shield_guard_tests.gd
+      - name: Run Ashen Ember Archer ranged combat tests
+        run: godot --headless --path . --script res://tests/ashen_archer_tests.gd
       - name: Run enemy attack arc regression tests
         run: godot --headless --path . --script res://tests/enemy_attack_arc_tests.gd
       - name: Run enemy hit feedback regression tests
