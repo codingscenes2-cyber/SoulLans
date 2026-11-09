@@ -2,9 +2,9 @@
 
 Last updated: 2026-11-09
 
-Latest completed validation: [GitHub Actions run #99 — passed](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564648199). The headless save/progression suite also passed in [run #97](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564586387). The first Android export attempt [run #1 failed](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564764601) because the SDK setup action requested Google's removed `tools` package. [Run #2](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564839680) exposed a redundant license-acceptance pipe; [run #3](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564895704) got through dependency setup but failed at preset validation. [Run #4](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42565193705) still failed with Godot's generic configuration error after correcting preset keys. The current [run #5](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42565318193) adds ETC2/ASTC texture import, explicit debug-keystore environment variables, and verbose export logging to expose the remaining blocker. CI does not replace hands-on gameplay or Android device testing.
+Latest headless validation: [Godot project validation run #122 — passed](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42565383559). The save/progression suite passed in [run #97](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564586387). Android export is now successful: [debug export run #6 — passed](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42565383797). The APK was signed and verified by apksigner (v2 and v3), uploaded as a GitHub Actions artifact, downloaded and independently SHA-256 checked. CI does not replace hands-on gameplay or Android device testing.
 
-This is a readiness snapshot, not a claim that a finished Android build exists. "CI green" means Godot headless import and main-scene startup passed in GitHub Actions; it does not prove full gameplay or device compatibility.
+This is a readiness snapshot, not a claim that the game is finished or device-tested. The first Android debug APK exists and has a verified signature; no physical-device install or gameplay test has been performed yet.
 
 ## Status map
 
@@ -19,18 +19,18 @@ This is a readiness snapshot, not a claim that a finished Android build exists. 
 | Save system | **Backup recovery and regression suite CI green** | Versioned saves, temp-file replacement, last-known-good backup restoration, legacy version-1 defaults, death/recovery and levelling are covered by headless regression tests. Device interruption and long-session testing remain. |
 | Ashen Kingdom level | **Connected graybox route and courtyard encounter; CI green** | Arena connects through a broken gate and ruined road into a walled outer courtyard. A Training Hollow now occupies the courtyard; a sealed destination gate and primitive lanterns provide landmarks. Runtime navigation, authored traversal, NPCs and environmental art remain. |
 | Characters / animation / audio | **Not production-ready** | Placeholder geometry; no production character rigs, animation sets, combat audio or VFX. |
-| Android export | **Preset and manual CI pipeline committed; first export pending** | `export_presets.cfg` targets arm64 debug APK. A manual/targeted GitHub Actions workflow installs Godot 4.3 templates, Java 17 and Android SDK packages; run #1 is queued. Export success, artifact inspection and device install are not yet verified. |
-| Prototype package | **Not ready** | Must pass gameplay smoke tests, Android export, install/launch and basic device QA before sharing an APK as a usable prototype. |
+| Android export | **<badge>** |
+| Prototype package | **Debug prototype candidate; device QA pending** | Install and launch on the target phone, test touch controls, route traversal, combat, save persistence, orientation, frame pacing and crashes. This is not a release-signed build. |
 
 ## Prototype build gate
 
 1. Keep the Godot headless CI checks green.
 2. Add and run repeatable gameplay checks for the two enemy archetypes, heavy attack, block, parry, flask, death/recovery and Sanctuary rest.
 3. Validate the new connected Ashen Kingdom route, then add an intentional exploration loop, traversal beats and at least one encounter beyond the training arena.
-4. Run and validate the new Android debug export workflow; resolve any SDK/template/preset issues without committing signing secrets.
-5. Export a debug APK, install it on the target Android device, and record launch, controls, orientation, performance and crash results.
-6. Only then publish a clearly labelled prototype APK with commit ID, file size and SHA-256. A release-signed build is a later gate.
+4. [x] Run and validate the Android debug export workflow. Run #6 produced and uploaded an ARM64 debug APK; signature verification passed.
+5. Install the APK on the target Android device and record launch, controls, route, combat, orientation, performance, persistence and crash results.
+6. After device QA, publish a clearly labelled prototype candidate with commit ID, file size and SHA-256. A release-signed build is a later gate.
 
 ## Current decision
 
-**Continue development; do not announce a prototype APK yet.** The project is at an early connected-graybox stage. The largest blockers are runtime gameplay verification and encounter tuning, a fuller exploration loop, the first verified Android export, and device QA.
+**First debug APK built; physical-device QA is the next gate.** The project remains an early connected-graybox prototype. The largest blockers are runtime gameplay verification and encounter tuning, a fuller exploration loop, production assets/animation/audio and target-device QA.
