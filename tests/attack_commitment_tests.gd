@@ -7,6 +7,7 @@ func _run() -> void:
     var player := CharacterBody3D.new()
     player.name = "AttackCommitmentTestPlayer"
     player.set_script(load("res://scripts/player_controller.gd"))
+    player.set("enable_visual_body", false)
     root.add_child(player)
     await process_frame
 
