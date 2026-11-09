@@ -1,6 +1,6 @@
 extends CharacterBody3D
 
-const STARTER_WEAPON = preload("res://resources/weapons/ashen_iron_sword.tres")
+const WEAPON_CATALOG = [preload("res://resources/weapons/ashen_iron_sword.tres"), preload("res://resources/weapons/ashen_iron_dagger.tres")]
 
 signal stats_changed(health: float, stamina: float)
 signal died
@@ -16,6 +16,7 @@ signal died
 @export var max_camera_pitch := 0.35
 
 var equipped_weapon: Resource
+var weapon_index := 0
 var current_attack_damage := 25.0
 var current_attack_range := 2.5
 var attack_active_duration := 0.11
@@ -39,7 +40,7 @@ func _ready() -> void:
     add_to_group("player")
     health = max_health
     stamina = max_stamina
-    equipped_weapon = STARTER_WEAPON
+    equipped_weapon = WEAPON_CATALOG[weapon_index]
     _setup_input_map()
     _create_placeholder_body()
     _create_camera_rig()
@@ -66,6 +67,8 @@ func _physics_process(delta: float) -> void:
         perform_attack()
     if Input.is_action_just_pressed("interact"):
         _interact_with_world()
+    if Input.is_action_just_pressed("switch_weapon"):
+        switch_weapon()
     if Input.is_action_just_pressed("lock_on"):
         locked_on = is_instance_valid(target) and not locked_on
 
@@ -127,6 +130,18 @@ func perform_dodge() -> void:
         dodge_direction = (right.normalized() * input_vector.x - forward.normalized() * input_vector.y).normalized()
     dodge_timer = 0.36
     invulnerability_timer = 0.22
+
+func switch_weapon() -> void:
+    if attack_cooldown > 0.0 or WEAPON_CATALOG.is_empty():
+        return
+    weapon_index = (weapon_index + 1) % WEAPON_CATALOG.size()
+    equipped_weapon = WEAPON_CATALOG[weapon_index]
+    stats_changed.emit(health, stamina)
+
+func get_weapon_name() -> String:
+    if is_instance_valid(equipped_weapon):
+        return str(equipped_weapon.get("display_name"))
+    return "Unarmed"
 
 func perform_attack() -> void:
     var stamina_cost := float(equipped_weapon.get("stamina_cost")) if is_instance_valid(equipped_weapon) else 12.0
@@ -241,6 +256,7 @@ func _setup_input_map() -> void:
     _ensure_key_action("dodge", KEY_SPACE)
     _ensure_key_action("lock_on", KEY_TAB)
     _ensure_key_action("interact", KEY_E)
+    _ensure_key_action("switch_weapon", KEY_Q)
     if not InputMap.has_action("attack"):
         InputMap.add_action("attack")
         var mouse := InputEventMouseButton.new()
