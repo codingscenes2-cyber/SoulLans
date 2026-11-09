@@ -17,9 +17,19 @@ func _run() -> void:
     await process_frame
 
     var starting_health: float = guard.health
+    var original_guard_color: Color = guard.enemy_material.albedo_color
     guard.take_damage(40.0, 20.0)
     if guard.hit_flash_timer <= 0.0:
         push_error("A mitigated frontal hit must trigger visible hit feedback.")
+        quit(1)
+        return
+    if guard.enemy_material.albedo_color == original_guard_color:
+        push_error("A mitigated frontal hit must visibly flash the guard material.")
+        quit(1)
+        return
+    guard._update_hit_flash(0.2)
+    if guard.hit_flash_timer != 0.0 or guard.enemy_material.albedo_color != original_guard_color:
+        push_error("Shield Guard hit feedback must expire and restore its original material colour.")
         quit(1)
         return
     if not is_equal_approx(guard.health, starting_health - 14.0):
