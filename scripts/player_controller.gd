@@ -311,20 +311,21 @@ func use_healing_flask() -> bool:
     stats_changed.emit(health, stamina)
     return true
 
-func take_damage(amount: float) -> void:
+func take_damage(amount: float, attacker: Node3D = null) -> void:
     if invulnerability_timer > 0.0 or health <= 0.0 or amount <= 0.0:
         return
+    var attack_source: Node3D = attacker if is_instance_valid(attacker) else (target if is_instance_valid(target) else null)
     var facing_target := false
-    if is_instance_valid(target):
-        var toward_attacker := target.global_position - global_position
+    if is_instance_valid(attack_source):
+        var toward_attacker := attack_source.global_position - global_position
         toward_attacker.y = 0.0
         if toward_attacker.length() > 0.01:
             facing_target = (-global_transform.basis.z).dot(toward_attacker.normalized()) >= 0.25
     if parry_timer > 0.0 and facing_target:
         parry_timer = 0.0
         is_blocking = false
-        if is_instance_valid(target) and target.has_method("receive_parry"):
-            target.receive_parry()
+        if is_instance_valid(attack_source) and attack_source.has_method("receive_parry"):
+            attack_source.receive_parry()
         stamina = minf(max_stamina, stamina + 8.0)
         stats_changed.emit(health, stamina)
         return
