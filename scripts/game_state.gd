@@ -16,7 +16,10 @@ const ITEM_CATALOG := {
     "ashen_tonic": {"name": "Ashen Tonic", "type": "consumable", "description": "Restores 45 HP. Cannot exceed maximum health."},
     "ashen_scrap": {"name": "Ashen Scrap", "type": "material", "description": "Salvaged metal fragments from fallen Ashen foes."},
     "tempered_plate": {"name": "Tempered Plate", "type": "material", "description": "A durable plate stripped from an Ashen Watch shield."},
-    "regent_core": {"name": "Ashen Regent Core", "type": "material", "description": "A dense soul-forged core left by the fallen regional ruler."}
+    "regent_core": {"name": "Ashen Regent Core", "type": "material", "description": "A dense soul-forged core left by the fallen regional ruler."},
+    "scout_hood": {"name": "Ashen Scout Hood", "type": "armor", "slot": "head", "weight": 2.0, "defense": 3.0, "description": "A light hood reinforced with scavenged leather."},
+    "watch_coat": {"name": "Ashen Watch Coat", "type": "armor", "slot": "chest", "weight": 5.0, "defense": 8.0, "description": "Layered watch leather with overlapping iron scales."},
+    "road_greaves": {"name": "Roadworn Greaves", "type": "armor", "slot": "legs", "weight": 3.0, "defense": 5.0, "description": "Flexible greaves built for long patrols."}
 }
 
 
@@ -27,7 +30,7 @@ var data: Dictionary = {
     "player": {"health": 100.0, "stamina": 100.0, "level": 1, "soul_essence": 0, "attributes": {"vigor": 10, "endurance": 10, "strength": 10, "dexterity": 10}, "healing_flasks": 3, "max_healing_flasks": 3},
     "location": "ashen_kingdom_training_ground",
     "inventory": [],
-    "equipment": {"weapon": "ashen_iron_sword"},
+    "equipment": {"weapon": "ashen_iron_sword", "head": "scout_hood", "chest": "watch_coat", "legs": "road_greaves"},
     "weapon_upgrades": {},
     "inventory_initialized": false,
     "discovered_areas": [],
@@ -55,7 +58,7 @@ func _ensure_starter_inventory() -> void:
     var items: Array = data.get("inventory", [])
     var changed := false
     if not bool(data.get("inventory_initialized", false)):
-        for starter_id in ["ashen_iron_sword", "ashen_watch_dagger", "ashen_tonic"]:
+        for starter_id in ["ashen_iron_sword", "ashen_watch_dagger", "ashen_tonic", "scout_hood", "watch_coat", "road_greaves"]:
             if get_item_count(starter_id) <= 0:
                 items.append({"id": starter_id, "quantity": 2 if starter_id == "ashen_tonic" else 1})
                 changed = true
@@ -72,8 +75,41 @@ func _ensure_starter_inventory() -> void:
             equipment["weapon"] = "ashen_watch_dagger"
         data["equipment"] = equipment
         changed = true
+    for slot in ["head", "chest", "legs"]:
+        var armor_id := str(equipment.get(slot, ""))
+        var armor_info := get_item_info(armor_id)
+        if str(armor_info.get("type", "")) != "armor" or str(armor_info.get("slot", "")) != slot or get_item_count(armor_id) <= 0:
+            equipment[slot] = ""
+            changed = true
+    data["equipment"] = equipment
     if changed:
         save_game()
+
+func get_equipped_armor(slot: String) -> String:
+    if not ["head", "chest", "legs"].has(slot):
+        return ""
+    var equipment: Dictionary = data.get("equipment", {})
+    return str(equipment.get(slot, ""))
+
+func equip_armor(item_id: String) -> bool:
+    var info := get_item_info(item_id)
+    var slot := str(info.get("slot", ""))
+    if str(info.get("type", "")) != "armor" or not ["head", "chest", "legs"].has(slot) or get_item_count(item_id) <= 0:
+        return false
+    var equipment: Dictionary = data.get("equipment", {})
+    equipment[slot] = item_id
+    data["equipment"] = equipment
+    save_game()
+    return true
+
+func get_armor_stats() -> Dictionary:
+    var defense := 0.0
+    var weight := 0.0
+    for slot in ["head", "chest", "legs"]:
+        var info := get_item_info(get_equipped_armor(slot))
+        defense += float(info.get("defense", 0.0))
+        weight += float(info.get("weight", 0.0))
+    return {"defense": defense, "weight": weight}
 
 func get_inventory() -> Array:
     var items: Array = data.get("inventory", [])
