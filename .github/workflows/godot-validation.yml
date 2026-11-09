@@ -77,4 +77,4 @@ jobs:
           fi
           exit "$status"
       - name: Run Ashen Regent boss encounter regression tests
-        run: godot --headless --path . --script res://tests/ashen_regent_tests.gd
+        run: timeout 120s godot --headless --path . --script res://tests/ashen_regent_tests.gd
