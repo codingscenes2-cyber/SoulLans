@@ -84,7 +84,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Soul Essence reward, death-drop and recovery prototype.
 - [x] Soul Essence level-up cost curve and attribute spending prototype.
 - [x] Three-charge healing flask, 45 HP restore and Sanctuary refill prototype.
-- [ ] Inventory, equipment, equip load and broader consumables.
+- [x] Persistent inventory with stackable item quantities, owned-weapon validation, saved main-hand equipment, Ashen Tonic consumable and enemy/boss material drops; mobile inventory panel and regression tests added.\n- [ ] Armour slots, equip load, item sorting, tooltips and broader consumables.
 - [ ] Weapon/armour upgrades, infusions, relics and talismans.
 - [ ] Spell schools, focus resource and status effects.
 - [x] Versioned JSON save/load foundation for player/world state with periodic autosave.
