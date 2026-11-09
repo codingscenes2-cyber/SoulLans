@@ -89,9 +89,9 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Persistent head, chest and leg armour slots with starter armour pieces and mobile equip controls.
 - [x] Armour defence reduces incoming health damage; armour weight changes movement and dodge speed through light/medium/heavy load tiers.
 - [x] Ashen Blacksmith NPC and forge station; weapon reinforcement is now gated by proximity to the smith.
-- [ ] Item sorting, expanded tooltips, armour visual attachments, armour upgrades and broader consumables.
+- [ ] Item sorting, expanded tooltips, armour visual attachments and broader consumables. (Three-stage armour reinforcement is implemented in source; CI regression validation pending.)
 - [x] Three-stage weapon upgrades using Ashen Scrap, Tempered Plates and the unique Regent Core; +12% weapon damage per level, reinforcement available at the Ashen Blacksmith.
-- [ ] Armour upgrades, infusions, relics and talismans.
+- [ ] Infusions, relics and talismans. (Armour upgrades now have three material-funded reinforcement tiers, +2 defence per tier, persistent per-piece levels and Ashen Blacksmith gating; CI validation pending.)
 - [ ] Spell schools, focus resource and status effects.
 - [x] Versioned JSON save/load foundation for player/world state with periodic autosave.
 - [x] Add last-known-good backup recovery, corrupt-primary restoration, legacy-save defaults and headless death/recovery/levelling regression tests.
