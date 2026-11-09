@@ -73,7 +73,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Prototype Sanctuary checkpoint, rest, death/respawn and Soul Essence recovery loop.
 - [x] Enemy reset-on-rest prototype.
 - [ ] World persistence rules and full checkpoint playtest.
-- [ ] One NPC, dialogue system and branching quest.
+- [ ] One NPC, dialogue system and branching quest. (Warden Eira, interact prompt path, persistent three-defeat quest and one-time Soul Essence reward implemented; CI verification and in-game playtest pending.)
 - [ ] One multi-phase region boss.
 - [ ] Playtest, difficulty tuning and performance budget.
 
