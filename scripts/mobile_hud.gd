@@ -203,7 +203,20 @@ func _refresh_inventory_panel() -> void:
         row.add_theme_constant_override("separation", 8)
         inventory_list.add_child(row)
         var details := Label.new()
-        details.text = "%s  x%d\n%s" % [str(info.get("name", item_id)), quantity, str(info.get("description", ""))]
+        var item_title := str(info.get("name", item_id))
+        var detail_text := "%s  x%d\n%s" % [item_title, quantity, str(info.get("description", ""))]
+        if str(info.get("type", "")) == "weapon":
+            var upgrade_level := GameState.get_weapon_upgrade_level(item_id)
+            var costs := GameState.get_weapon_upgrade_cost(item_id)
+            detail_text = "%s +%d  x%d\n%s" % [item_title, upgrade_level, quantity, str(info.get("description", ""))]
+            if not costs.is_empty():
+                var cost_parts: Array[String] = []
+                for material_id in costs:
+                    cost_parts.append("%s x%d" % [str(GameState.get_item_info(str(material_id)).get("name", material_id)), int(costs[material_id])])
+                detail_text += "\nNext: " + ", ".join(cost_parts)
+            else:
+                detail_text += "\nMAX UPGRADE"
+        details.text = detail_text
         details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
         details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
         details.custom_minimum_size = Vector2(260.0, 48.0)
@@ -216,6 +229,14 @@ func _refresh_inventory_panel() -> void:
             equip_button.disabled = item_id == equipped_id
             equip_button.pressed.connect(_on_inventory_equip.bind(item_id))
             row.add_child(equip_button)
+            var at_sanctuary := false
+            if is_instance_valid(player) and player is Node3D:
+                at_sanctuary = player.global_position.distance_to(GameState.get_sanctuary_position()) <= 3.0
+            var upgrade_button := Button.new()
+            upgrade_button.text = "UPGRADE"
+            upgrade_button.disabled = not at_sanctuary or not GameState.can_upgrade_weapon(item_id)
+            upgrade_button.pressed.connect(_on_inventory_upgrade.bind(item_id))
+            row.add_child(upgrade_button)
         elif item_type == "consumable" and item_id == "ashen_tonic":
             var use_button := Button.new()
             use_button.text = "USE"
@@ -227,6 +248,14 @@ func _on_inventory_equip(item_id: String) -> void:
         if player.equip_weapon_by_id(item_id):
             show_message("Equipped " + str(GameState.get_item_info(item_id).get("name", item_id)) + ".")
             _refresh_inventory_panel()
+
+func _on_inventory_upgrade(item_id: String) -> void:
+    if is_instance_valid(player) and player.has_method("upgrade_weapon_by_id"):
+        if player.upgrade_weapon_by_id(item_id):
+            show_message("Weapon upgraded to +" + str(GameState.get_weapon_upgrade_level(item_id)) + ".")
+            _refresh_inventory_panel()
+        else:
+            show_message("Upgrade at the Sanctuary and bring the required materials.")
 
 func _on_inventory_use(item_id: String) -> void:
     if is_instance_valid(player) and player.has_method("use_inventory_item"):
