@@ -29,6 +29,8 @@ var stamina_regen_timer := 0.0
 var target: Node3D
 var camera: Camera3D
 var camera_pivot: Node3D
+var hero_animation_player: AnimationPlayer
+var current_hero_animation := ""
 var dodge_timer := 0.0
 var attack_cooldown := 0.0
 var attack_windup := 0.0
@@ -106,12 +108,12 @@ func _physics_process(delta: float) -> void:
     camera_forward.y = 0.0
     camera_right.y = 0.0
     var direction := (camera_right.normalized() * input_vector.x - camera_forward.normalized() * input_vector.y).normalized()
+    var sprinting := Input.is_action_pressed("sprint") and stamina > 1.0 and direction.length() > 0.1
 
     if dodge_timer > 0.0:
         velocity.x = dodge_direction.x * dodge_speed
         velocity.z = dodge_direction.z * dodge_speed
     else:
-        var sprinting := Input.is_action_pressed("sprint") and stamina > 1.0 and direction.length() > 0.1
         var speed := sprint_speed if sprinting else move_speed
         if sprinting:
             stamina = maxf(0.0, stamina - 12.0 * delta)
@@ -133,6 +135,7 @@ func _physics_process(delta: float) -> void:
     else:
         velocity.y = -0.5
     move_and_slide()
+    _update_hero_animation(input_vector, sprinting)
     _update_camera()
     stats_changed.emit(health, stamina)
 
@@ -362,6 +365,10 @@ func _create_placeholder_body() -> void:
             _sanitize_hero_meshes(hero_rig)
             _apply_hero_material(hero_rig)
             add_child(hero_rig)
+            hero_animation_player = _find_animation_player(hero_rig)
+            if is_instance_valid(hero_animation_player) and hero_animation_player.has_animation("Idle"):
+                hero_animation_player.play("Idle")
+                current_hero_animation = "Idle"
             model_loaded = true
     if not model_loaded:
         var visual := MeshInstance3D.new()
@@ -382,6 +389,35 @@ func _create_placeholder_body() -> void:
     collision.shape = shape
     collision.position.y = 0.89
     add_child(collision)
+
+func _find_animation_player(node: Node) -> AnimationPlayer:
+    if node is AnimationPlayer:
+        return node
+    for child in node.get_children():
+        var found := _find_animation_player(child)
+        if found != null:
+            return found
+    return null
+
+func _update_hero_animation(input_vector: Vector2, sprinting: bool) -> void:
+    if not is_instance_valid(hero_animation_player):
+        return
+    var desired := "Idle"
+    if health <= 0.0:
+        desired = "Death01"
+    elif dodge_timer > 0.0:
+        desired = "Roll"
+    elif attack_cooldown > 0.0:
+        desired = "Sword_Attack"
+    elif is_blocking:
+        desired = "Sword_Idle"
+    elif input_vector.length() > 0.12:
+        desired = "Sprint" if sprinting else "Jog_Fwd"
+    if desired == current_hero_animation:
+        return
+    if hero_animation_player.has_animation(desired):
+        hero_animation_player.play(desired, 0.12)
+        current_hero_animation = desired
 
 func _sanitize_hero_meshes(root: Node) -> void:
     for child in root.get_children():
