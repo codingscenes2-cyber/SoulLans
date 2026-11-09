@@ -17,6 +17,7 @@ enum State { IDLE, PATROL, INVESTIGATE, CHASE, WINDUP, RECOVERY, STAGGER, DEAD }
 @export var attack_recovery_duration := 0.68
 @export var stagger_duration := 0.42
 @export var patrol_radius := 4.0
+@export var group_alert_radius := 12.0
 
 var health := 120.0
 var poise := 36.0
@@ -84,12 +85,14 @@ func _physics_process(delta: float) -> void:
             _stop_horizontal_motion(delta)
             if distance <= detection_range:
                 state = State.CHASE
+                _alert_nearby_enemies()
             elif idle_timer <= 0.0:
                 _choose_patrol_target()
                 state = State.PATROL
         State.PATROL:
             if distance <= detection_range:
                 state = State.CHASE
+                _alert_nearby_enemies()
             elif _move_toward_point(patrol_target, patrol_speed, delta):
                 state = State.IDLE
                 idle_timer = randf_range(0.7, 1.8)
@@ -206,6 +209,26 @@ func _move_toward_point(point: Vector3, speed: float, delta: float) -> bool:
 func _set_navigation_target(point: Vector3) -> void:
     if is_instance_valid(navigation_agent):
         navigation_agent.target_position = point
+
+# Nearby enemies share the last known player position instead of behaving as
+# isolated targets. Units outside their own detection radius investigate first.
+func _alert_nearby_enemies() -> void:
+    if not is_instance_valid(player):
+        return
+    var alert_position := player.global_position
+    for ally in get_tree().get_nodes_in_group("enemies"):
+        if ally == self or not is_instance_valid(ally) or not ally is CharacterBody3D:
+            continue
+        if ally.get("state") == State.DEAD:
+            continue
+        if global_position.distance_to(ally.global_position) > group_alert_radius:
+            continue
+        ally.set("last_known_player_position", alert_position)
+        if ally.get("state") in [State.IDLE, State.PATROL]:
+            ally.set("state", State.INVESTIGATE)
+            ally.set("idle_timer", 0.0)
+            if ally.has_method("_set_navigation_target"):
+                ally.call("_set_navigation_target", alert_position)
 
 func _choose_patrol_target() -> void:
     var angle := randf_range(0.0, TAU)
