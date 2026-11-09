@@ -1,6 +1,7 @@
 extends CharacterBody3D
 
 signal stats_changed(health: float, stamina: float)
+signal died
 
 @export var move_speed := 5.0
 @export var sprint_speed := 7.2
@@ -56,6 +57,8 @@ func _physics_process(delta: float) -> void:
         perform_dodge()
     if Input.is_action_just_pressed("attack"):
         perform_attack()
+    if Input.is_action_just_pressed("interact"):
+        _interact_with_world()
     if Input.is_action_just_pressed("lock_on"):
         locked_on = is_instance_valid(target) and not locked_on
 
@@ -145,9 +148,28 @@ func _resolve_melee_hit() -> void:
             collider.take_damage(attack_damage)
 
 func take_damage(amount: float) -> void:
-    if invulnerability_timer > 0.0:
+    if invulnerability_timer > 0.0 or health <= 0.0:
         return
     health = maxf(0.0, health - amount)
+    if health <= 0.0:
+        died.emit()
+
+func restore_at_sanctuary() -> void:
+    health = max_health
+    stamina = max_stamina
+    velocity = Vector3.ZERO
+    stats_changed.emit(health, stamina)
+
+func respawn_at(position: Vector3) -> void:
+    global_position = position
+    restore_at_sanctuary()
+    invulnerability_timer = 1.5
+
+func _interact_with_world() -> void:
+    if global_position.distance_to(GameState.get_sanctuary_position()) <= 3.0:
+        GameState.rest_at_sanctuary(GameState.get_sanctuary_position(), self)
+    else:
+        GameState.try_recover_souls(global_position)
 
 func apply_saved_state(saved: Dictionary) -> void:
     health = clampf(float(saved.get("health", max_health)), 0.0, max_health)
@@ -204,6 +226,7 @@ func _setup_input_map() -> void:
     _ensure_key_action("sprint", KEY_SHIFT)
     _ensure_key_action("dodge", KEY_SPACE)
     _ensure_key_action("lock_on", KEY_TAB)
+    _ensure_key_action("interact", KEY_E)
     if not InputMap.has_action("attack"):
         InputMap.add_action("attack")
         var mouse := InputEventMouseButton.new()
