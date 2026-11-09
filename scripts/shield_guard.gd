@@ -31,6 +31,7 @@ func _physics_process(delta: float) -> void:
 func take_damage(amount: float, poise_damage: float = 12.0) -> void:
     if state == State.DEAD or amount <= 0.0:
         return
+    _flash_hit()
     var frontal := false
     if is_instance_valid(player):
         var toward_player := player.global_position - global_position
