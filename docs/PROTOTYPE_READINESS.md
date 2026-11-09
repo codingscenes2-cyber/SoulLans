@@ -1,6 +1,6 @@
 # Prototype readiness map
 
-Last updated: 2026-11-09
+Last updated: 2026-11-09\n\nLatest gameplay validation: [GitHub Actions run #84 — passed](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42559799440). This validates headless import and scene startup, not hands-on gameplay.
 
 This is a readiness snapshot, not a claim that a finished Android build exists. "CI green" means Godot headless import and main-scene startup passed in GitHub Actions; it does not prove full gameplay or device compatibility.
 
