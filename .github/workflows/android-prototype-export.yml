@@ -9,7 +9,7 @@ on:
       - "project.godot"
       - "scripts/main.gd"
       - "scripts/ashen_world_art.gd"
-      - "assets/ASSET_CREDITS.md"
+      - "assets/ASSET_CREDITS.md"\n      - "assets/characters/**"
       - ".github/workflows/android-prototype-export.yml"
 
 jobs:
@@ -54,19 +54,24 @@ jobs:
             "platforms;android-34" \
             "cmdline-tools;latest"
 
-      - name: Configure isolated Godot Android editor settings
+      - name: Restore persistent Android signing key
         shell: bash
+        env:
+          SOULLAND_KEYSTORE_BASE64: ${{ secrets.SOULLAND_KEYSTORE_BASE64 }}
+          SOULLAND_KEYSTORE_PASSWORD: ${{ secrets.SOULLAND_KEYSTORE_PASSWORD }}
+          SOULLAND_KEY_ALIAS: ${{ secrets.SOULLAND_KEY_ALIAS }}
+          SOULLAND_KEY_PASSWORD: ${{ secrets.SOULLAND_KEY_PASSWORD }}
         run: |
+          set -euo pipefail
+          for name in SOULLAND_KEYSTORE_BASE64 SOULLAND_KEYSTORE_PASSWORD SOULLAND_KEY_ALIAS SOULLAND_KEY_PASSWORD; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::Missing GitHub Actions secret $name. Refusing to create a random signing key."
+              exit 1
+            fi
+          done
           mkdir -p "$HOME/.config/godot" "$HOME/.android" build
-          keytool -genkeypair -v \
-            -keystore "$HOME/.android/debug.keystore" \
-            -storepass android \
-            -alias androiddebugkey \
-            -keypass android \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
+          printf '%s' "$SOULLAND_KEYSTORE_BASE64" | base64 --decode > "$HOME/.android/soulland.keystore"
+          keytool -list -keystore "$HOME/.android/soulland.keystore" -storepass "$SOULLAND_KEYSTORE_PASSWORD" -alias "$SOULLAND_KEY_ALIAS" >/dev/null
           cat > "$HOME/.config/godot/editor_settings-4.3.tres" <<EOF
           [gd_resource type="EditorSettings" format=3]
 
@@ -74,12 +79,12 @@ jobs:
           export/android/java_sdk_path = "$JAVA_HOME"
           export/android/android_sdk_path = "$ANDROID_HOME"
           export/android/adb = "$ANDROID_HOME/platform-tools/adb"
-          export/android/debug_keystore = "$HOME/.android/debug.keystore"
-          export/android/debug_keystore_user = "androiddebugkey"
-          export/android/debug_keystore_pass = "android"
+          export/android/debug_keystore = "$HOME/.android/soulland.keystore"
+          export/android/debug_keystore_user = "$SOULLAND_KEY_ALIAS"
+          export/android/debug_keystore_pass = "$SOULLAND_KEY_PASSWORD"
           EOF
 
-      - name: Fetch CC0 PBR textures from Poly Haven
+      - name: Fetch CC0 rigged humanoid model\n        shell: bash\n        run: |\n          set -euo pipefail\n          mkdir -p assets/characters\n          curl -fL --retry 3 "https://raw.githubusercontent.com/programasweights/avatar/a488723e3a93d73d5c562d88f8a85353c37bc721/public/assets/character.glb" -o assets/characters/ashen_hero.glb\n          curl -fL --retry 3 "https://raw.githubusercontent.com/programasweights/avatar/a488723e3a93d73d5c562d88f8a85353c37bc721/public/assets/QUATERNIUS-LICENSE.txt" -o assets/characters/QUATERNIUS-LICENSE.txt\n          test "$(stat -c %s assets/characters/ashen_hero.glb)" -eq 741320\n          sha256sum assets/characters/ashen_hero.glb | tee build/ashen_hero.sha256\n\n      - name: Fetch CC0 PBR textures from Poly Haven
         shell: bash
         run: |
           set -euo pipefail
