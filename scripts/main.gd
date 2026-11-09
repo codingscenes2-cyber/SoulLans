@@ -3,6 +3,7 @@ extends Node3D
 const PLAYER_SCRIPT = preload("res://scripts/player_controller.gd")
 const ENEMY_SCRIPT = preload("res://scripts/training_enemy.gd")
 const SHIELD_GUARD_SCRIPT = preload("res://scripts/shield_guard.gd")
+const ASHEN_ARCHER_SCRIPT = preload("res://scripts/ashen_archer.gd")
 const WARDEN_SCRIPT = preload("res://scripts/warden_eira.gd")
 const BLACKSMITH_SCRIPT = preload("res://scripts/ashen_blacksmith.gd")
 const REGENT_SCRIPT = preload("res://scripts/ashen_regent.gd")
@@ -13,6 +14,8 @@ var player: CharacterBody3D
 var enemy: CharacterBody3D
 var shield_guard: CharacterBody3D
 var courtyard_enemy: CharacterBody3D
+var archer_enemy: CharacterBody3D
+var archer_respawn_timer := 0.0
 var courtyard_enemy_respawn_timer := 0.0
 var enemy_respawn_timer := 0.0
 var guard_respawn_timer := 0.0
@@ -70,6 +73,12 @@ func _process(delta: float) -> void:
             _spawn_shield_guard()
     else:
         guard_respawn_timer = 0.0
+    if not is_instance_valid(archer_enemy):
+        archer_respawn_timer += delta
+        if archer_respawn_timer >= 4.0:
+            _spawn_ashen_archer()
+    else:
+        archer_respawn_timer = 0.0
     if not is_instance_valid(courtyard_enemy):
         courtyard_enemy_respawn_timer += delta
         if courtyard_enemy_respawn_timer >= 4.0:
@@ -84,6 +93,8 @@ func _on_sanctuary_restored(_position: Vector3) -> void:
         shield_guard.queue_free()
     if is_instance_valid(courtyard_enemy):
         courtyard_enemy.queue_free()
+    if is_instance_valid(archer_enemy):
+        archer_enemy.queue_free()
     _spawn_enemy()
     _spawn_shield_guard()
     _spawn_courtyard_enemy()
