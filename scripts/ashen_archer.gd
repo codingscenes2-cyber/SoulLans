@@ -59,8 +59,7 @@ func can_hit_player() -> bool:
 func _launch_firebolt() -> void:
     if not is_instance_valid(player):
         return
-    var bolt := Area3D.new()
-    bolt.set_script(FIREBOLT_SCRIPT)
+    var bolt: Variant = FIREBOLT_SCRIPT.new()
     bolt.name = "AshenEmberFirebolt"
     var scene_root := get_tree().current_scene
     if not is_instance_valid(scene_root):
