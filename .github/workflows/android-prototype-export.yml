@@ -78,6 +78,31 @@ jobs:
           export/android/debug_keystore_pass = "android"
           EOF
 
+      - name: Fetch CC0 PBR textures from Poly Haven
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/materials
+          fetch_map() {
+            local asset="$1" map="$2" output="$3"
+            local files url
+            files="$(curl -fsSL -H "User-Agent: SoulLandFallenRealm/0.3 (asset build)" "https://api.polyhaven.com/files/$asset")"
+            url="$(printf '%s' "$files" | jq -r --arg suffix "_${map}_1k.jpg" '.. | objects | select(.url? and (.url | endswith($suffix))) | .url' | head -n1)"
+            if [ -z "$url" ] || [ "$url" = "null" ]; then
+              echo "Missing expected 1K map $asset $map"
+              exit 1
+            fi
+            curl -fL --retry 3 "$url" -o "assets/materials/$output"
+            test -s "assets/materials/$output"
+          }
+          for spec in "concrete_floor_01 concrete_floor_01" "rock_wall_17 rock_wall_17"; do
+            read -r asset prefix <<< "$spec"
+            fetch_map "$asset" diff "${prefix}_diff_1k.jpg"
+            fetch_map "$asset" nor_gl "${prefix}_nor_gl_1k.jpg"
+            fetch_map "$asset" rough "${prefix}_rough_1k.jpg"
+          done
+          du -h assets/materials/*
+
       - name: Import project and export debug APK
         shell: bash
         run: |
