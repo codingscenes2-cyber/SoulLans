@@ -96,13 +96,13 @@ func _physics_process(delta: float) -> void:
             if distance > lose_target_range:
                 state = State.INVESTIGATE
                 _set_navigation_target(last_known_player_position)
-            elif distance <= attack_range:
+            elif _should_begin_attack(distance):
                 state = State.WINDUP
                 state_timer = attack_windup_duration
                 _stop_horizontal_motion(delta)
                 _set_telegraph(true)
             else:
-                _move_toward_point(player.global_position, chase_speed, delta)
+                _move_toward_point(_get_chase_destination(), chase_speed, delta)
         State.WINDUP:
             _stop_horizontal_motion(delta)
             if state_timer <= 0.0:
@@ -146,6 +146,12 @@ func can_hit_player() -> bool:
     var forward := -global_transform.basis.z
     forward.y = 0.0
     return forward.normalized().dot(to_player.normalized()) >= cos(deg_to_rad(55.0))
+
+func _should_begin_attack(distance: float) -> bool:
+    return distance <= attack_range
+
+func _get_chase_destination() -> Vector3:
+    return player.global_position if is_instance_valid(player) else global_position
 
 func _move_toward_point(point: Vector3, speed: float, delta: float) -> bool:
     var destination := point
