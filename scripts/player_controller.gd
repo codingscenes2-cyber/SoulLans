@@ -61,6 +61,11 @@ func _ready() -> void:
     _create_camera_rig()
 
 func _physics_process(delta: float) -> void:
+    if is_instance_valid(hud) and hud.has_method("is_inventory_open") and hud.is_inventory_open():
+        velocity = Vector3.ZERO
+        move_and_slide()
+        _update_camera()
+        return
     attack_cooldown = maxf(0.0, attack_cooldown - delta)
     if attack_windup > 0.0:
         attack_windup -= delta
