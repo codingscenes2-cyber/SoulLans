@@ -10,7 +10,7 @@ func _initialize() -> void:
 func _run() -> void:
     GameState.data["world_flags"] = {}
     GameState.data["defeated_bosses"] = []
-    var boss := CharacterBody3D.new()
+    var boss: Variant = CharacterBody3D.new()
     boss.name = "AshenRegentTest"
     boss.set_script(BOSS_SCRIPT)
     root.add_child(boss)
