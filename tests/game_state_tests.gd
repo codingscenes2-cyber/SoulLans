@@ -61,6 +61,20 @@ func _run() -> void:
     _expect(not state.advance_quest("ashen_sigils"), "completed quest cannot be progressed or rewarded again")
     _expect(state.get_soul_essence() == 120, "quest reward cannot be claimed twice")
 
+    var legacy_items: Array = state.data.get("inventory", [])
+    for index in range(legacy_items.size() - 1, -1, -1):
+        if ["scout_hood", "watch_coat", "road_greaves"].has(str(legacy_items[index].get("id", ""))):
+            legacy_items.remove_at(index)
+    state.data["inventory"] = legacy_items
+    state.data["armor_initialized"] = false
+    var legacy_equipment: Dictionary = state.data.get("equipment", {})
+    legacy_equipment["head"] = ""
+    legacy_equipment["chest"] = ""
+    legacy_equipment["legs"] = ""
+    state.data["equipment"] = legacy_equipment
+    state.call("_ensure_starter_inventory")
+    _expect(state.get_item_count("scout_hood") == 1 and state.get_item_count("watch_coat") == 1 and state.get_item_count("road_greaves") == 1, "legacy inventory receives the one-time armour migration")
+    _expect(state.get_equipped_armor("head") == "scout_hood" and state.get_equipped_armor("chest") == "watch_coat" and state.get_equipped_armor("legs") == "road_greaves", "legacy save equips the migrated starter armour")
     _expect(state.get_item_count("ashen_iron_sword") >= 1, "starter sword is present in inventory")
     _expect(state.get_item_count("ashen_watch_dagger") >= 1, "starter dagger is present in inventory")
     _expect(state.get_item_count("scout_hood") == 1 and state.get_item_count("watch_coat") == 1 and state.get_item_count("road_greaves") == 1, "starter armour pieces are granted")
