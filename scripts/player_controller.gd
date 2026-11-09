@@ -72,6 +72,8 @@ func _physics_process(delta: float) -> void:
         perform_dodge()
     if Input.is_action_just_pressed("attack"):
         perform_attack()
+    if Input.is_action_just_pressed("heal"):
+        use_healing_flask()
     if Input.is_action_just_pressed("interact"):
         _interact_with_world()
     if Input.is_action_just_pressed("switch_weapon"):
@@ -226,6 +228,15 @@ func _resolve_melee_hit() -> void:
         if is_instance_valid(collider) and collider.has_method("take_damage"):
             collider.take_damage(current_attack_damage, current_attack_poise_damage)
 
+func use_healing_flask() -> bool:
+    if health >= max_health or dodge_timer > 0.0 or attack_cooldown > 0.0:
+        return false
+    if not GameState.consume_healing_flask():
+        return false
+    health = minf(max_health, health + 45.0)
+    stats_changed.emit(health, stamina)
+    return true
+
 func take_damage(amount: float) -> void:
     if invulnerability_timer > 0.0 or health <= 0.0:
         return
@@ -256,7 +267,7 @@ func apply_saved_state(saved: Dictionary) -> void:
     stats_changed.emit(health, stamina)
 
 func get_status() -> Dictionary:
-    return {"health": health, "max_health": max_health, "stamina": stamina, "max_stamina": max_stamina, "level": GameState.get_player_level(), "soul_essence": GameState.get_soul_essence(), "next_level_cost": GameState.get_next_level_cost()}
+    return {"health": health, "max_health": max_health, "stamina": stamina, "max_stamina": max_stamina, "level": GameState.get_player_level(), "soul_essence": GameState.get_soul_essence(), "next_level_cost": GameState.get_next_level_cost(), "healing_flasks": GameState.get_healing_flasks(), "max_healing_flasks": GameState.get_max_healing_flasks()}
 
 func _create_placeholder_body() -> void:
     var visual := MeshInstance3D.new()
@@ -304,6 +315,7 @@ func _setup_input_map() -> void:
     _ensure_key_action("move_right", KEY_D)
     _ensure_key_action("sprint", KEY_SHIFT)
     _ensure_key_action("dodge", KEY_SPACE)
+    _ensure_key_action("heal", KEY_R)
     _ensure_key_action("lock_on", KEY_TAB)
     _ensure_key_action("interact", KEY_E)
     _ensure_key_action("switch_weapon", KEY_Q)
