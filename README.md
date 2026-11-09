@@ -8,7 +8,7 @@ This is an original game world. Use original characters, locations, dialogue, mu
 
 ## Current status
 
-The repository now contains a playable-prototype foundation: third-person movement and camera orbit, touch controls, timed melee hit detection, a telegraphed training enemy, a Sanctuary altar, death/respawn, Soul Essence drops and recovery, and versioned local save data. The GitHub Actions workflow has successfully imported the project and launched the main scene headlessly.
+The repository now contains a playable-prototype foundation: third-person movement and camera orbit, touch controls, timed melee hit detection, a telegraphed training enemy with poise/stagger, a Sanctuary altar, death/respawn, Soul Essence drops and recovery, four persistent attributes with Sanctuary-only levelling, weapon attribute scaling, and versioned local save data. The GitHub Actions workflow has successfully imported the project and launched the main scene headlessly.
 
 **This remains an early prototype, not a finished game or verified Android build.** The player and enemy are still primitive placeholders; there are no production character models, animation sets, full weapon movesets, or device performance results. Headless CI success does not replace testing on the target Android device.
 
@@ -17,7 +17,7 @@ The repository now contains a playable-prototype foundation: third-person moveme
 1. Install Godot 4.3 or later.
 2. Import the project.godot file.
 3. Run scenes/main.tscn (F6) or the main project (F5).
-4. Desktop controls: WASD move, Shift sprint, Space dodge, E interact/rest/recover, left mouse attack, Tab lock-on, Q cycle weapons, right mouse drag camera. The prototype weapon set currently includes an Ashen Iron Sword and Ashen Watch Dagger.
+4. Desktop controls: WASD move, Shift sprint, Space dodge, E interact/rest/recover, left mouse attack, Tab lock-on, Q cycle weapons, 1–4 level Vigor/Endurance/Strength/Dexterity at the Sanctuary, right mouse drag camera. On mobile, use the VIG/END/STR/DEX buttons near the top-right; levelling only works beside the Sanctuary and consumes Soul Essence. The prototype weapon set currently includes an Ashen Iron Sword and Ashen Watch Dagger.
 5. Android export requires Godot export templates and a configured Android SDK/JDK.
 
 ## Development pillars
