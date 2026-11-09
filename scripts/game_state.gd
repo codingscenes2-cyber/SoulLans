@@ -28,6 +28,7 @@ var data: Dictionary = {
     "location": "ashen_kingdom_training_ground",
     "inventory": [],
     "equipment": {"weapon": "ashen_iron_sword"},
+    "weapon_upgrades": {},
     "inventory_initialized": false,
     "discovered_areas": [],
     "defeated_bosses": [],
@@ -123,6 +124,47 @@ func remove_item(item_id: String, quantity: int = 1) -> bool:
             save_game()
             return true
     return false
+
+func get_weapon_upgrade_level(item_id: String) -> int:
+    var upgrades: Dictionary = data.get("weapon_upgrades", {})
+    return clampi(int(upgrades.get(item_id, 0)), 0, 3)
+
+func get_weapon_upgrade_cost(item_id: String) -> Dictionary:
+    if str(get_item_info(item_id).get("type", "")) != "weapon":
+        return {}
+    var level := get_weapon_upgrade_level(item_id)
+    match level:
+        0:
+            return {"ashen_scrap": 3}
+        1:
+            return {"ashen_scrap": 5, "tempered_plate": 2}
+        2:
+            return {"ashen_scrap": 8, "tempered_plate": 4, "regent_core": 1}
+    return {}
+
+func can_upgrade_weapon(item_id: String) -> bool:
+    if get_item_count(item_id) <= 0:
+        return false
+    var costs := get_weapon_upgrade_cost(item_id)
+    if costs.is_empty():
+        return false
+    for material_id in costs:
+        if get_item_count(str(material_id)) < int(costs[material_id]):
+            return false
+    return true
+
+func upgrade_weapon(item_id: String) -> bool:
+    if not can_upgrade_weapon(item_id):
+        return false
+    var costs := get_weapon_upgrade_cost(item_id)
+    for material_id in costs:
+        if not remove_item(str(material_id), int(costs[material_id])):
+            return false
+    var upgrades: Dictionary = data.get("weapon_upgrades", {})
+    upgrades[item_id] = get_weapon_upgrade_level(item_id) + 1
+    data["weapon_upgrades"] = upgrades
+    save_game()
+    return true
 
 func get_equipped_weapon_id() -> String:
     var equipment: Dictionary = data.get("equipment", {})
