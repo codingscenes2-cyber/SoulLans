@@ -18,6 +18,8 @@ func _ready() -> void:
     attack_windup_duration = 0.68
     attack_recovery_duration = 0.82
     super._ready()
+    if is_instance_valid(enemy_material):
+        enemy_material.albedo_color = Color(0.25, 0.3, 0.38)
     _create_shield()
 
 func _physics_process(delta: float) -> void:
