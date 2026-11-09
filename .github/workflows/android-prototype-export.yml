@@ -9,6 +9,7 @@ on:
       - "project.godot"
       - "scripts/main.gd"
       - "scripts/ashen_world_art.gd"
+      - "assets/ASSET_CREDITS.md"
       - ".github/workflows/android-prototype-export.yml"
 
 jobs:
@@ -114,6 +115,7 @@ jobs:
           godot --headless --verbose --path . --export-debug "Android" build/SOUL_LAND_FALLEN_REALM-debug.apk
           test -s build/SOUL_LAND_FALLEN_REALM-debug.apk
           sha256sum build/SOUL_LAND_FALLEN_REALM-debug.apk | tee build/SOUL_LAND_FALLEN_REALM-debug.apk.sha256
+          "$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --verbose --print-certs build/SOUL_LAND_FALLEN_REALM-debug.apk
           stat -c "APK size: %s bytes" build/SOUL_LAND_FALLEN_REALM-debug.apk
 
       - name: Upload debug APK artifact
