@@ -4,6 +4,7 @@ const BOSS_SCRIPT = preload("res://scripts/ashen_regent.gd")
 const WARDEN_SCRIPT = preload("res://scripts/warden_eira.gd")
 
 var failures: Array[String] = []
+var boss_defeat_events := 0
 
 func _initialize() -> void:
     call_deferred("_run")
@@ -15,6 +16,7 @@ func _run() -> void:
     boss.name = "AshenRegentTest"
     boss.set_script(BOSS_SCRIPT)
     root.add_child(boss)
+    boss.connect("boss_defeated", _on_boss_defeated)
     await process_frame
 
     _expect(not bool(boss.get_boss_status().get("active", true)), "boss remains dormant before Warden unlock")
@@ -58,6 +60,7 @@ func _run() -> void:
     _expect(defeated_bosses.has("ashen_regent"), "boss defeat is recorded permanently")
     var final_flags: Dictionary = GameState.data.get("world_flags", {})
     _expect(bool(final_flags.get("ashen_regent_defeated", false)), "boss defeat sets a persistent world flag")
+    _expect(boss_defeat_events == 1, "boss emits one defeat event for the world gate")
     _expect(GameState.get_soul_essence() >= essence_before + 300, "boss awards its 300 Soul Essence reward")
 
     boss.queue_free()
@@ -68,6 +71,9 @@ func _run() -> void:
     for failure in failures:
         push_error(failure)
     quit(1)
+
+func _on_boss_defeated() -> void:
+    boss_defeat_events += 1
 
 func _expect(condition: bool, description: String) -> void:
     if condition:
