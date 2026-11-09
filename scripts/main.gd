@@ -30,6 +30,7 @@ func _ready() -> void:
     player.connect("stats_changed", GameState.update_player_snapshot)
     player.connect("died", _on_player_died)
     _spawn_enemy()
+    _spawn_shield_guard()
     _spawn_courtyard_enemy()
     GameState.recovery_changed.connect(_update_recovery_marker)
     GameState.sanctuary_restored.connect(_on_sanctuary_restored)
