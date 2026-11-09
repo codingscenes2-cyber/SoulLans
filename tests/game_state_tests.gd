@@ -107,6 +107,21 @@ func _run() -> void:
     _expect(state.get_weapon_upgrade_level("ashen_iron_sword") == 3, "weapon reaches maximum upgrade level")
     _expect(not state.can_upgrade_weapon("ashen_iron_sword"), "maximum-level weapon cannot be upgraded again")
 
+    _expect(state.add_item("ashen_scrap", 2), "armour reinforcement materials can be collected")
+    _expect(state.can_upgrade_armor("scout_hood"), "first armour reinforcement checks scrap cost")
+    _expect(state.upgrade_armor("scout_hood"), "first armour reinforcement consumes Ashen Scrap")
+    _expect(state.get_armor_upgrade_level("scout_hood") == 1, "armour reinforcement level persists")
+    _expect(is_equal_approx(state.get_armor_defense("scout_hood"), 5.0), "reinforced armour gains two defence")
+    _expect(state.get_armor_stats().get("defense", 0.0) == 18.0, "equipped armour totals include reinforcement")
+    _expect(state.add_item("ashen_scrap", 4) and state.add_item("tempered_plate", 2), "second armour reinforcement materials can be collected")
+    _expect(state.upgrade_armor("scout_hood"), "second armour reinforcement consumes scrap and plates")
+    _expect(state.get_armor_upgrade_level("scout_hood") == 2, "armour reaches reinforcement level two")
+    _expect(state.add_item("ashen_scrap", 6) and state.add_item("tempered_plate", 3) and state.add_item("regent_core", 1), "final armour reinforcement materials can be collected")
+    _expect(state.upgrade_armor("scout_hood"), "final armour reinforcement consumes a Regent Core")
+    _expect(state.get_armor_upgrade_level("scout_hood") == 3, "armour reaches maximum reinforcement level")
+    _expect(is_equal_approx(state.get_armor_defense("scout_hood"), 9.0), "maximum reinforcement adds six defence")
+    _expect(not state.can_upgrade_armor("scout_hood"), "maximum-level armour cannot be reinforced again")
+
     state.free()
     _remove_test_files()
     if failures.is_empty():
