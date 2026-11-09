@@ -53,6 +53,8 @@ jobs:
         run: godot --headless --path . --script res://tests/enemy_attack_pattern_tests.gd
       - name: Run enemy group awareness regression tests
         run: godot --headless --path . --script res://tests/enemy_group_awareness_tests.gd
+      - name: Run coordinated enemy attack and flanking regression tests
+        run: godot --headless --path . --script res://tests/enemy_combat_coordination_tests.gd
       - name: Run Ashen Vanguard elite encounter tests
         run: godot --headless --path . --script res://tests/ashen_vanguard_tests.gd
       - name: Run three-wave Ashen Courtyard encounter tests
