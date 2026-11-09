@@ -173,6 +173,9 @@ func _create_inventory_panel(root: Control) -> void:
     inventory_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     scroll.add_child(inventory_list)
 
+func is_inventory_open() -> bool:
+    return is_instance_valid(inventory_panel) and inventory_panel.visible
+
 func toggle_inventory(force_open: bool = false) -> void:
     if not is_instance_valid(inventory_panel):
         return
