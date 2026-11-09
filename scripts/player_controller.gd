@@ -20,6 +20,7 @@ signal died
 var equipped_weapon: Resource
 var weapon_index := 0
 var current_attack_damage := 25.0
+var current_attack_poise_damage := 12.0
 var current_attack_range := 2.5
 var attack_active_duration := 0.11
 var health := 100.0
@@ -160,6 +161,7 @@ func perform_attack() -> void:
     stamina -= stamina_cost
     stamina_regen_timer = stamina_regen_delay
     current_attack_damage = float(equipped_weapon.get("base_damage")) if is_instance_valid(equipped_weapon) else attack_damage
+    current_attack_poise_damage = float(equipped_weapon.get("poise_damage")) if is_instance_valid(equipped_weapon) else 12.0
     current_attack_range = float(equipped_weapon.get("attack_range")) if is_instance_valid(equipped_weapon) else 2.5
     attack_active_duration = active
     attack_cooldown = windup + active + recovery
@@ -182,7 +184,7 @@ func _resolve_melee_hit() -> void:
     for hit in hits:
         var collider: Object = hit.get("collider")
         if is_instance_valid(collider) and collider.has_method("take_damage"):
-            collider.take_damage(current_attack_damage)
+            collider.take_damage(current_attack_damage, current_attack_poise_damage)
 
 func take_damage(amount: float) -> void:
     if invulnerability_timer > 0.0 or health <= 0.0:
