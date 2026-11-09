@@ -71,8 +71,12 @@ func _run() -> void:
         return
     director.reset_encounter()
     director.update_encounter(0.016)
-    if director.encounter_state != director.EncounterState.COMPLETE:
-        push_error("A completed encounter must not restart after reset or reload.")
+    var reloaded_director: Variant = load("res://scripts/encounter_director.gd").new()
+    world.add_child(reloaded_director)
+    reloaded_director.configure(world, player, null)
+    reloaded_director.update_encounter(0.016)
+    if reloaded_director.encounter_state != reloaded_director.EncounterState.COMPLETE or is_instance_valid(reloaded_director.trigger_marker):
+        push_error("A completed encounter must remain complete after a fresh director is configured from save data.")
         quit(1)
         return
     if GameState.get_item_count("ashen_scrap") != scrap_after or GameState.get_item_count("tempered_plate") != plates_after:
