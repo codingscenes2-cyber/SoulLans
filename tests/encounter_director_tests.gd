@@ -11,8 +11,7 @@ func _run() -> void:
     player.add_to_group("player")
     player.global_position = Vector3(8.0, 0.0, -55.0)
     world.add_child(player)
-    var director := Node.new()
-    director.set_script(load("res://scripts/encounter_director.gd"))
+    var director: Variant = load("res://scripts/encounter_director.gd").new()
     world.add_child(director)
     director.configure(world, player, null)
 
@@ -26,7 +25,7 @@ func _run() -> void:
         quit(1)
         return
     for enemy in director.active_enemies:
-        enemy.take_damage(10000.0, 10000.0)
+        enemy.call("take_damage", 10000.0, 10000.0)
     director.update_encounter(0.016)
     if director.encounter_state != director.EncounterState.INTERMISSION:
         push_error("Clearing a wave must enter the reinforcement intermission.")
