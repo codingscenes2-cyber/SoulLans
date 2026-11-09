@@ -68,12 +68,15 @@ func take_damage(amount: float, poise_damage: float = 12.0) -> void:
     if state == State.DEAD:
         _record_defeat()
         return
+    if state == State.STAGGER:
+        _cancel_special_attack()
     _update_phase()
 
 func receive_parry() -> void:
     if not encounter_active:
         return
     super.receive_parry()
+    _cancel_special_attack()
 
 func get_boss_status() -> Dictionary:
     return {
@@ -128,6 +131,13 @@ func _update_phase() -> void:
     state = State.STAGGER
     state_timer = 0.85
     velocity = Vector3.ZERO
+    _cancel_special_attack()
+
+func _cancel_special_attack() -> void:
+    special_attack_windup = 0.0
+    if is_instance_valid(special_attack_ring):
+        special_attack_ring.visible = false
+    _set_telegraph(false)
 
 func _update_special_attack(delta: float) -> void:
     if phase_index < 1 or not encounter_active or state == State.DEAD:
