@@ -18,7 +18,7 @@ The repository now contains a playable-prototype foundation: third-person moveme
 2. Import the project.godot file.
 3. Run scenes/main.tscn (F6) or the main project (F5).
 4. Desktop controls: WASD move, Shift sprint, Space dodge, E interact/rest/recover, left mouse light attack, H heavy attack (higher damage/poise, slower and more stamina), F hold block, G tap parry (0.22 s timing window), Tab lock-on / cycle nearby enemies, Q cycle weapons, 1–4 level Vigor/Endurance/Strength/Dexterity at the Sanctuary, R use a healing flask, right mouse drag camera. On mobile, use the VIG/END/STR/DEX buttons near the top-right; levelling only works beside the Sanctuary and consumes Soul Essence. The BLOCK and PARRY touch controls provide directional guard and timed parry; a successful parry staggers the training enemy. The FLASK button consumes one of three charges to restore 45 HP; resting at the Sanctuary refills them. The first encounter now includes a basic Training Hollow and a slower Ashen Watch Shield Guard; repeatedly pressure its shield or attack from behind to punish its guard opening. The prototype weapon set currently includes an Ashen Iron Sword and Ashen Watch Dagger.
-5. Android export requires Godot export templates and a configured Android SDK/JDK.
+5. The repository includes an arm64 Android debug export preset and a manual GitHub Actions workflow. Open Actions → Android debug prototype export → Run workflow; a successful run uploads a temporary debug APK artifact. This is not a release-signed or device-tested build.
 
 ## Development pillars
 
