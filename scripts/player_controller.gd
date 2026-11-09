@@ -359,8 +359,9 @@ func _create_placeholder_body() -> void:
             hero_rig.name = "AshenHeroRig"
             hero_rig.position = Vector3.ZERO
             hero_rig.scale = Vector3.ONE
-            add_child(hero_rig)
+            _sanitize_hero_meshes(hero_rig)
             _apply_hero_material(hero_rig)
+            add_child(hero_rig)
             model_loaded = true
     if not model_loaded:
         var visual := MeshInstance3D.new()
@@ -382,13 +383,21 @@ func _create_placeholder_body() -> void:
     collision.position.y = 0.89
     add_child(collision)
 
+func _sanitize_hero_meshes(root: Node) -> void:
+    for child in root.get_children():
+        if child is MeshInstance3D and child.mesh == null:
+            root.remove_child(child)
+            child.free()
+        else:
+            _sanitize_hero_meshes(child)
+
 func _apply_hero_material(root: Node) -> void:
     var armor_material := StandardMaterial3D.new()
     armor_material.albedo_color = Color(0.16, 0.19, 0.24)
     armor_material.metallic = 0.48
     armor_material.roughness = 0.62
     for child in root.get_children():
-        if child is MeshInstance3D:
+        if child is MeshInstance3D and child.mesh != null:
             child.material_override = armor_material
         _apply_hero_material(child)
 
