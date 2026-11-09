@@ -71,7 +71,7 @@ jobs:
           done
           mkdir -p "$HOME/.config/godot" "$HOME/.android" build
           printf '%s' "$SOULLAND_KEYSTORE_BASE64" | base64 --decode > "$HOME/.android/soulland.keystore"
-          keytool -list -keystore "$HOME/.android/soulland.keystore" -storepass "$SOULLAND_KEYSTORE_PASSWORD" -alias "$SOULLAND_KEY_ALIAS" >/dev/null
+          keytool -list -keystore "$HOME/.android/soulland.keystore" -storepass "$SOULLAND_KEYSTORE_PASSWORD" -alias "$SOULLAND_KEY_ALIAS" >/dev/null\n          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PATH=$HOME/.android/soulland.keystore" >> "$GITHUB_ENV"\n          echo "GODOT_ANDROID_KEYSTORE_DEBUG_USER=$SOULLAND_KEY_ALIAS" >> "$GITHUB_ENV"\n          echo "GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD=$SOULLAND_KEY_PASSWORD" >> "$GITHUB_ENV"
           cat > "$HOME/.config/godot/editor_settings-4.3.tres" <<EOF
           [gd_resource type="EditorSettings" format=3]
 
@@ -84,7 +84,17 @@ jobs:
           export/android/debug_keystore_pass = "$SOULLAND_KEY_PASSWORD"
           EOF
 
-      - name: Fetch CC0 rigged humanoid model\n        shell: bash\n        run: |\n          set -euo pipefail\n          mkdir -p assets/characters\n          curl -fL --retry 3 "https://raw.githubusercontent.com/programasweights/avatar/a488723e3a93d73d5c562d88f8a85353c37bc721/public/assets/character.glb" -o assets/characters/ashen_hero.glb\n          curl -fL --retry 3 "https://raw.githubusercontent.com/programasweights/avatar/a488723e3a93d73d5c562d88f8a85353c37bc721/public/assets/QUATERNIUS-LICENSE.txt" -o assets/characters/QUATERNIUS-LICENSE.txt\n          test "$(stat -c %s assets/characters/ashen_hero.glb)" -eq 741320\n          sha256sum assets/characters/ashen_hero.glb | tee build/ashen_hero.sha256\n\n      - name: Fetch CC0 PBR textures from Poly Haven
+      - name: Fetch CC0 rigged humanoid model
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/characters
+          curl -fL --retry 3 "https://raw.githubusercontent.com/programasweights/avatar/a488723e3a93d73d5c562d88f8a85353c37bc721/public/assets/character.glb" -o assets/characters/ashen_hero.glb
+          curl -fL --retry 3 "https://raw.githubusercontent.com/programasweights/avatar/a488723e3a93d73d5c562d88f8a85353c37bc721/public/assets/QUATERNIUS-LICENSE.txt" -o assets/characters/QUATERNIUS-LICENSE.txt
+          test "$(stat -c %s assets/characters/ashen_hero.glb)" -eq 741320
+          sha256sum assets/characters/ashen_hero.glb | tee build/ashen_hero.sha256
+
+      - name: Fetch CC0 PBR textures from Poly Haven
         shell: bash
         run: |
           set -euo pipefail
