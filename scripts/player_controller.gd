@@ -45,6 +45,7 @@ func _ready() -> void:
     health = max_health
     stamina = max_stamina
     equipped_weapon = WEAPON_CATALOG[weapon_index]
+    _apply_attributes(false)
     _setup_input_map()
     _create_placeholder_body()
     _create_camera_rig()
@@ -75,6 +76,14 @@ func _physics_process(delta: float) -> void:
         _interact_with_world()
     if Input.is_action_just_pressed("switch_weapon"):
         switch_weapon()
+    if Input.is_action_just_pressed("level_vigor"):
+        level_up_attribute("vigor")
+    if Input.is_action_just_pressed("level_endurance"):
+        level_up_attribute("endurance")
+    if Input.is_action_just_pressed("level_strength"):
+        level_up_attribute("strength")
+    if Input.is_action_just_pressed("level_dexterity"):
+        level_up_attribute("dexterity")
     if Input.is_action_just_pressed("lock_on"):
         locked_on = is_instance_valid(target) and not locked_on
 
@@ -146,6 +155,37 @@ func switch_weapon() -> void:
     equipped_weapon = WEAPON_CATALOG[weapon_index]
     stats_changed.emit(health, stamina)
 
+func level_up_attribute(attribute_id: String) -> bool:
+    if global_position.distance_to(GameState.get_sanctuary_position()) > 3.0:
+        return false
+    if not GameState.level_up_attribute(attribute_id):
+        return false
+    _apply_attributes(true)
+    return true
+
+func _apply_attributes(keep_current_ratio: bool) -> void:
+    var old_health := max_health
+    var old_stamina := max_stamina
+    var attributes := GameState.get_player_attributes()
+    max_health = 100.0 + float(attributes.get("vigor", 10) - 10) * 15.0
+    max_stamina = 100.0 + float(attributes.get("endurance", 10) - 10) * 10.0
+    if keep_current_ratio:
+        health = minf(max_health, health + max_health - old_health)
+        stamina = minf(max_stamina, stamina + max_stamina - old_stamina)
+    else:
+        health = minf(health, max_health)
+        stamina = minf(stamina, max_stamina)
+
+func _get_scaled_weapon_damage() -> float:
+    if not is_instance_valid(equipped_weapon):
+        return attack_damage
+    var attributes := GameState.get_player_attributes()
+    var strength := maxf(0.0, float(attributes.get("strength", 10)) - 10.0)
+    var dexterity := maxf(0.0, float(attributes.get("dexterity", 10)) - 10.0)
+    var scaling := float(equipped_weapon.get("strength_scaling")) * strength
+    scaling += float(equipped_weapon.get("dexterity_scaling")) * dexterity
+    return float(equipped_weapon.get("base_damage")) * (1.0 + scaling * 0.025)
+
 func get_weapon_name() -> String:
     if is_instance_valid(equipped_weapon):
         return str(equipped_weapon.get("display_name"))
@@ -160,7 +200,7 @@ func perform_attack() -> void:
         return
     stamina -= stamina_cost
     stamina_regen_timer = stamina_regen_delay
-    current_attack_damage = float(equipped_weapon.get("base_damage")) if is_instance_valid(equipped_weapon) else attack_damage
+    current_attack_damage = _get_scaled_weapon_damage()
     current_attack_poise_damage = float(equipped_weapon.get("poise_damage")) if is_instance_valid(equipped_weapon) else 12.0
     current_attack_range = float(equipped_weapon.get("attack_range")) if is_instance_valid(equipped_weapon) else 2.5
     attack_active_duration = active
@@ -216,7 +256,7 @@ func apply_saved_state(saved: Dictionary) -> void:
     stats_changed.emit(health, stamina)
 
 func get_status() -> Dictionary:
-    return {"health": health, "max_health": max_health, "stamina": stamina, "max_stamina": max_stamina}
+    return {"health": health, "max_health": max_health, "stamina": stamina, "max_stamina": max_stamina, "level": GameState.get_player_level(), "soul_essence": GameState.get_soul_essence(), "next_level_cost": GameState.get_next_level_cost()}
 
 func _create_placeholder_body() -> void:
     var visual := MeshInstance3D.new()
@@ -267,6 +307,10 @@ func _setup_input_map() -> void:
     _ensure_key_action("lock_on", KEY_TAB)
     _ensure_key_action("interact", KEY_E)
     _ensure_key_action("switch_weapon", KEY_Q)
+    _ensure_key_action("level_vigor", KEY_1)
+    _ensure_key_action("level_endurance", KEY_2)
+    _ensure_key_action("level_strength", KEY_3)
+    _ensure_key_action("level_dexterity", KEY_4)
     if not InputMap.has_action("attack"):
         InputMap.add_action("attack")
         var mouse := InputEventMouseButton.new()
