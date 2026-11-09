@@ -38,12 +38,24 @@ func _run() -> void:
         return
     var starting_health: float = player.health
     bolt._on_body_entered(player)
-    if not is_equal_approx(player.health, starting_health - archer.projectile_damage):
-        push_error("A projectile collision with the player must apply ranged damage.")
+    var expected_health_loss := archer.projectile_damage * (1.0 - player.get_damage_reduction())
+    if not is_equal_approx(player.health, starting_health - expected_health_loss):
+        push_error("A projectile collision must apply ranged damage after armour mitigation.")
         quit(1)
         return
     if not bolt.has_hit:
         push_error("Projectile must become spent after its first impact.")
+        quit(1)
+        return
+
+    player.global_position = Vector3(0.0, 0.0, -2.0)
+    if archer._should_begin_attack(2.0):
+        push_error("Archer must not fire while the player is inside its retreat range.")
+        quit(1)
+        return
+    var retreat_target: Vector3 = archer._get_chase_destination()
+    if retreat_target.z <= archer.global_position.z:
+        push_error("Archer must create separation when the player closes inside retreat range.")
         quit(1)
         return
 
