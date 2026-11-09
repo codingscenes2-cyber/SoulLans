@@ -84,8 +84,8 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Soul Essence reward, death-drop and recovery prototype.
 - [x] Soul Essence level-up cost curve and attribute spending prototype.
 - [x] Three-charge healing flask, 45 HP restore and Sanctuary refill prototype.
-- [x] Persistent inventory with stackable item quantities, owned-weapon validation, saved main-hand equipment, Ashen Tonic consumable and enemy/boss material drops; mobile inventory panel and regression tests added.\n- [ ] Armour slots, equip load, item sorting, tooltips and broader consumables.
-- [ ] Weapon/armour upgrades, infusions, relics and talismans.
+- [x] Persistent inventory with stackable item quantities, saved weapon equipment, Ashen Tonic and enemy/boss material drops; mobile inventory panel, three-stage weapon upgrades (+12% damage per level) and regression tests added.\n- [ ] Armour slots, equip load, item sorting, tooltips and broader consumables.
+- [x] Three-stage weapon upgrades using Ashen Scrap, Tempered Plates and the unique Regent Core; +12% weapon damage per level, upgrade only at the Sanctuary.\n- [ ] Armour upgrades, infusions, relics and talismans.
 - [ ] Spell schools, focus resource and status effects.
 - [x] Versioned JSON save/load foundation for player/world state with periodic autosave.
 - [x] Add last-known-good backup recovery, corrupt-primary restoration, legacy-save defaults and headless death/recovery/levelling regression tests.
