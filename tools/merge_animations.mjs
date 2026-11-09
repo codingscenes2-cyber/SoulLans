@@ -2,17 +2,15 @@ import { NodeIO } from '@gltf-transform/core';
 import { KHRONOS_EXTENSIONS } from '@gltf-transform/extensions';
 import fs from 'node:fs/promises';
 
-const [characterPath, animationPath, outputPath] = process.argv.slice(2);
-if (!characterPath || !animationPath || !outputPath) {
-  console.error('Usage: node merge_animations.mjs <character.glb> <animations.glb> <output.glb>');
+const [characterPath, outputPath, ...animationPaths] = process.argv.slice(2);
+if (!characterPath || !outputPath || animationPaths.length === 0) {
+  console.error('Usage: node merge_animations.mjs <character.glb> <output.glb> <animation-library-1.glb> [animation-library-2.glb ...]');
   process.exit(2);
 }
 
 const io = new NodeIO().registerExtensions(KHRONOS_EXTENSIONS);
 const character = await io.read(characterPath);
-const animationLibrary = await io.read(animationPath);
 const characterRoot = character.getRoot();
-const animationRoot = animationLibrary.getRoot();
 
 const characterNodes = new Map();
 for (const node of characterRoot.listNodes()) {
@@ -21,12 +19,17 @@ for (const node of characterRoot.listNodes()) {
 
 const mappedNodes = new Map();
 const unmatched = [];
-for (const node of animationRoot.listNodes()) {
-  const name = node.getName();
-  if (!name) continue;
-  const destination = characterNodes.get(name);
-  if (destination) mappedNodes.set(node, destination);
-  else unmatched.push(name);
+const animationRoots = [];
+for (const animationPath of animationPaths) {
+  const animationLibrary = await io.read(animationPath);
+  animationRoots.push({ path: animationPath, root: animationLibrary.getRoot() });
+  for (const node of animationLibrary.getRoot().listNodes()) {
+    const name = node.getName();
+    if (!name) continue;
+    const destination = characterNodes.get(name);
+    if (destination) mappedNodes.set(node, destination);
+    else unmatched.push(name);
+  }
 }
 
 const copyAccessor = (source) => {
@@ -43,10 +46,13 @@ let copiedChannels = 0;
 let sourceChannels = 0;
 let unmappedTargets = new Set();
 const perClip = [];
+for (const { path: sourcePath, root: animationRoot } of animationRoots) {
 for (const animation of animationRoot.listAnimations()) {
   const name = animation.getName();
-  if (!name || characterRoot.listAnimations().some(existing => existing.getName() === name)) {
-    throw new Error(`Missing or duplicate animation clip name: ${name}`);
+  if (!name) throw new Error('Animation library contains an unnamed clip.');
+  if (characterRoot.listAnimations().some(existing => existing.getName() === name)) {
+    console.log(`Skipping duplicate clip ${name} from ${sourcePath}`);
+    continue;
   }
   const destinationAnimation = character.createAnimation(name);
   let clipCopied = 0;
@@ -73,6 +79,7 @@ for (const animation of animationRoot.listAnimations()) {
   perClip.push({ name, source: animation.listChannels().length, copied: clipCopied });
   if (clipCopied > 0) copiedClips++;
 }
+}
 
 const required = ['Idle_Loop', 'Walk_Loop', 'Jog_Fwd_Loop', 'Sprint_Loop', 'Jump_Start', 'Jump_Loop', 'Jump_Land', 'Roll', 'Sword_Attack', 'Sword_Idle', 'Death01', 'Hit_Chest'];
 const names = new Set(characterRoot.listAnimations().map(animation => animation.getName()));
@@ -88,6 +95,7 @@ console.log(JSON.stringify({
   unmatchedNodeNames: [...new Set(unmatched)],
   copiedClips,
   copiedChannels,
+  animationLibraries: animationRoots.map(entry => entry.path),
   outputBytes: bytes.byteLength,
   requiredClips: required
 }, null, 2));
