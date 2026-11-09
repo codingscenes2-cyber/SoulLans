@@ -46,7 +46,7 @@ func _run() -> void:
     _expect(state.try_recover_souls(Vector3(2.0, 0.0, -3.0)), "recovery succeeds inside radius")
     _expect(state.get_soul_essence() == 200 and not state.has_recovery(), "recovery restores essence and clears marker")
 
-    state.data["player"]["soul_essence"] = 100
+    state.data["player"]["soul_essence"] = 200
     _expect(state.level_up_attribute("vigor"), "level-up spends the required essence")
     _expect(state.get_player_level() == 4 and int(state.get_player_attributes()["vigor"]) == 11, "level-up increments level and attribute")
     _expect(state.get_soul_essence() == 0, "level-up deducts essence")
