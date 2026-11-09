@@ -1,6 +1,6 @@
 workflows:
   android-prototype:
-    name: Soul Land Android Prototype
+    name: Soul Land Android Prototype - 53 Percent Roadmap
     max_build_duration: 60
     instance_type: mac_mini_m2
     triggering:
