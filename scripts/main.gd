@@ -67,8 +67,8 @@ func _spawn_enemy() -> void:
     enemy = CharacterBody3D.new()
     enemy.name = "TrainingHollow"
     enemy.set_script(ENEMY_SCRIPT)
+    enemy.position = Vector3(0.0, 1.0, -4.0)
     add_child(enemy)
-    enemy.global_position = Vector3(0.0, 1.0, -4.0)
     player.set("target", enemy)
     enemy_respawn_timer = 0.0
 
@@ -76,8 +76,8 @@ func _spawn_shield_guard() -> void:
     shield_guard = CharacterBody3D.new()
     shield_guard.name = "AshenWatchShieldGuard"
     shield_guard.set_script(SHIELD_GUARD_SCRIPT)
+    shield_guard.position = Vector3(4.0, 1.0, -7.0)
     add_child(shield_guard)
-    shield_guard.global_position = Vector3(4.0, 1.0, -7.0)
     guard_respawn_timer = 0.0
 
 func _build_sanctuary() -> void:
