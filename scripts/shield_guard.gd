@@ -71,8 +71,9 @@ func take_damage(amount: float, poise_damage: float = 12.0) -> void:
 func _die_guard() -> void:
     state = State.DEAD
     velocity = Vector3.ZERO
+    death_timer = 1.65
     GameState.award_soul_essence(soul_reward)
-    queue_free()
+    _update_enemy_animation()
 
 func _create_shield() -> void:
     shield_visual = MeshInstance3D.new()
