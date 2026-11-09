@@ -188,10 +188,12 @@ func is_boss_defeated(boss_id: String) -> bool:
     return data.get("defeated_bosses", []).has(boss_id)
 
 func _is_supported_save_text(contents: String) -> bool:
-    var parsed: Variant = JSON.parse_string(contents)
-    if typeof(parsed) != TYPE_DICTIONARY:
+    var parser := JSON.new()
+    if parser.parse(contents) != OK:
         return false
-    var version := int(parsed.get("version", 0))
+    if typeof(parser.data) != TYPE_DICTIONARY:
+        return false
+    var version := int(parser.data.get("version", 0))
     return version >= 1 and version <= SAVE_VERSION
 
 func _read_supported_save(path: String) -> Dictionary:
