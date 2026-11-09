@@ -61,6 +61,17 @@ func _run() -> void:
     _expect(not state.advance_quest("ashen_sigils"), "completed quest cannot be progressed or rewarded again")
     _expect(state.get_soul_essence() == 120, "quest reward cannot be claimed twice")
 
+    _expect(state.get_item_count("ashen_iron_sword") >= 1, "starter sword is present in inventory")
+    _expect(state.get_item_count("ashen_watch_dagger") >= 1, "starter dagger is present in inventory")
+    _expect(state.equip_weapon("ashen_watch_dagger"), "owned dagger can be equipped")
+    _expect(state.get_equipped_weapon_id() == "ashen_watch_dagger", "equipped weapon selection is stored")
+    _expect(not state.equip_weapon("regent_core"), "materials cannot be equipped as weapons")
+    _expect(state.add_item("ashen_scrap", 3), "material stack can be added")
+    _expect(state.get_item_count("ashen_scrap") == 3, "material quantity is tracked")
+    _expect(state.remove_item("ashen_scrap", 2), "partial stack removal succeeds")
+    _expect(state.get_item_count("ashen_scrap") == 1, "partial removal leaves the correct quantity")
+    _expect(not state.remove_item("ashen_scrap", 2), "inventory prevents removing more than owned")
+
     state.free()
     _remove_test_files()
     if failures.is_empty():
