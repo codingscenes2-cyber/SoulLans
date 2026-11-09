@@ -122,6 +122,10 @@ jobs:
           curl -fL --retry 3 "https://raw.githubusercontent.com/Barbatos6669/elderforge/main/assets/animations/universal_animation_library_1/UAL1_Standard.glb" -o assets/animations/UAL1_Standard.glb
           curl -fL --retry 3 "https://raw.githubusercontent.com/Barbatos6669/elderforge/main/assets/animations/universal_animation_library_1/LICENSE_Quaternius_CC0.txt" -o assets/animations/LICENSE_Quaternius_CC0.txt
           test "$(stat -c %s assets/animations/UAL1_Standard.glb)" -eq 7618436
+      - name: Merge CC0 humanoid locomotion and combat animations
+        run: |
+          npm install --no-save @gltf-transform/core@4.2.1 @gltf-transform/extensions@4.2.1
+          node tools/merge_animations.mjs assets/characters/ashen_hero.glb assets/animations/UAL1_Standard.glb assets/characters/ashen_hero_animated.glb
       - name: Import project and export debug APK
         shell: bash
         run: |
