@@ -281,8 +281,26 @@ func _resolve_melee_hit() -> void:
     var hits := get_world_3d().direct_space_state.intersect_shape(query, 8)
     for hit in hits:
         var collider: Object = hit.get("collider")
-        if is_instance_valid(collider) and collider.has_method("take_damage"):
+        if not is_instance_valid(collider) or not collider.has_method("take_damage"):
+            continue
+        if collider is Node3D and is_target_in_melee_arc(collider.global_position):
             collider.take_damage(current_attack_damage, current_attack_poise_damage)
+
+# Broad-phase overlap finds nearby enemies; this narrow-phase check prevents
+# sword strikes from damaging targets behind the player or outside the swing.
+func is_target_in_melee_arc(target_position: Vector3) -> bool:
+    var offset := target_position - global_position
+    if absf(offset.y) > 1.6:
+        return false
+    offset.y = 0.0
+    var distance := offset.length()
+    if distance > current_attack_range + 0.35:
+        return false
+    if distance <= 0.01:
+        return true
+    var forward := -global_transform.basis.z
+    forward.y = 0.0
+    return forward.normalized().dot(offset / distance) >= cos(deg_to_rad(65.0))
 
 func use_healing_flask() -> bool:
     if health >= max_health or dodge_timer > 0.0 or attack_cooldown > 0.0:
