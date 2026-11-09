@@ -10,8 +10,11 @@ func _initialize() -> void:
     call_deferred("_run")
 
 func _run() -> void:
-    GameState.data["world_flags"] = {}
-    GameState.data["defeated_bosses"] = []
+    var game_state: Variant = root.get_node("GameState")
+    var state_data: Dictionary = game_state.get("data")
+    state_data["world_flags"] = {}
+    state_data["defeated_bosses"] = []
+    game_state.set("data", state_data)
     var boss: Variant = CharacterBody3D.new()
     boss.name = "AshenRegentTest"
     boss.set_script(BOSS_SCRIPT)
@@ -25,7 +28,8 @@ func _run() -> void:
     boss.call("take_damage", 100.0)
     _expect(is_equal_approx(float(boss.get("health")), initial_health), "dormant boss cannot be damaged")
 
-    GameState.data["quests"] = {
+    state_data = game_state.get("data")
+    state_data["quests"] = {
         "ashen_sigils": {
             "status": "completed",
             "progress": 3,
@@ -34,6 +38,7 @@ func _run() -> void:
             "reward_claimed": true
         }
     }
+    game_state.set("data", state_data)
     var warden: Variant = StaticBody3D.new()
     warden.set_script(WARDEN_SCRIPT)
     root.add_child(warden)
@@ -58,16 +63,17 @@ func _run() -> void:
     _expect(int(boss.call("get_boss_status").get("phase", 0)) == 3, "boss enters final phase below 25 percent health")
     _expect(is_equal_approx(float(boss.get("attack_damage")), 34.0), "final phase increases attack damage")
 
-    var essence_before := GameState.get_soul_essence()
+    var essence_before := int(game_state.call("get_soul_essence"))
     boss.call("take_damage", 5000.0)
     _expect(float(boss.get("health")) <= 0.0, "boss can be defeated")
-    var defeated_bosses: Array = GameState.data.get("defeated_bosses", [])
+    state_data = game_state.get("data")
+    var defeated_bosses: Array = state_data.get("defeated_bosses", [])
     _expect(defeated_bosses.has("ashen_regent"), "boss defeat is recorded permanently")
-    var final_flags: Dictionary = GameState.data.get("world_flags", {})
+    var final_flags: Dictionary = state_data.get("world_flags", {})
     _expect(bool(final_flags.get("ashen_regent_defeated", false)), "boss defeat sets a persistent world flag")
     _expect(boss_defeat_events == 1, "boss emits one defeat event for the world gate")
-    _expect(GameState.get_soul_essence() >= essence_before + 300, "boss awards its 300 Soul Essence reward")
-    _expect(GameState.get_item_count("regent_core") == 1, "boss drops its unique Regent Core")
+    _expect(int(game_state.call("get_soul_essence")) >= essence_before + 300, "boss awards its 300 Soul Essence reward")
+    _expect(int(game_state.call("get_item_count", "regent_core")) == 1, "boss drops its unique Regent Core")
 
     boss.queue_free()
     await process_frame
