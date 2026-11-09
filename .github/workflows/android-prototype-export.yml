@@ -12,6 +12,9 @@ on:
       - "assets/ASSET_CREDITS.md"
       - "assets/characters/**"
       - "scripts/player_controller.gd"
+      - "tools/merge_animations.mjs"
+      - "package.json"
+      - "tests/character_asset_tests.gd"
       - ".github/workflows/android-prototype-export.yml"
 
 jobs:
