@@ -10,6 +10,8 @@ signal died
 @export var dodge_speed := 10.0
 @export var max_health := 100.0
 @export var max_stamina := 100.0
+@export var stamina_regen_rate := 20.0
+@export var stamina_regen_delay := 0.8
 @export var attack_damage := 25.0
 @export var look_sensitivity := 0.006
 @export var min_camera_pitch := -0.75
@@ -22,6 +24,7 @@ var current_attack_range := 2.5
 var attack_active_duration := 0.11
 var health := 100.0
 var stamina := 100.0
+var stamina_regen_timer := 0.0
 var target: Node3D
 var camera: Camera3D
 var camera_pivot: Node3D
@@ -59,7 +62,9 @@ func _physics_process(delta: float) -> void:
             attack_has_hit = true
     dodge_timer = maxf(0.0, dodge_timer - delta)
     invulnerability_timer = maxf(0.0, invulnerability_timer - delta)
-    stamina = minf(max_stamina, stamina + 17.0 * delta)
+    stamina_regen_timer = maxf(0.0, stamina_regen_timer - delta)
+    if stamina_regen_timer <= 0.0:
+        stamina = minf(max_stamina, stamina + stamina_regen_rate * delta)
 
     if Input.is_action_just_pressed("dodge"):
         perform_dodge()
@@ -87,6 +92,7 @@ func _physics_process(delta: float) -> void:
         var speed := sprint_speed if sprinting else move_speed
         if sprinting:
             stamina = maxf(0.0, stamina - 12.0 * delta)
+            stamina_regen_timer = stamina_regen_delay * 0.65
         velocity.x = direction.x * speed
         velocity.z = direction.z * speed
         if direction.length() > 0.1 and not locked_on:
@@ -118,6 +124,7 @@ func perform_dodge() -> void:
     if stamina < 25.0 or dodge_timer > 0.0:
         return
     stamina -= 25.0
+    stamina_regen_timer = stamina_regen_delay
     var input_vector := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
     if input_vector.length() < 0.1:
         dodge_direction = -global_transform.basis.z
@@ -151,6 +158,7 @@ func perform_attack() -> void:
     if attack_cooldown > 0.0 or stamina < stamina_cost or dodge_timer > 0.0:
         return
     stamina -= stamina_cost
+    stamina_regen_timer = stamina_regen_delay
     current_attack_damage = float(equipped_weapon.get("base_damage")) if is_instance_valid(equipped_weapon) else attack_damage
     current_attack_range = float(equipped_weapon.get("attack_range")) if is_instance_valid(equipped_weapon) else 2.5
     attack_active_duration = active
