@@ -59,4 +59,11 @@ func interact() -> String:
     if status == "active":
         var progress := int(quest.get("progress", 0))
         return "Warden Eira: The road is not safe yet. Ashen foes defeated: %d/%d." % [progress, QUEST_TARGET]
-    return "Warden Eira: The road remembers your courage. The 120 Soul Essence is yours. Thank you, wanderer."
+    var flags: Dictionary = GameState.data.get("world_flags", {})
+    var already_unlocked := bool(flags.get("ashen_regent_unlocked", false))
+    flags["ashen_regent_unlocked"] = true
+    GameState.data["world_flags"] = flags
+    GameState.save_game()
+    if already_unlocked:
+        return "Warden Eira: The Ashen Regent still waits beyond the sealed gate. End its reign."
+    return "Warden Eira: You have earned the truth. The Ashen Regent waits beyond the sealed gate. Its defeat may free this road."
