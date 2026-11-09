@@ -6,7 +6,8 @@ func _initialize() -> void:
 func _run() -> void:
     var cases := [
         {"name": "Ashen Hollow", "script": load("res://scripts/training_enemy.gd"), "idle": "Zombie_Idle"},
-        {"name": "Ashen Watch Shield Guard", "script": load("res://scripts/shield_guard.gd"), "idle": "Zombie_Idle"}
+        {"name": "Ashen Watch Shield Guard", "script": load("res://scripts/shield_guard.gd"), "idle": "Zombie_Idle"},
+        {"name": "Ashen Ember Archer", "script": load("res://scripts/ashen_archer.gd"), "idle": "Zombie_Idle"}
     ]
     for entry in cases:
         var enemy := CharacterBody3D.new()
@@ -33,6 +34,20 @@ func _run() -> void:
                 enemy.queue_free()
                 quit(1)
                 return
+        if entry.name == "Ashen Watch Shield Guard":
+            for visual_name in ["AshenWatchShield", "GuardIronHelm", "GuardBreastplate", "GuardLeftPauldron", "GuardRightPauldron"]:
+                if enemy.get_node_or_null(visual_name) == null:
+                    push_error("Shield Guard is missing its defining visual: " + visual_name)
+                    enemy.queue_free()
+                    quit(1)
+                    return
+        elif entry.name == "Ashen Ember Archer":
+            for visual_name in ["AshenEmberBow", "ArcherAshHood", "ArcherShoulderMantle", "ArcherBackQuiver"]:
+                if enemy.get_node_or_null(visual_name) == null:
+                    push_error("Ember Archer is missing its defining visual: " + visual_name)
+                    enemy.queue_free()
+                    quit(1)
+                    return
         for clip in [entry.idle, "Sword_Regular_A", "Hit_Chest", "Death01"]:
             animation_player.play(clip)
             if animation_player.current_animation != clip:
