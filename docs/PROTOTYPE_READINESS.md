@@ -2,7 +2,7 @@
 
 Last updated: 2026-11-09
 
-Latest completed validation: [GitHub Actions run #98 — passed](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564605405). It validates headless import, main-scene startup and the save/progression regression suite. The follow-up initial-spawn fix is in [run #99 — pending](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/4256462xxxx). CI does not replace hands-on gameplay or Android device testing.
+Latest completed validation: [GitHub Actions run #98 — passed](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564605405). It validates headless import, main-scene startup and the save/progression regression suite. The follow-up initial-spawn fix is in [run #99 — pending](https://github.com/codingscenes2-cyber/SoulLans/actions/runs/42564648199). CI does not replace hands-on gameplay or Android device testing.
 
 This is a readiness snapshot, not a claim that a finished Android build exists. "CI green" means Godot headless import and main-scene startup passed in GitHub Actions; it does not prove full gameplay or device compatibility.
 
