@@ -2,6 +2,11 @@ name: Android debug prototype export
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "export_presets.cfg"
+      - ".github/workflows/android-prototype-export.yml"
 
 jobs:
   export-android:
