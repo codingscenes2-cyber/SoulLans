@@ -19,6 +19,14 @@ func _run() -> void:
     _expect(str(player.get_weapon_name()) == "Ashen Watch Dagger", "equipping updates the active weapon resource")
     _expect(GameState.get_equipped_weapon_id() == "ashen_watch_dagger", "player equipment change persists")
 
+    var damage_before_upgrade: float = float(player.call("_get_scaled_weapon_damage"))
+    player.global_position = GameState.get_sanctuary_position()
+    GameState.add_item("ashen_scrap", 3)
+    _expect(bool(player.call("upgrade_weapon_by_id", "ashen_watch_dagger")), "weapon can be upgraded at the Sanctuary")
+    var damage_after_upgrade: float = float(player.call("_get_scaled_weapon_damage"))
+    _expect(damage_after_upgrade > damage_before_upgrade * 1.11, "weapon upgrade increases actual attack damage")
+    _expect(GameState.get_weapon_upgrade_level("ashen_watch_dagger") == 1, "player weapon upgrade is saved")
+
     player.set("health", 50.0)
     _expect(bool(player.call("use_inventory_item", "ashen_tonic")), "player can consume an Ashen Tonic")
     _expect(is_equal_approx(float(player.get("health")), 95.0), "Ashen Tonic restores 45 health")
