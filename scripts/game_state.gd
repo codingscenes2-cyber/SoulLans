@@ -4,6 +4,8 @@ signal recovery_changed(position: Vector3, essence: int, active: bool)
 signal sanctuary_restored(position: Vector3)
 
 const SAVE_PATH := "user://soul_land_save.json"
+const SAVE_BACKUP_PATH := "user://soul_land_save.backup.json"
+const SAVE_TEMP_PATH := "user://soul_land_save.tmp.json"
 const SAVE_VERSION := 2
 const RECOVERY_RADIUS := 2.6
 const AUTOSAVE_INTERVAL := 15.0
@@ -185,35 +187,82 @@ func mark_boss_defeated(boss_id: String) -> void:
 func is_boss_defeated(boss_id: String) -> bool:
     return data.get("defeated_bosses", []).has(boss_id)
 
+func _is_supported_save_text(contents: String) -> bool:
+    var parsed: Variant = JSON.parse_string(contents)
+    if typeof(parsed) != TYPE_DICTIONARY:
+        return false
+    var version := int(parsed.get("version", 0))
+    return version >= 1 and version <= SAVE_VERSION
+
+func _read_supported_save(path: String) -> Dictionary:
+    if not FileAccess.file_exists(path):
+        return {}
+    var file := FileAccess.open(path, FileAccess.READ)
+    if file == null:
+        return {}
+    var contents := file.get_as_text()
+    file.close()
+    if not _is_supported_save_text(contents):
+        return {}
+    var parsed: Variant = JSON.parse_string(contents)
+    return parsed as Dictionary
+
 func save_game() -> bool:
     data["version"] = SAVE_VERSION
-    var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
-    if file == null:
-        push_error("SOUL LAND save failed: %s" % error_string(FileAccess.get_open_error()))
+    var temporary_file := FileAccess.open(SAVE_TEMP_PATH, FileAccess.WRITE)
+    if temporary_file == null:
+        push_error("SOUL LAND could not create a temporary save file.")
         return false
-    file.store_string(JSON.stringify(data, "\t"))
-    file.close()
+    temporary_file.store_string(JSON.stringify(data, "\t"))
+    temporary_file.flush()
+    temporary_file.close()
+
+    # Preserve the last known-good save before replacing it. Invalid files are
+    # never promoted to the backup slot.
+    if FileAccess.file_exists(SAVE_PATH):
+        var previous_contents := FileAccess.get_file_as_string(SAVE_PATH)
+        if _is_supported_save_text(previous_contents):
+            var backup_file := FileAccess.open(SAVE_BACKUP_PATH, FileAccess.WRITE)
+            if backup_file != null:
+                backup_file.store_string(previous_contents)
+                backup_file.flush()
+                backup_file.close()
+        var remove_error := DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_PATH))
+        if remove_error != OK:
+            push_error("SOUL LAND could not replace the previous save: %s" % error_string(remove_error))
+            DirAccess.remove_absolute(ProjectSettings.globalize_path(SAVE_TEMP_PATH))
+            return false
+
+    var rename_error := DirAccess.rename_absolute(
+        ProjectSettings.globalize_path(SAVE_TEMP_PATH),
+        ProjectSettings.globalize_path(SAVE_PATH)
+    )
+    if rename_error != OK:
+        push_error("SOUL LAND could not finalize the save: %s" % error_string(rename_error))
+        if FileAccess.file_exists(SAVE_BACKUP_PATH) and not FileAccess.file_exists(SAVE_PATH):
+            DirAccess.rename_absolute(
+                ProjectSettings.globalize_path(SAVE_BACKUP_PATH),
+                ProjectSettings.globalize_path(SAVE_PATH)
+            )
+        return false
     return true
 
 func load_game() -> bool:
-    if not FileAccess.file_exists(SAVE_PATH):
+    var loaded := _read_supported_save(SAVE_PATH)
+    var restored_from_backup := false
+    if loaded.is_empty():
+        loaded = _read_supported_save(SAVE_BACKUP_PATH)
+        restored_from_backup = not loaded.is_empty()
+    if loaded.is_empty():
+        if FileAccess.file_exists(SAVE_PATH):
+            push_warning("SOUL LAND primary save is invalid and no valid backup was found.")
         return false
-    var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
-    if file == null:
-        push_error("SOUL LAND save could not be opened.")
-        return false
-    var parsed: Variant = JSON.parse_string(file.get_as_text())
-    file.close()
-    if typeof(parsed) != TYPE_DICTIONARY:
-        push_error("SOUL LAND save is invalid JSON or has an unsupported structure.")
-        return false
-    var loaded: Dictionary = parsed
-    var version := int(loaded.get("version", 0))
-    if version < 1 or version > SAVE_VERSION:
-        push_warning("SOUL LAND save version is unsupported; starting with defaults.")
-        return false
+
     data.merge(loaded, true)
     data["version"] = SAVE_VERSION
+    if restored_from_backup:
+        push_warning("SOUL LAND restored the last known-good backup save.")
+        save_game()
     return true
 
 func _notification(what: int) -> void:
