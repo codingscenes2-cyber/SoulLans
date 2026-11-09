@@ -28,7 +28,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [ ] Weapon-specific movesets, equipment UI and weapon switching.
 - [x] Basic light-attack startup/active timing and physics hit query.
 - [ ] Add weapon-specific animation-driven hit windows and full attack families.
-- [ ] Light, heavy, charged, sprint and jump attacks.
+- [x] Prototype light and heavy attacks; heavy attack has increased damage/poise, longer windup/recovery and higher stamina cost.\n- [ ] Charged, sprint and jump attacks.
 - [x] Prototype dodge invulnerability window.
 - [x] Directional block with stamina drain and guard-break penalty; timed parry staggers the training enemy (prototype).
 - [ ] Riposte, backstab and hyperarmour.
