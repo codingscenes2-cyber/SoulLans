@@ -4,6 +4,7 @@ const PLAYER_SCRIPT = preload("res://scripts/player_controller.gd")
 const ENEMY_SCRIPT = preload("res://scripts/training_enemy.gd")
 const SHIELD_GUARD_SCRIPT = preload("res://scripts/shield_guard.gd")
 const HUD_SCRIPT = preload("res://scripts/mobile_hud.gd")
+const ASHEN_WORLD_ART = preload("res://scripts/ashen_world_art.gd")
 
 var player: CharacterBody3D
 var enemy: CharacterBody3D
@@ -18,6 +19,7 @@ func _ready() -> void:
     _build_environment()
     _build_arena()
     _build_ashen_approach()
+    ASHEN_WORLD_ART.build(self)
     _build_sanctuary()
     _build_recovery_marker()
     player = CharacterBody3D.new()
