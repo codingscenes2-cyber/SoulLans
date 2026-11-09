@@ -44,7 +44,5 @@ func _run() -> void:
         quit(1)
         return
 
-    player.queue_free()
-    await process_frame
     print("PASS: player melee swing arc validates front, rear, side, range and vertical separation")
     quit(0)
