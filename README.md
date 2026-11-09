@@ -17,7 +17,7 @@ The repository now contains a playable-prototype foundation: third-person moveme
 1. Install Godot 4.3 or later.
 2. Import the project.godot file.
 3. Run scenes/main.tscn (F6) or the main project (F5).
-4. Desktop controls: WASD move, Shift sprint, Space dodge, E interact/rest/recover, left mouse attack, Tab lock-on, Q cycle weapons, 1–4 level Vigor/Endurance/Strength/Dexterity at the Sanctuary, right mouse drag camera. On mobile, use the VIG/END/STR/DEX buttons near the top-right; levelling only works beside the Sanctuary and consumes Soul Essence. The prototype weapon set currently includes an Ashen Iron Sword and Ashen Watch Dagger.
+4. Desktop controls: WASD move, Shift sprint, Space dodge, E interact/rest/recover, left mouse attack, Tab lock-on, Q cycle weapons, 1–4 level Vigor/Endurance/Strength/Dexterity at the Sanctuary, R use a healing flask, right mouse drag camera. On mobile, use the VIG/END/STR/DEX buttons near the top-right; levelling only works beside the Sanctuary and consumes Soul Essence. The FLASK button consumes one of three charges to restore 45 HP; resting at the Sanctuary refills them. The prototype weapon set currently includes an Ashen Iron Sword and Ashen Watch Dagger.
 5. Android export requires Godot export templates and a configured Android SDK/JDK.
 
 ## Development pillars
