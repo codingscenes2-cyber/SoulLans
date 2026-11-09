@@ -15,4 +15,4 @@ Rules:
 - Keep source links and licence copies with the project documentation.
 - Do not rip assets, animations, sounds, maps or UI from commercial games.
 - Verify redistribution rights before packaging assets into an APK.
-\n| Quaternius Universal Base Characters — Superhero Male (rigged humanoid base) | Quaternius | https://quaternius.com/packs/universalbasecharacters.html | CC0 1.0 | Downloaded from a pinned mirror commit; material override applied in game; original GLB geometry and rig retained | Not required; Quaternius credited in game and source docs |\n
+\n| Quaternius Universal Base Characters — Superhero Male (rigged humanoid base) | Quaternius | https://quaternius.com/packs/universalbasecharacters.html | CC0 1.0 | Bundled at assets/characters/ashen_hero.glb from pinned mirror commit a488723e3a93d73d5c562d88f8a85353c37bc721; material override applied in game; original GLB geometry and rig retained | Not required; Quaternius credited in game and source docs |\n
