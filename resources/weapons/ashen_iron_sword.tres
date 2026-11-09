@@ -1,0 +1,19 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/weapon_data.gd" id="1_weapon"]
+
+[resource]
+script = ExtResource("1_weapon")
+weapon_id = &"ashen_iron_sword"
+display_name = "Ashen Iron Sword"
+weapon_type = "straight_sword"
+base_damage = 28.0
+poise_damage = 18.0
+stamina_cost = 12.0
+attack_range = 2.5
+light_windup = 0.13
+light_active = 0.11
+light_recovery = 0.41
+strength_scaling = 0.7
+dexterity_scaling = 0.55
+description = "A serviceable blade salvaged from the armory of a fallen Ashen Kingdom watchpost. Its edge is worn, but its balance remains true."
