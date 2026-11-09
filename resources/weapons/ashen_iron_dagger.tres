@@ -1,0 +1,19 @@
+[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/weapon_data.gd" id="1_weapon"]
+
+[resource]
+script = ExtResource("1_weapon")
+weapon_id = &"ashen_watch_dagger"
+display_name = "Ashen Watch Dagger"
+weapon_type = "dagger"
+base_damage = 19.0
+poise_damage = 9.0
+stamina_cost = 8.0
+attack_range = 1.7
+light_windup = 0.08
+light_active = 0.08
+light_recovery = 0.24
+strength_scaling = 0.35
+dexterity_scaling = 0.9
+description = "A narrow sidearm carried by Ashen watch patrols. It trades reach and poise damage for quick recovery and low stamina cost."
