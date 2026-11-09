@@ -282,7 +282,7 @@ func _set_telegraph(active: bool) -> void:
         return
     enemy_visual.scale = Vector3(1.12, 0.94, 1.12) if active else Vector3.ONE
     if is_instance_valid(enemy_material):
-        var telegraph_color := Color(1.0, 0.12, 0.045) if current_attack_kind == "heavy_overhead" else Color(0.9, 0.32, 0.08)
+        var telegraph_color := Color(1.0, 0.12, 0.045) if current_attack_kind in ["heavy_overhead", "shield_bash"] else Color(0.9, 0.32, 0.08)
         enemy_material.albedo_color = telegraph_color if active else Color(0.42, 0.13, 0.11)
 
 func _flash_hit() -> void:
