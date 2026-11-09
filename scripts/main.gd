@@ -18,6 +18,7 @@ var guard_respawn_timer := 0.0
 var recovery_visual: MeshInstance3D
 var warden: StaticBody3D
 var ashen_regent: CharacterBody3D
+var throne_gate_door: StaticBody3D
 
 func _ready() -> void:
     _build_environment()
@@ -40,6 +41,8 @@ func _ready() -> void:
     _spawn_courtyard_enemy()
     _spawn_warden()
     _spawn_ashen_regent()
+    if _has_defeated_ashen_regent():
+        _open_throne_gate()
     GameState.recovery_changed.connect(_update_recovery_marker)
     GameState.sanctuary_restored.connect(_on_sanctuary_restored)
     _update_recovery_marker(GameState.get_recovery_position(), GameState.get_dropped_essence(), GameState.has_recovery())
@@ -250,13 +253,20 @@ func _build_ashen_approach() -> void:
     _add_box_structure("OuterCourtyard", Vector3(0.0, -0.5, -57.0), Vector3(24.0, 1.0, 18.0), Color(0.15, 0.14, 0.15), true)
     _add_box_structure("CourtyardWestWall", Vector3(-12.2, 1.1, -57.0), Vector3(0.8, 3.2, 18.0), Color(0.2, 0.18, 0.18), true)
     _add_box_structure("CourtyardEastWall", Vector3(12.2, 1.1, -57.0), Vector3(0.8, 3.2, 18.0), Color(0.2, 0.18, 0.18), true)
-    _add_box_structure("CourtyardNorthWall", Vector3(0.0, 1.1, -66.2), Vector3(24.0, 3.2, 0.8), Color(0.2, 0.18, 0.18), true)
+    _add_box_structure("CourtyardNorthWallWest", Vector3(-7.7, 1.1, -66.2), Vector3(8.6, 3.2, 0.8), Color(0.2, 0.18, 0.18), true)
+    _add_box_structure("CourtyardNorthWallEast", Vector3(7.7, 1.1, -66.2), Vector3(8.6, 3.2, 0.8), Color(0.2, 0.18, 0.18), true)
 
     # A sealed monumental gate is a visible destination, not a fake open exit.
     _add_box_structure("ThroneRoadGateLeft", Vector3(-3.6, 3.0, -65.4), Vector3(1.0, 6.0, 1.0), Color(0.28, 0.22, 0.19), true)
     _add_box_structure("ThroneRoadGateRight", Vector3(3.6, 3.0, -65.4), Vector3(1.0, 6.0, 1.0), Color(0.28, 0.22, 0.19), true)
     _add_box_structure("ThroneRoadGateHeader", Vector3(0.0, 5.8, -65.4), Vector3(8.2, 1.2, 1.0), Color(0.28, 0.22, 0.19), true)
     _add_box_structure("ThroneRoadSealedDoor", Vector3(0.0, 2.7, -65.4), Vector3(6.0, 5.2, 0.65), Color(0.12, 0.1, 0.12), true)
+    throne_gate_door = get_node_or_null("ThroneRoadSealedDoor") as StaticBody3D
+
+    # The road beyond the gate is built now; the boss defeat removes the sealed door.
+    _add_box_structure("ThroneRoadBeyondGate", Vector3(0.0, -0.5, -77.0), Vector3(8.5, 1.0, 22.0), Color(0.13, 0.12, 0.13), true)
+    _add_box_structure("ThroneRoadBeyondWestWall", Vector3(-4.8, 1.1, -77.0), Vector3(0.6, 3.2, 22.0), Color(0.19, 0.18, 0.19), true)
+    _add_box_structure("ThroneRoadBeyondEastWall", Vector3(4.8, 1.1, -77.0), Vector3(0.6, 3.2, 22.0), Color(0.19, 0.18, 0.19), true)
 
     _add_ashen_lantern(Vector3(-4.8, 0.0, -22.0))
     _add_ashen_lantern(Vector3(4.8, 0.0, -43.0))
@@ -337,6 +347,19 @@ func _spawn_ashen_regent() -> void:
     ashen_regent.set_script(REGENT_SCRIPT)
     ashen_regent.position = Vector3(0.0, 1.0, -61.0)
     add_child(ashen_regent)
+    ashen_regent.connect("boss_defeated", _open_throne_gate)
+
+func _has_defeated_ashen_regent() -> bool:
+    var defeated: Array = GameState.data.get("defeated_bosses", [])
+    return defeated.has("ashen_regent")
+
+func _open_throne_gate() -> void:
+    if is_instance_valid(throne_gate_door):
+        throne_gate_door.queue_free()
+    var flags: Dictionary = GameState.data.get("world_flags", {})
+    flags["ashen_gate_open"] = true
+    GameState.data["world_flags"] = flags
+    GameState.save_game()
 
 func _spawn_courtyard_enemy() -> void:
     courtyard_enemy = CharacterBody3D.new()
