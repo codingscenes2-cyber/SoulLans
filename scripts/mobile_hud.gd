@@ -4,6 +4,8 @@ const JOYSTICK_SCRIPT = preload("res://scripts/mobile_joystick.gd")
 
 var player: Node
 var status_label: Label
+var message_label: Label
+var message_timer := 0.0
 
 func _ready() -> void:
     var root := Control.new()
@@ -19,6 +21,15 @@ func _ready() -> void:
     status_label.add_theme_font_size_override("font_size", 18)
     status_label.add_theme_color_override("font_color", Color(0.92, 0.88, 0.78))
     root.add_child(status_label)
+
+    message_label = Label.new()
+    message_label.position = Vector2(22, 78)
+    message_label.size = Vector2(620, 90)
+    message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    message_label.add_theme_font_size_override("font_size", 17)
+    message_label.add_theme_color_override("font_color", Color(0.98, 0.84, 0.62))
+    message_label.visible = false
+    root.add_child(message_label)
 
     _add_button(root, "ATTACK", Vector2(-142, -150), "attack", Vector2(112, 68), true)
     _add_button(root, "HEAVY", Vector2(-142, -225), "heavy_attack", Vector2(112, 56), true)
@@ -51,7 +62,11 @@ func _ready() -> void:
     _add_level_button(level_controls, "DEX", "level_dexterity")
     _add_button(root, "RUN", Vector2(205, -92), "sprint", Vector2(86, 52), false)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+    if message_timer > 0.0:
+        message_timer = maxf(0.0, message_timer - delta)
+        if message_timer <= 0.0:
+            message_label.visible = false
     if is_instance_valid(player) and player.has_method("get_status"):
         var data: Dictionary = player.get_status()
         status_label.text = "SOUL LAND   LVL %d   HP %d/%d   STA %d/%d   SOULS %d   NEXT %d   FLASKS %d/%d" % [
@@ -59,6 +74,13 @@ func _process(_delta: float) -> void:
         ]
         if player.has_method("get_weapon_name"):
             status_label.text += "   " + player.get_weapon_name()
+
+func show_message(message: String) -> void:
+    if not is_instance_valid(message_label):
+        return
+    message_label.text = message
+    message_label.visible = true
+    message_timer = 7.0
 
 func _on_root_gui_input(event: InputEvent) -> void:
     if event is InputEventScreenDrag:
