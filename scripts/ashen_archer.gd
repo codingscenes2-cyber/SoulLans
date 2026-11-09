@@ -30,20 +30,20 @@ func _ready() -> void:
         enemy_material.albedo_color = Color(0.38, 0.19, 0.11)
     _create_bow_visual()
 
-func _physics_process(delta: float) -> void:
-    if state == State.DEAD:
-        super._physics_process(delta)
-        return
-    if is_instance_valid(player):
-        var distance := global_position.distance_to(player.global_position)
-        if distance < retreat_range and state not in [State.WINDUP, State.RECOVERY, State.STAGGER]:
-            var away := global_position - player.global_position
+func _should_begin_attack(distance: float) -> bool:
+    return distance <= preferred_range and distance >= retreat_range
+
+func _get_chase_destination() -> Vector3:
+    if not is_instance_valid(player):
+        return global_position
+    var away := global_position - player.global_position
+    away.y = 0.0
+    if away.length() < retreat_range:
+        if away.length() <= 0.01:
+            away = -global_transform.basis.z
             away.y = 0.0
-            if away.length() > 0.01:
-                retreat_direction = away.normalized()
-                velocity.x = retreat_direction.x * chase_speed * 0.85
-                velocity.z = retreat_direction.z * chase_speed * 0.85
-    super._physics_process(delta)
+        return global_position + away.normalized() * (retreat_range + 1.0)
+    return player.global_position
 
 # Parent attack timing calls this once at the end of the visible wind-up.
 # Returning false prevents its melee damage path; the firebolt handles impact.
