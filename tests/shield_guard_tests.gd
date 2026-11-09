@@ -16,6 +16,17 @@ func _run() -> void:
     root.add_child(guard)
     await process_frame
 
+    guard._begin_attack(2.0)
+    if guard.current_attack_kind != "shield_bash" or guard.current_attack_damage <= guard.attack_damage:
+        push_error("Shield Guard must use its distinct, heavier shield-bash attack profile.")
+        quit(1)
+        return
+    if not is_equal_approx(guard.state_timer, 0.72):
+        push_error("Shield bash must have its own readable wind-up timing.")
+        quit(1)
+        return
+    guard.state = guard.State.IDLE
+    guard.state_timer = 0.0
     var starting_health: float = guard.health
     var original_guard_color: Color = guard.enemy_material.albedo_color
     guard.take_damage(40.0, 20.0)
