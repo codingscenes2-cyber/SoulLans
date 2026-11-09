@@ -58,8 +58,8 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 
 ## 6. RPG systems
 - [ ] Character creation and eight starting classes.
-- [ ] Vigor, Endurance, Strength, Dexterity, Intelligence, Faith, Arcana and Mind.
-- [x] Soul Essence reward, death-drop and recovery prototype.- [ ] Soul Essence levelling and upgrade costs.
+- [x] Vigor, Endurance, Strength and Dexterity attributes with Sanctuary-only Soul Essence levelling and weapon scaling.\n- [ ] Intelligence, Faith, Arcana and Mind.
+- [x] Soul Essence reward, death-drop and recovery prototype.- [x] Soul Essence level-up cost curve and attribute spending prototype.
 - [ ] Inventory, equipment, equip load and consumables.
 - [ ] Weapon/armour upgrades, infusions, relics and talismans.
 - [ ] Spell schools, focus resource and status effects.
