@@ -9,7 +9,7 @@ Complete a small, tested vertical slice before expanding into a large world. Do 
 - [x] Placeholder player, enemy and touch HUD.
 - [x] Validate project import and parser in Godot 4.x through GitHub Actions headless import.
 - [x] Add an arm64 Android debug export preset and a GitHub Actions export workflow.
-- [x] Export ARM64 PBR debug APK source candidate (run #12; 1K CC0 PBR maps imported; versioned 0.3.0 rebuild and signature verification pending).
+- [x] Export and explicitly apksigner-verify ARM64 PBR debug APK 0.3.0 (run #14; six 1K CC0 PBR maps imported; device install pending).
 - [ ] Install and test on target hardware, including sensor-landscape rotation.
 - [x] Add automated headless import/startup check to CI; latest recorded runs passed.
 
