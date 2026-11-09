@@ -8,6 +8,9 @@ var message_label: Label
 var quest_label: Label
 var boss_label: Label
 var boss_health_bar: ProgressBar
+var inventory_panel: PanelContainer
+var inventory_list: VBoxContainer
+var inventory_refresh_timer := 0.0
 var message_timer := 0.0
 
 func _ready() -> void:
@@ -75,6 +78,8 @@ func _ready() -> void:
     _add_button(root, "REST / USE", Vector2(-270, -286), "interact", Vector2(112, 54), true)
     _add_button(root, "WEAPON", Vector2(-142, -350), "switch_weapon", Vector2(96, 52), true)
     _add_button(root, "FLASK", Vector2(-265, -350), "heal", Vector2(104, 52), true)
+    _add_button(root, "BAG", Vector2(-270, -415), "inventory", Vector2(104, 48), true)
+    _create_inventory_panel(root)
     var joystick := Control.new()
     joystick.name = "MovementJoystick"
     joystick.set_script(JOYSTICK_SCRIPT)
@@ -103,6 +108,11 @@ func _process(delta: float) -> void:
         if message_timer <= 0.0:
             message_label.visible = false
     _update_boss_hud()
+    if inventory_panel.visible:
+        inventory_refresh_timer += delta
+        if inventory_refresh_timer >= 0.5:
+            inventory_refresh_timer = 0.0
+            _refresh_inventory_panel()
     var quest: Dictionary = GameState.get_quest_state("ashen_sigils")
     var quest_status := str(quest.get("status", "not_started"))
     if quest_status == "active":
@@ -121,6 +131,110 @@ func _process(delta: float) -> void:
         ]
         if player.has_method("get_weapon_name"):
             status_label.text += "   " + player.get_weapon_name()
+
+func _create_inventory_panel(root: Control) -> void:
+    inventory_panel = PanelContainer.new()
+    inventory_panel.name = "InventoryPanel"
+    inventory_panel.anchor_left = 0.5
+    inventory_panel.anchor_right = 0.5
+    inventory_panel.anchor_top = 0.5
+    inventory_panel.anchor_bottom = 0.5
+    inventory_panel.offset_left = -245.0
+    inventory_panel.offset_right = 245.0
+    inventory_panel.offset_top = -225.0
+    inventory_panel.offset_bottom = 225.0
+    inventory_panel.visible = false
+    root.add_child(inventory_panel)
+
+    var layout := VBoxContainer.new()
+    layout.add_theme_constant_override("separation", 10)
+    inventory_panel.add_child(layout)
+    var heading := HBoxContainer.new()
+    layout.add_child(heading)
+    var title := Label.new()
+    title.text = "INVENTORY  /  EQUIPMENT"
+    title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    title.add_theme_font_size_override("font_size", 20)
+    heading.add_child(title)
+    var close_button := Button.new()
+    close_button.text = "CLOSE"
+    close_button.pressed.connect(func() -> void: toggle_inventory(false))
+    heading.add_child(close_button)
+
+    var hint := Label.new()
+    hint.text = "Weapons change your damage, reach and attack timing. Materials are saved automatically."
+    hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    hint.add_theme_font_size_override("font_size", 13)
+    layout.add_child(hint)
+    var scroll := ScrollContainer.new()
+    scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+    layout.add_child(scroll)
+    inventory_list = VBoxContainer.new()
+    inventory_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    scroll.add_child(inventory_list)
+
+func toggle_inventory(force_open: bool = false) -> void:
+    if not is_instance_valid(inventory_panel):
+        return
+    inventory_panel.visible = force_open or not inventory_panel.visible
+    if inventory_panel.visible:
+        _refresh_inventory_panel()
+
+func _refresh_inventory_panel() -> void:
+    if not is_instance_valid(inventory_list):
+        return
+    for child in inventory_list.get_children():
+        inventory_list.remove_child(child)
+        child.queue_free()
+    var equipped_id := GameState.get_equipped_weapon_id()
+    var equipment_title := Label.new()
+    equipment_title.text = "EQUIPPED  " + str(GameState.get_item_info(equipped_id).get("name", "Unarmed"))
+    equipment_title.add_theme_color_override("font_color", Color(0.95, 0.78, 0.48))
+    inventory_list.add_child(equipment_title)
+    for entry in GameState.get_inventory():
+        if not entry is Dictionary:
+            continue
+        var item_id := str(entry.get("id", ""))
+        var quantity := int(entry.get("quantity", 0))
+        var info := GameState.get_item_info(item_id)
+        if info.is_empty() or quantity <= 0:
+            continue
+        var row := HBoxContainer.new()
+        row.add_theme_constant_override("separation", 8)
+        inventory_list.add_child(row)
+        var details := Label.new()
+        details.text = "%s  x%d\n%s" % [str(info.get("name", item_id)), quantity, str(info.get("description", ""))]
+        details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+        details.custom_minimum_size = Vector2(260.0, 48.0)
+        details.add_theme_font_size_override("font_size", 14)
+        row.add_child(details)
+        var item_type := str(info.get("type", ""))
+        if item_type == "weapon":
+            var equip_button := Button.new()
+            equip_button.text = "EQUIPPED" if item_id == equipped_id else "EQUIP"
+            equip_button.disabled = item_id == equipped_id
+            equip_button.pressed.connect(_on_inventory_equip.bind(item_id))
+            row.add_child(equip_button)
+        elif item_type == "consumable" and item_id == "ashen_tonic":
+            var use_button := Button.new()
+            use_button.text = "USE"
+            use_button.pressed.connect(_on_inventory_use.bind(item_id))
+            row.add_child(use_button)
+
+func _on_inventory_equip(item_id: String) -> void:
+    if is_instance_valid(player) and player.has_method("equip_weapon_by_id"):
+        if player.equip_weapon_by_id(item_id):
+            show_message("Equipped " + str(GameState.get_item_info(item_id).get("name", item_id)) + ".")
+            _refresh_inventory_panel()
+
+func _on_inventory_use(item_id: String) -> void:
+    if is_instance_valid(player) and player.has_method("use_inventory_item"):
+        if player.use_inventory_item(item_id):
+            show_message("Used " + str(GameState.get_item_info(item_id).get("name", item_id)) + ".")
+            _refresh_inventory_panel()
+        else:
+            show_message("Cannot use this item right now.")
 
 func _update_boss_hud() -> void:
     var visible_boss: Node
