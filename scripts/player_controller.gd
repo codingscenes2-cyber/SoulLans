@@ -48,6 +48,9 @@ var invulnerability_timer := 0.0
 var parry_timer := 0.0
 var is_blocking := false
 var guard_broken_timer := 0.0
+var armor_defense := 0.0
+var equip_load := 0.0
+var equip_load_tier := "light"
 
 func _ready() -> void:
     add_to_group("player")
@@ -56,6 +59,7 @@ func _ready() -> void:
     equipped_weapon = WEAPON_CATALOG[weapon_index]
     equip_weapon_by_id(GameState.get_equipped_weapon_id(), false)
     _apply_attributes(false)
+    _refresh_armor_stats()
     _setup_input_map()
     _create_placeholder_body()
     _create_camera_rig()
@@ -123,10 +127,12 @@ func _physics_process(delta: float) -> void:
     var sprinting := Input.is_action_pressed("sprint") and stamina > 1.0 and direction.length() > 0.1
 
     if dodge_timer > 0.0:
-        velocity.x = dodge_direction.x * dodge_speed
-        velocity.z = dodge_direction.z * dodge_speed
+        var dodge_multiplier := get_dodge_load_multiplier()
+        velocity.x = dodge_direction.x * dodge_speed * dodge_multiplier
+        velocity.z = dodge_direction.z * dodge_speed * dodge_multiplier
     else:
         var speed := sprint_speed if sprinting else move_speed
+        speed *= get_movement_load_multiplier()
         if attack_cooldown > 0.0:
             speed *= attack_movement_multiplier
         if sprinting:
@@ -245,6 +251,34 @@ func upgrade_weapon_by_id(item_id: String) -> bool:
         return false
     stats_changed.emit(health, stamina)
     return true
+
+func equip_armor_by_id(item_id: String) -> bool:
+    if attack_cooldown > 0.0 or not GameState.equip_armor(item_id):
+        return false
+    _refresh_armor_stats()
+    stats_changed.emit(health, stamina)
+    return true
+
+func _refresh_armor_stats() -> void:
+    var armor: Dictionary = GameState.get_armor_stats()
+    armor_defense = maxf(0.0, float(armor.get("defense", 0.0)))
+    equip_load = maxf(0.0, float(armor.get("weight", 0.0)))
+    equip_load_tier = "light" if equip_load <= 4.0 else ("medium" if equip_load <= 8.0 else "heavy")
+
+func get_movement_load_multiplier() -> float:
+    match equip_load_tier:
+        "medium": return 0.92
+        "heavy": return 0.78
+    return 1.0
+
+func get_dodge_load_multiplier() -> float:
+    match equip_load_tier:
+        "medium": return 0.86
+        "heavy": return 0.68
+    return 1.0
+
+func get_damage_reduction() -> float:
+    return minf(0.65, armor_defense / (armor_defense + 100.0))
 
 func use_inventory_item(item_id: String) -> bool:
     if item_id == "ashen_tonic":
@@ -407,9 +441,9 @@ func take_damage(amount: float, attacker: Node3D = null) -> void:
         stamina = 0.0
         guard_broken_timer = 1.1
         is_blocking = false
-        health = maxf(0.0, health - minf(amount, overflow / 1.35 + amount * 0.25))
+        health = maxf(0.0, health - minf(amount, overflow / 1.35 + amount * 0.25) * (1.0 - get_damage_reduction()))
     else:
-        health = maxf(0.0, health - amount)
+        health = maxf(0.0, health - amount * (1.0 - get_damage_reduction()))
     stats_changed.emit(health, stamina)
     if health <= 0.0:
         died.emit()
@@ -453,7 +487,7 @@ func apply_saved_state(saved: Dictionary) -> void:
     stats_changed.emit(health, stamina)
 
 func get_status() -> Dictionary:
-    return {"health": health, "max_health": max_health, "stamina": stamina, "max_stamina": max_stamina, "level": GameState.get_player_level(), "soul_essence": GameState.get_soul_essence(), "next_level_cost": GameState.get_next_level_cost(), "healing_flasks": GameState.get_healing_flasks(), "max_healing_flasks": GameState.get_max_healing_flasks()}
+    return {"health": health, "max_health": max_health, "stamina": stamina, "max_stamina": max_stamina, "level": GameState.get_player_level(), "soul_essence": GameState.get_soul_essence(), "next_level_cost": GameState.get_next_level_cost(), "healing_flasks": GameState.get_healing_flasks(), "max_healing_flasks": GameState.get_max_healing_flasks(), "armor_defense": armor_defense, "damage_reduction": get_damage_reduction(), "equip_load": equip_load, "equip_load_tier": equip_load_tier}
 
 func _create_placeholder_body() -> void:
     # Load the licensed humanoid when the asset pipeline has supplied it.
