@@ -57,6 +57,10 @@ func _run() -> void:
         return
     var scrap_after := GameState.get_item_count("ashen_scrap")
     var plates_after := GameState.get_item_count("tempered_plate")
+    if GameState.get_soul_essence() != reward_essence_before + 250 or scrap_after != reward_scrap_before + 4 or plates_after != reward_plates_before + 2:
+        push_error("Final encounter reward must grant exactly 250 essence, four scrap and two plates.")
+        quit(1)
+        return
     director.reset_encounter()
     director.update_encounter(0.016)
     if director.encounter_state != director.EncounterState.COMPLETE:
